@@ -27,10 +27,10 @@ redirect_from:
 
 <h2 id="news"><span class="i18n-en">News</span><span class="i18n-zh">动态</span></h2>
 <ul>
-  <li><strong>2026</strong> — <span class="i18n-en">Two papers (<em>Hi-EF</em> and <em>CADiff</em>) accepted to <strong>AAAI 2026</strong>.</span><span class="i18n-zh">两篇论文（<em>Hi-EF</em> 与 <em>CADiff</em>）被 <strong>AAAI 2026</strong> 接收。</span></li>
   <li><strong>2025.12</strong> — <span class="i18n-en">Released <a href="https://arxiv.org/abs/2512.01311"><em>CuES</em></a>, a curiosity-driven, environment-grounded synthesis framework for Agentic RL.</span><span class="i18n-zh">发布 <a href="https://arxiv.org/abs/2512.01311"><em>CuES</em></a>：面向 Agentic RL 的好奇心驱动、环境接地的数据合成框架。</span></li>
   <li><strong>2025.11</strong> — <span class="i18n-en">Released <a href="https://github.com/modelscope/AgentEvolver"><em>AgentEvolver</em></a>, an efficient self-evolving agent system.</span><span class="i18n-zh">发布 <a href="https://github.com/modelscope/AgentEvolver"><em>AgentEvolver</em></a>：高效自进化智能体系统。</span></li>
-  <li><strong>2025.10</strong> — New preprint <em>When Small Models Team Up</em>: a weak-expert ensemble surpassing LLMs for automated intellectual-property audits (under review at <strong>ICLR 2026</strong>; deployed at TikTok).</li>
+  <li><strong>2025.11</strong> — <span class="i18n-en"><em>Hi-EF</em> accepted to <strong>AAAI 2026</strong>.</span><span class="i18n-zh"><em>Hi-EF</em> 被 <strong>AAAI 2026</strong> 接收。</span></li>
+  <li><strong>2025.10</strong> — New preprint <em>When Small Models Team Up</em>: a weak-expert ensemble surpassing LLMs for automated intellectual-property audits (deployed at TikTok).</li>
   <li><strong>2025.09</strong> — <em>Agent RL Scaling Law</em> — RL with spontaneous code execution for mathematical problem solving — accepted to <strong>NeurIPS 2025</strong>.</li>
   <li><strong>2025</strong> — <span class="i18n-en"><em>OUS</em> accepted to <strong>AAAI 2025</strong>.</span><span class="i18n-zh"><em>OUS</em> 被 <strong>AAAI 2025</strong> 接收。</span></li>
   <li><strong>2024</strong> — <span class="i18n-en"><em>All Rivers Run into the Sea</em> accepted to <strong>ACM MM 2024</strong>.</span><span class="i18n-zh"><em>All Rivers Run into the Sea</em> 被 <strong>ACM MM 2024</strong> 接收。</span></li>
