@@ -28,11 +28,6 @@ redirect_from:
   <li><span class="i18n-en">Agentic Reinforcement Learning</span><span class="i18n-zh">智能体强化学习</span></li>
 </ul>
 
-<h2><span class="i18n-en">Selected Metrics</span><span class="i18n-zh">学术指标</span></h2>
-<ul>
-  <li><span class="i18n-en">~324 citations, h-index 9, i10-index 8 (Google Scholar).</span><span class="i18n-zh">Google Scholar 引用约 324，h-index 9，i10-index 8。</span></li>
-</ul>
-
 <h2><span class="i18n-en">Publications</span><span class="i18n-zh">论文</span></h2>
   <ul>{% for post in site.publications reversed %}
     {% include archive-single-cv.html %}

@@ -28,7 +28,7 @@ author:
   pronouns         : # example: "she/her"  
   bio              : '<span class="i18n-en">Researcher in Agentic Reinforcement Learning.</span><span class="i18n-zh">智能体强化学习方向研究者。</span>'
   location         : '<span class="i18n-en">Shanghai, China</span><span class="i18n-zh">中国·上海</span>'
-  employer         : '<span class="i18n-en">Alibaba Group / Fudan University</span><span class="i18n-zh">阿里巴巴集团 / 复旦大学</span>'
+  employer         : '<span class="i18n-en">Tongyi Lab, Alibaba Group</span><span class="i18n-zh">阿里巴巴集团 通义实验室</span>'
   uri              : # URL
   email            : "xjmai23@m.fudan.edu.cn" 
 
@@ -85,7 +85,7 @@ author:
   zhihu            : # Username
 
 # Publication Category - The following the list of publication categories and their headings
-publication_category:
+publication_category_disabled:
   books:
     title: 'Conference & Journal Papers'
   manuscripts:

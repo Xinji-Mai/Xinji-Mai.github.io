@@ -1,6 +1,5 @@
 # The order of the links in the header of the website.
-# Each item has an English `title` and a Chinese `title_zh`; the masthead renders
-# both and the language toggle (top-right) shows whichever matches the active language.
+# Each item has an English `title` and a Chinese `title_zh`; the language toggle shows the active one.
 
 main:
   - title: "Publications"
@@ -13,8 +12,12 @@ main:
 
   - title: "News"
     title_zh: "动态"
-    url: /year-archive/
+    url: /#news
 
   - title: "CV"
     title_zh: "简历"
     url: /cv/
+
+  - title: "Tasty"
+    title_zh: "小游戏"
+    url: /game/
