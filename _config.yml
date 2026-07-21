@@ -23,7 +23,7 @@ repository               : "Xinji-Mai/Xinji-Mai.github.io"
 #               Additional customization can be done by editing /_includes/author-profile.html
 author:
   # Biographic information
-  avatar           : "scholar-avatar.jpg"
+  avatar           : "https://avatars.githubusercontent.com/u/77739588?v=4"
   name             : "Xinji Mai 麦新纪"
   pronouns         : # example: "she/her"  
   bio              : '<span class="i18n-en">Researcher in Multimodal LLMs &amp; Agentic RL.</span><span class="i18n-zh">多模态大模型与智能体强化学习方向研究者。</span>'
