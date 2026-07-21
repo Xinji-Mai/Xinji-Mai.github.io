@@ -9,10 +9,10 @@
 # Basic Site Settings
 locale                   : "en-US"
 site_theme               : "default" # The available themes options are "default", "air", "sunrise", "mint", "dirt" and "contrast"
-title                    : "Xinji Mai 麦新纪"
+title                    : "Xinji Mai"
 title_separator          : "-"
 name                     : &name "Xinji Mai"
-description              : &description "Xinji Mai (麦新纪) — Researcher in Multimodal LLMs and Agentic Reinforcement Learning."
+description              : &description "Xinji Mai — Researcher in Agentic Reinforcement Learning."
 url                      : https://xinji-mai.github.io # The base hostname & protocol for your site e.g. "https://[your GitHub username].github.io",
                                                            # or if you already have some other page hosted on Github then use "https://[your GitHub username].github.io/[Your Repo Name]"
 baseurl                  : "" # the subpath of your site, e.g. "/blog"
@@ -24,9 +24,9 @@ repository               : "Xinji-Mai/Xinji-Mai.github.io"
 author:
   # Biographic information
   avatar           : "https://avatars.githubusercontent.com/u/77739588?v=4"
-  name             : "Xinji Mai 麦新纪"
+  name             : "Xinji Mai"
   pronouns         : # example: "she/her"  
-  bio              : '<span class="i18n-en">Researcher in Multimodal LLMs &amp; Agentic RL.</span><span class="i18n-zh">多模态大模型与智能体强化学习方向研究者。</span>'
+  bio              : '<span class="i18n-en">Researcher in Agentic Reinforcement Learning.</span><span class="i18n-zh">智能体强化学习方向研究者。</span>'
   location         : '<span class="i18n-en">Shanghai, China</span><span class="i18n-zh">中国·上海</span>'
   employer         : '<span class="i18n-en">Alibaba Group / Fudan University</span><span class="i18n-zh">阿里巴巴集团 / 复旦大学</span>'
   uri              : # URL

@@ -1,6 +1,6 @@
 # Xinji-Mai.github.io
 
-Personal academic homepage of **Xinji Mai (麦新纪)** — Researcher in Multimodal LLMs and
+Personal academic homepage of **Xinji Mai** — Researcher in
 Agentic Reinforcement Learning. Built on the [Academic Pages](https://github.com/academicpages/academicpages.github.io)
 Jekyll template (a fork of [Minimal Mistakes](https://github.com/mmistakes/minimal-mistakes)),
 hosted on **GitHub Pages**.

@@ -1,7 +1,7 @@
 ---
 permalink: /
-title: "Xinji Mai (麦新纪)"
-excerpt: "Researcher in Multimodal LLMs and Agentic Reinforcement Learning."
+title: "Xinji Mai"
+excerpt: "Researcher in Agentic Reinforcement Learning."
 author_profile: true
 redirect_from:
   - /about/
@@ -14,18 +14,15 @@ redirect_from:
   To edit, just update the matching pair of <span>/<p>/<li> elements.
 -->
 
-<p class="i18n-en">I am a researcher working on <strong>Multimodal Large Language Models (MLLMs)</strong> and <strong>Agentic Reinforcement Learning</strong>. My recent work centers on self-evolving agent systems, reasoning, and scaling laws for agentic RL. Earlier, I worked extensively on affective computing and dynamic facial expression recognition.</p>
-<p class="i18n-zh">我是一名研究者，方向为<strong>多模态大语言模型（MLLMs）</strong>与<strong>智能体强化学习（Agentic RL）</strong>。近期工作聚焦于自进化智能体系统、推理，以及 Agentic RL 的规模化规律；早期主要从事情感计算与动态人脸表情识别研究。</p>
+<p class="i18n-en">I am a researcher working on <strong>Agentic Reinforcement Learning</strong>. My recent work centers on self-evolving agent systems, reasoning, and scaling laws for agentic RL. Earlier, I worked extensively on affective computing and dynamic facial expression recognition.</p>
+<p class="i18n-zh">我是一名研究者，研究方向为<strong>智能体强化学习（Agentic RL）</strong>。近期工作聚焦于自进化智能体系统、推理，以及 Agentic RL 的规模化规律；早期主要从事情感计算与动态人脸表情识别研究。</p>
 
 <p class="i18n-en">I received my B.S. in Microelectronics from <strong>Sun Yat-sen University</strong> and my M.S. in Computer Science from <strong>Fudan University</strong>. I am currently affiliated with <strong>Alibaba Group</strong>.</p>
 <p class="i18n-zh">我本科毕业于<strong>中山大学</strong>微电子科学与工程专业，硕士毕业于<strong>复旦大学</strong>计算机科学专业，目前在<strong>阿里巴巴集团</strong>从事研究工作。</p>
 
 <h2><span class="i18n-en">Research Interests</span><span class="i18n-zh">研究方向</span></h2>
 <ul>
-  <li><span class="i18n-en">Multimodal Large Language Models</span><span class="i18n-zh">多模态大语言模型</span></li>
-  <li><span class="i18n-en">Agentic Reinforcement Learning &amp; Self-Evolving Agents</span><span class="i18n-zh">智能体强化学习与自进化智能体</span></li>
-  <li><span class="i18n-en">Reasoning &amp; World Models</span><span class="i18n-zh">推理与世界模型</span></li>
-  <li><span class="i18n-en">Affective Computing</span><span class="i18n-zh">情感计算</span></li>
+  <li><span class="i18n-en">Agentic Reinforcement Learning</span><span class="i18n-zh">智能体强化学习</span></li>
 </ul>
 
 <h2><span class="i18n-en">Highlights</span><span class="i18n-zh">亮点</span></h2>

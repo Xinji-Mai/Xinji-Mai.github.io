@@ -25,7 +25,7 @@ redirect_from:
 
 <h2><span class="i18n-en">Research Interests</span><span class="i18n-zh">研究方向</span></h2>
 <ul>
-  <li><span class="i18n-en">Multimodal LLMs · Agentic RL · Reasoning · World Models · Affective Computing</span><span class="i18n-zh">多模态大模型 · 智能体强化学习 · 推理 · 世界模型 · 情感计算</span></li>
+  <li><span class="i18n-en">Agentic Reinforcement Learning</span><span class="i18n-zh">智能体强化学习</span></li>
 </ul>
 
 <h2><span class="i18n-en">Selected Metrics</span><span class="i18n-zh">学术指标</span></h2>
