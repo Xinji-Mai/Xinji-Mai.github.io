@@ -9,56 +9,36 @@ redirect_from:
 
 {% include base_path %}
 
-Education
-======
-* Ph.D in Version Control Theory, GitHub University, 2018 (expected)
-* M.S. in Jekyll, GitHub University, 2014
-* B.S. in GitHub, GitHub University, 2012
+<p class="i18n-en">You can also find my work on <a href="https://scholar.google.com/citations?user=6yh67YwAAAAJ">Google Scholar</a> and <a href="https://dblp.org/pid/371/9725">DBLP</a>.</p>
+<p class="i18n-zh">你也可以在 <a href="https://scholar.google.com/citations?user=6yh67YwAAAAJ">Google Scholar</a> 与 <a href="https://dblp.org/pid/371/9725">DBLP</a> 查看我的工作。</p>
 
-Work experience
-======
-* Spring 2024: Academic Pages Collaborator
-  * Github University
-  * Duties includes: Updates and improvements to template
-  * Supervisor: The Users
+<h2><span class="i18n-en">Education</span><span class="i18n-zh">教育经历</span></h2>
+<ul>
+  <li><span class="i18n-en">M.S. in Computer Science, Fudan University</span><span class="i18n-zh">硕士，计算机科学，复旦大学</span></li>
+  <li><span class="i18n-en">B.S. in Microelectronics, Sun Yat-sen University</span><span class="i18n-zh">学士，微电子科学与工程，中山大学</span></li>
+</ul>
 
-* Fall 2015: Research Assistant
-  * Github University
-  * Duties included: Merging pull requests
-  * Supervisor: Professor Hub
+<h2><span class="i18n-en">Experience</span><span class="i18n-zh">研究 / 工作经历</span></h2>
+<ul>
+  <li><span class="i18n-en">Research on multimodal LLMs and agentic reinforcement learning, <strong>Alibaba Group</strong>.</span><span class="i18n-zh">多模态大模型与智能体强化学习研究，<strong>阿里巴巴集团</strong>。</span></li>
+</ul>
 
-* Summer 2015: Research Assistant
-  * Github University
-  * Duties included: Tagging issues
-  * Supervisor: Professor Git
-  
-Skills
-======
-* Skill 1
-* Skill 2
-  * Sub-skill 2.1
-  * Sub-skill 2.2
-  * Sub-skill 2.3
-* Skill 3
+<h2><span class="i18n-en">Research Interests</span><span class="i18n-zh">研究方向</span></h2>
+<ul>
+  <li><span class="i18n-en">Multimodal LLMs · Agentic RL · Reasoning · World Models · Affective Computing</span><span class="i18n-zh">多模态大模型 · 智能体强化学习 · 推理 · 世界模型 · 情感计算</span></li>
+</ul>
 
-Publications
-======
+<h2><span class="i18n-en">Selected Metrics</span><span class="i18n-zh">学术指标</span></h2>
+<ul>
+  <li><span class="i18n-en">~324 citations, h-index 9, i10-index 8 (Google Scholar).</span><span class="i18n-zh">Google Scholar 引用约 324，h-index 9，i10-index 8。</span></li>
+</ul>
+
+<h2><span class="i18n-en">Publications</span><span class="i18n-zh">论文</span></h2>
   <ul>{% for post in site.publications reversed %}
     {% include archive-single-cv.html %}
   {% endfor %}</ul>
-  
-Talks
-======
-  <ul>{% for post in site.talks reversed %}
-    {% include archive-single-talk-cv.html  %}
-  {% endfor %}</ul>
-  
-Teaching
-======
-  <ul>{% for post in site.teaching reversed %}
-    {% include archive-single-cv.html %}
-  {% endfor %}</ul>
-  
-Service and leadership
-======
-* Currently signed in to 43 different slack teams
+
+<h2><span class="i18n-en">Service</span><span class="i18n-zh">学术服务</span></h2>
+<ul>
+  <li><span class="i18n-en">Reviewer / program committee — edit to fill in.</span><span class="i18n-zh">审稿人 / 程序委员会 —— 请按实际填写。</span></li>
+</ul>
