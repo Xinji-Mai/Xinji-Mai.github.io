@@ -6,24 +6,22 @@ author_profile: false
 
 <p><strong>Terramai</strong> is a tiny 2D pixel sandbox game played entirely by an AI agent on its own — it explores the world, mines ore, fights monsters, loots chests, upgrades its gear, and seeks the hidden Grand Gem. Every map is procedurally generated. When the agent dies it drops all its equipment (grab the 🎒 to recover it) and auto-respawns.</p>
 
-<p id="tw-keys"><b>Controls</b> — <kbd>M</kbd> toggle world map ·
-Agent runs itself by default; click <b>🎮 Mode</b> to take over manually:
-<kbd>←</kbd><kbd>→</kbd>/<kbd>A</kbd><kbd>D</kbd> move · <kbd>↑</kbd>/<kbd>W</kbd>/<kbd>Space</kbd> jump ·
-<kbd>X</kbd>/<kbd>J</kbd> attack · <kbd>Z</kbd>/<kbd>K</kbd>/<kbd>↓</kbd> mine.
-The <b>🧠 LLM</b> button lets a real model take over the agent's high-level goals.</p>
+<p id="tw-keys"><b>Controls</b> — <kbd>M</kbd> toggle world map · the <b>Mode</b> button cycles
+<b>AUTO</b> (local BFS+FSM brain) → <b>LLM</b> (a model picks the goals) → <b>MANUAL</b>.
+In MANUAL: <kbd>←</kbd><kbd>→</kbd>/<kbd>A</kbd><kbd>D</kbd> move · <kbd>↑</kbd>/<kbd>W</kbd>/<kbd>Space</kbd> jump ·
+<kbd>X</kbd>/<kbd>J</kbd> attack · <kbd>Z</kbd>/<kbd>K</kbd>/<kbd>↓</kbd> mine.</p>
 
 <div id="tw-wrap">
   <div id="tw-top">
     <div id="tw-hp"><div id="tw-hpbar"></div></div>
     <span id="tw-gear">⛏️Lv1 🗡️Lv1 🛡️Lv0 💎0 🏆0</span>
-    <button id="tw-mode" type="button">🤖 Agent: AUTO</button>
-    <button id="tw-llm" type="button">🧠 LLM: OFF</button>
+    <button id="tw-mode" type="button">🤖 Mode: AUTO</button>
     <button id="tw-new" type="button">🔄 New World</button>
     <span id="tw-state">AUTO</span>
   </div>
   <canvas id="tw-canvas" width="880" height="480"></canvas>
   <p id="tw-brain">Agent brain: <b>BFS pathfinding + frontier exploration + finite-state machine</b>
-  (switching between Explore · Seek-Goal · Fight · Flee · Dig · Surface), all on-device. Turning on
+  (switching between Explore · Seek-Goal · Fight · Flee · Dig · Surface), all on-device. Switching <b>Mode</b> to
   <b>🧠 LLM</b> lets a model pick the high-level goal &amp; narrate its thoughts — the banner shows which
   model is in control.</p>
 </div>
@@ -37,7 +35,7 @@ The <b>🧠 LLM</b> button lets a real model take over the agent's high-level go
 #tw-state{color:#888;font-size:.75rem;margin-left:auto}
 #tw-top button{border:1px solid rgba(128,128,128,.4);border-radius:8px;background:transparent;color:inherit;padding:.25rem .6rem;font-size:.8rem;cursor:pointer}
 #tw-top button:hover{border-color:#2563eb;color:#2563eb}
-#tw-top #tw-llm.on{border-color:#7b3fe4;color:#fff;background:#7b3fe4}
+#tw-top #tw-mode.on{border-color:#7b3fe4;color:#fff;background:#7b3fe4}
 #tw-canvas{width:100%;height:auto;border:1px solid rgba(128,128,128,.35);border-radius:10px;image-rendering:pixelated;background:#0b0e13;display:block}
 #tw-keys,#tw-brain{font-size:.8rem;color:#8a919b;margin-top:.45rem}
 #tw-keys kbd{border:1px solid rgba(128,128,128,.5);border-radius:4px;padding:0 .3rem;font-size:.72rem;background:rgba(128,128,128,.12)}

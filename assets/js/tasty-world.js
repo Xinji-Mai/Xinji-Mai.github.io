@@ -183,7 +183,7 @@
   var cam = { x: 0, y: 0 }, keys = {}, wins = 0, frame = 0, regenT = 0, showMap = false;
   var llmEP = "", llmOn = false, llmModel = "", llmLast = 0, llmFail = 0;
   try { llmEP = (window.AGENT_LLM_ENDPOINT || "").trim() || localStorage.getItem("agent_llm_endpoint") || ""; } catch (e) {}
-  try { llmOn = !!llmEP && localStorage.getItem("agent_llm_on") === "1"; } catch (e) {}
+  var llmLog = [];   // recent LLM decisions, shown on the right while in LLM mode
 
   function say(t) { agent.think = t; }
   function msg(t) { msgs.push({ t: t, life: 220 }); if (msgs.length > 4) msgs.shift(); }
@@ -545,6 +545,8 @@
           if (j && j.model) llmModel = String(j.model).slice(0, 24);
           if (j && j.thought) say(String(j.thought).slice(0, 64));
           if (j && j.hint) { agent.hint = String(j.hint); agent.hintT = 720; }
+          llmLog.unshift({ hint: (j && j.hint) || "?", thought: (j && j.thought) || "", life: 600 });
+          if (llmLog.length > 5) llmLog.pop();
         })
         .catch(function () { llmFail = Date.now() + 60000; });
     } catch (e) { llmFail = Date.now() + 60000; }
@@ -724,6 +726,21 @@
     if (explored[idx(goal.x, goal.y)] && get(goal.x, goal.y) === GOAL) { ctx.fillStyle = "#ffd54a"; ctx.fillRect(mx + goal.x * ms - 1, my + goal.y * ms - 1, 3, 3); }
     ctx.fillStyle = "#4da3ff"; ctx.fillRect(mx + (P.x / TS) * ms - 1, my + (P.y / TS) * ms - 1, 3, 3);
     ctx.fillStyle = "rgba(255,255,255,0.6)"; ctx.font = "9px 'Source Sans 3',sans-serif"; ctx.fillText("M = map", mx, my + mh + 9);
+    if (llmActive() && llmLog.length) {                              // LLM decision feed (right side)
+      var pw = 212, plx = W - pw - 8, ply = 70, li2;
+      ctx.textAlign = "left"; ctx.font = "11px 'Source Sans 3', sans-serif";
+      for (li2 = 0; li2 < llmLog.length; li2++) {
+        var le = llmLog[li2], la = Math.max(0, Math.min(1, le.life / 120));
+        var lth = le.thought.length > 34 ? le.thought.slice(0, 33) + "…" : le.thought;
+        ctx.globalAlpha = la;
+        ctx.fillStyle = "rgba(58,30,88,0.85)"; ctx.fillRect(plx, ply, pw, 34);
+        ctx.fillStyle = "#ffd54a"; ctx.fillRect(plx, ply, 3, 34);
+        ctx.fillText("🧠 goal → " + String(le.hint).toUpperCase(), plx + 9, ply + 14);
+        ctx.fillStyle = "#e9e3f6"; ctx.fillText("“" + lth + "”", plx + 9, ply + 28);
+        ctx.globalAlpha = 1;
+        ply += 40; if (ply > H - 30) break;
+      }
+    }
     if (showMap) drawMapOverlay(W, H);
     if (P.dead) { ctx.fillStyle = "rgba(0,0,0,0.45)"; ctx.fillRect(0, 0, W, H); ctx.fillStyle = "#fff"; ctx.font = "bold 20px 'Source Sans 3',sans-serif"; ctx.textAlign = "center"; ctx.fillText("💀 Respawning… (dropped all equipment)", W / 2, H / 2); ctx.textAlign = "left"; }
   }
@@ -744,6 +761,7 @@
     if (frame % 140 === 0) spawnEnemy();
     updEnemies(dtf); updDrops(dtf); updParts(dtf);
     for (var i = msgs.length - 1; i >= 0; i--) { msgs[i].life -= dtf; if (msgs[i].life <= 0) msgs.splice(i, 1); }
+    for (var li = llmLog.length - 1; li >= 0; li--) { llmLog[li].life -= dtf; if (llmLog[li].life <= 0) llmLog.splice(li, 1); }
     if (regenT > 0) { regenT -= dtf; if (regenT <= 0) newWorld(true); }
     if (frame % 10 === 0) hud();
   }
@@ -761,19 +779,22 @@
     if (!agent.on && ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", " "].indexOf(k) >= 0) e.preventDefault();
   });
   document.addEventListener("keyup", function (e) { var k = e.key; keys[k] = 0; if (k && k.length === 1) keys[k.toLowerCase()] = 0; });
-  var bMode = document.getElementById("tw-mode"), bNew = document.getElementById("tw-new"), bLLM = document.getElementById("tw-llm");
-  if (bMode) bMode.addEventListener("click", function () { agent.on = !agent.on; bMode.textContent = agent.on ? "🤖 Agent: AUTO" : "🎮 Mode: MANUAL"; say(agent.on ? "I've got this." : "Human takes the wheel!"); });
-  if (bNew) bNew.addEventListener("click", function () { newWorld(false); });
-  if (bLLM) bLLM.addEventListener("click", function () {
-    if (!llmEP) {
-      var u = window.prompt("Serverless proxy URL (deploy /agent-proxy/ first).\nYour API key stays on the backend — it is NEVER stored here.", "https://your-worker.workers.dev");
-      if (u && /^https?:\/\//.test(u.trim())) { llmEP = u.trim(); try { localStorage.setItem("agent_llm_endpoint", llmEP); } catch (e) {} } else return;
+  var bMode = document.getElementById("tw-mode"), bNew = document.getElementById("tw-new");
+  var MODES = ["auto", "llm", "manual"];
+  function applyMode(m) {
+    if (m === "llm" && !llmEP) {
+      var u = window.prompt("Serverless proxy URL (deploy /agent-proxy/). Your API key stays on the backend.", "https://your-worker.workers.dev");
+      if (u && /^https?:\/\//.test(u.trim())) { llmEP = u.trim(); try { localStorage.setItem("agent_llm_endpoint", llmEP); } catch (e) {} } else m = "auto";
     }
-    llmOn = !llmOn; try { localStorage.setItem("agent_llm_on", llmOn ? "1" : "0"); } catch (e) {}
-    if (!llmOn) llmModel = "";
-    say(llmOn ? "Handing high-level control to the LLM…" : "OK, I'll take it from here.");
+    agent.mode = m; agent.on = (m !== "manual"); llmOn = (m === "llm");
+    if (!llmOn) { llmModel = ""; llmLog.length = 0; }
+    if (bMode) { bMode.textContent = m === "manual" ? "🕹️ Mode: MANUAL" : (m === "llm" ? "🧠 Mode: LLM" : "🤖 Mode: AUTO"); bMode.className = (m === "llm") ? "on" : ""; }
+    say(m === "manual" ? "Human takes the wheel!" : (m === "llm" ? "Handing high-level goals to the LLM…" : "I've got this — exploring."));
     hud();
-  });
+  }
+  if (bMode) bMode.addEventListener("click", function () { applyMode(MODES[(MODES.indexOf(agent.mode || "auto") + 1) % MODES.length]); });
+  if (bNew) bNew.addEventListener("click", function () { newWorld(false); });
+  applyMode("auto");
   function fit() { var w = Math.min(900, (canvas.parentElement && canvas.parentElement.clientWidth) || 880); canvas.width = Math.max(480, w); canvas.height = 480; ctx.imageSmoothingEnabled = false; }
   window.addEventListener("resize", fit);
   buildTex(); fit(); generate(); resetPlayer(); hud();
