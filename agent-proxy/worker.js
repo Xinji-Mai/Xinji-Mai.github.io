@@ -71,6 +71,7 @@ export default {
       const HINTS = ["explore", "dig_down", "seek_goal", "fight", "flee", "surface"];
       if (!HINTS.includes(out.hint)) out.hint = "explore";
       out.thought = String(out.thought || "…").slice(0, 64);
+      out.model = env.LLM_MODEL || "qwen-plus";
       return json(out, 200, cors);
     } catch (e) {
       return json({ thought: "…(brain offline)" }, 200, cors);
