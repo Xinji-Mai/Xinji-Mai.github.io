@@ -196,7 +196,7 @@
 
   /* ---------------- state ---------------- */
   var P = { x: 0, y: 0, w: 10, h: 20, vx: 0, vy: 0, ground: false, face: 1, hp: 100, maxhp: 100, inv: 0, dead: 0 };
-  var gear = { pick: 1, sword: 1, armor: 0, gems: 0, pts: 0 };
+  var gear = { pick: 1, sword: 1, armor: 0, gems: 0, pts: 0, dirt: 5 };
   var enemies = [], drops = [], parts = [], msgs = [];
   var stat = { ore: 0, gem: 0, chest: 0, kill: 0 };
   var items = [], buffs = { speed: 0, power: 0, shield: 0, regen: 0 };
@@ -283,6 +283,7 @@
         gear.gems++; stat.gem++; msg("💎 Amethyst! (" + gear.gems + ")");
         if (gear.gems % 2 === 0 && gear.armor < 6) { gear.armor++; msg("🛡️ Armor Lv." + gear.armor); }
       }
+      else if (t === DIRT || t === GRASS) gear.dirt = Math.min(99, gear.dirt + 1);
       setT(tx, ty, AIR);
     }
     return true;
@@ -446,6 +447,7 @@
     MINE: ["Mining ore to upgrade.", "Need better gear — digging.", "More ore, more power."],
     GEMS: ["Gem hunting — armor time.", "Sparkly things, come to me."],
     HUNT: ["Hunting something my size.", "Monster farming time."],
+    PILLAR: ["Building my way up!", "Stacking dirt — going up."],
     WIN: ["Grand Gem secured! 🎉", "Loot acquired!"]
   };
   function pickThink(st) { var p = THINKS[st] || THINKS.EXPLORE; return p[(Math.random() * p.length) | 0]; }
@@ -567,6 +569,7 @@
     if (st === "HUNT") { var be = nearestBeatableEnemy(); return be ? enemyStandTile(be.e) : (nearestFrontier() || randFar()); }
     if (st === "SEEK_GOAL") return { x: goal.x, y: goal.y };
     if (st === "DIG") return { x: (P.x / TS) | 0, y: Math.min(WH - 3, ((P.y / TS) | 0) + 16) };
+    if (st === "PILLAR") return { x: (P.x / TS) | 0, y: Math.max(2, ((P.y / TS) | 0) - 12) };
     if (st === "SURFACE") { var cx = Math.max(0, Math.min(WW - 1, (P.x / TS) | 0)); return { x: cx, y: Math.max(2, (surf[cx] || 40) - 1) }; }
     return nearestFrontier() || randFar();
   }
@@ -580,6 +583,7 @@
       else if (curG === "open_chest") gdone = (stat.chest - (sn.chest || 0) >= 1) || !nearestKnownChest();
       else if (curG === "fight" || curG === "hunt") gdone = (stat.kill - (sn.kill || 0) >= 1) || !nearestBeatableEnemy();
       else if (curG === "dig_deep") gdone = (P.y / TS - (sn.py || 0)) >= 6;
+      else if (curG === "pillar_up") gdone = ((sn.py || 0) - P.y / TS) >= 6 || gear.dirt <= 0;
       else if (curG === "explore" || curG === "explore_left" || curG === "explore_right") gdone = (exploredCount - (sn.exp || 0)) >= 140;
       else if (curG === "surface") gdone = (P.y / TS) <= ((surf[(P.x / TS) | 0] || 40) + 1);
       if (gdone || agent.planT <= 0) {
@@ -596,7 +600,7 @@
     var h = agent.hintT > 0 ? agent.hint : null;
     var lat = llmActive() ? (agent.latent || "loot") : "loot";              // latent policy: how AUTO handles surprises
     if (h === "explore_left") agent.exdir = -1; else if (h === "explore_right") agent.exdir = 1;
-    var busy = (h === "mine_ore" || h === "collect_gems" || h === "open_chest" || h === "dig_deep" || h === "dig_down" || h === "surface" || h === "seek_goal");
+    var busy = (h === "mine_ore" || h === "collect_gems" || h === "open_chest" || h === "dig_deep" || h === "dig_down" || h === "surface" || h === "seek_goal" || h === "pillar_up");
     var fightR = lat === "aggressive" ? 10 : (lat === "rush" ? 3 : 7);
     var o2 = nearestKnownOre(), pcx2 = (P.x / TS) | 0, pcy2 = (P.y / TS) | 0;
     var oreNear = o2 && (Math.abs(o2.x - pcx2) + Math.abs(o2.y - pcy2)) < 14;
@@ -608,6 +612,7 @@
     else if (h === "mine_ore") st = "MINE";
     else if (h === "collect_gems") st = "GEMS";
     else if (h === "hunt") st = "HUNT";
+    else if (h === "pillar_up" && gear.dirt > 0) st = "PILLAR";
     else if (h === "dig_deep" || h === "dig_down") st = "DIG";
     else if (h === "surface" && hpr < 0.9) st = "SURFACE";
     else if (h === "seek_goal" && goalKnown) st = "SEEK_GOAL";
@@ -708,9 +713,10 @@
     if (tx !== null) moveToward(tx, ty); else P.vx *= 0.6;
     if (agent.wantUp && !P.ground && P.vy > -2.5) {            // near jump apex: pack a dirt block underfoot (pillar up)
       var pbx = ((P.x + P.w / 2) / TS) | 0, pby = (((P.y + P.h) / TS) | 0) + 1;
-      if (get(pbx, pby) === AIR) {
-        setT(pbx, pby, DIRT); burst((pbx + 0.5) * TS, (pby + 0.5) * TS, "#6e4a28", 5);
+      if (get(pbx, pby) === AIR && gear.dirt > 0) {
+        setT(pbx, pby, DIRT); gear.dirt--; burst((pbx + 0.5) * TS, (pby + 0.5) * TS, "#6e4a28", 5);
         agent.hopN = 0; agent.stuck = Math.max(0, agent.stuck - 40);
+        if (gear.dirt === 0) msg("🧱 Out of dirt blocks!");
       }
       agent.wantUp = false;
     }
@@ -750,7 +756,7 @@
         above: (ne.e.y + ne.e.h < P.y), reachable: !!bfsPath(pcx, ((P.y + P.h - 2) / TS) | 0, et.x, et.y), beatable: beatable(ne.e) };
     }
     var chest = nearestKnownChest();
-    var body = { hp: Math.round(P.hp), maxhp: P.maxhp, gems: gear.gems, pick: gear.pick, sword: gear.sword, armor: gear.armor,
+    var body = { hp: Math.round(P.hp), maxhp: P.maxhp, gems: gear.gems, pick: gear.pick, sword: gear.sword, armor: gear.armor, dirt: gear.dirt,
       power: Math.round(agentPower() * 10) / 10, depth: Math.round(pcy - (surf[pcx] || 40)), state: agent.state, wins: wins,
       enemyNear: !!(ne && ne.d < TS * 10), enemy: eInfo, chestKnown: !!chest, chestDist: chest ? chest.d : null,
       goalKnown: !!(explored[idx(goal.x, goal.y)] && get(goal.x, goal.y) === GOAL),
@@ -764,7 +770,7 @@
           llmFail = 0;
           if (j && j.model) llmModel = String(j.model).slice(0, 24);
           if (j && j.thought) say(String(j.thought).slice(0, 64));
-          var HL = ["explore", "explore_left", "explore_right", "mine_ore", "collect_gems", "dig_deep", "open_chest", "fight", "hunt", "avoid", "seek_goal", "surface"];
+          var HL = ["explore", "explore_left", "explore_right", "mine_ore", "collect_gems", "dig_deep", "open_chest", "fight", "hunt", "avoid", "seek_goal", "surface", "pillar_up"];
           var plan = [];
           if (j && j.plan && j.plan.length) for (var q = 0; q < j.plan.length && plan.length < 4; q++) { if (HL.indexOf(String(j.plan[q])) >= 0) plan.push(String(j.plan[q])); }
           if (!plan.length && j && j.hint && HL.indexOf(String(j.hint)) >= 0) plan = [String(j.hint)];
@@ -838,7 +844,7 @@
   }
   function newWorld(keepGear) {
     generate(); enemies.length = 0; drops.length = 0; parts.length = 0;
-    if (!keepGear) { gear.pick = 1; gear.sword = 1; gear.armor = 0; gear.gems = 0; gear.pts = 0; wins = 0; }
+    if (!keepGear) { gear.pick = 1; gear.sword = 1; gear.armor = 0; gear.gems = 0; gear.pts = 0; gear.dirt = 5; wins = 0; }
     resetPlayer(); agent.state = "EXPLORE"; agent.path = null; agent.stuck = 0; agent.planQ.length = 0; agent.snap = null; regenT = 0; showMap = false;
     evt.name = ""; evt.label = ""; evt.t = 0; evt.timer = 1900;
     buffs.speed = 0; buffs.power = 0; buffs.shield = 0; buffs.regen = 0;
@@ -860,7 +866,7 @@
   /* ---------------- HUD (DOM) ---------------- */
   function hud() {
     var hb = document.getElementById("tw-hpbar"); if (hb) hb.style.width = Math.max(0, P.hp / P.maxhp * 100) + "%";
-    var ge = document.getElementById("tw-gear"); if (ge) ge.textContent = "⛏️Lv" + gear.pick + " 🗡️Lv" + gear.sword + " 🛡️Lv" + gear.armor + " 💎" + gear.gems + " 🏆" + wins + (buffs.speed > 0 ? " 🏃" : "") + (buffs.power > 0 ? " ⚔️↑" : "") + (buffs.shield > 0 ? " 🛡️↑" : "") + (buffs.regen > 0 ? " 💗" : "");
+    var ge = document.getElementById("tw-gear"); if (ge) ge.textContent = "⛏️Lv" + gear.pick + " 🗡️Lv" + gear.sword + " 🛡️Lv" + gear.armor + " 💎" + gear.gems + " 🧱" + gear.dirt + " 🏆" + wins + (buffs.speed > 0 ? " 🏃" : "") + (buffs.power > 0 ? " ⚔️↑" : "") + (buffs.shield > 0 ? " 🛡️↑" : "") + (buffs.regen > 0 ? " 💗" : "");
     var stt = document.getElementById("tw-state");
     if (stt) stt.textContent = !agent.on ? "MANUAL" : (llmActive() ? ("🧠 " + (llmModel || (Date.now() < llmFail ? "offline" : "…")) + " · " + agent.state) : ("BFS+Frontier+FSM · " + agent.state));
     var lb = document.getElementById("tw-llm"); if (lb) { lb.textContent = llmActive() ? "🧠 LLM: ON" : "🧠 LLM: OFF"; lb.className = llmActive() ? "on" : ""; }
