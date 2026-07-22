@@ -180,7 +180,7 @@
   var enemies = [], drops = [], parts = [], msgs = [];
   var stat = { ore: 0, gem: 0, chest: 0, kill: 0 };
   var agent = { on: true, state: "EXPLORE", think: "Waking up…", hint: null, hintT: 0, tgt: null,
-                path: null, pi: 0, pathT: 0, digT: null, digP: 0, atk: 0, stuck: 0, lx: 0, decideT: 0, jumpCD: 0, hist: [], exdir: 1, since: 0, planQ: [], planT: 0 };
+                path: null, pi: 0, pathT: 0, digT: null, digP: 0, atk: 0, stuck: 0, lx: 0, decideT: 0, jumpCD: 0, hist: [], exdir: 1, since: 0, planQ: [], planT: 0, anchor: null, avoidT: 0, badTs: [] };
   var cam = { x: 0, y: 0 }, keys = {}, wins = 0, frame = 0, regenT = 0, showMap = false;
   var evt = { name: "", label: "", t: 0, timer: 1900 };
   var llmEP = "", llmOn = false, llmModel = "", llmLast = 0, llmFail = 0;
@@ -396,6 +396,14 @@
   };
   function pickThink(st) { var p = THINKS[st] || THINKS.EXPLORE; return p[(Math.random() * p.length) | 0]; }
   function pushHist(s) { if (agent.hist[0] !== s) { agent.hist.unshift(s); if (agent.hist.length > 8) agent.hist.pop(); } }
+  function badTarget(x, y) {
+    for (var i = 0; i < agent.badTs.length; i++) { var b = agent.badTs[i]; if (Math.abs(b.x - x) <= 3 && Math.abs(b.y - y) <= 3) return true; }
+    return false;
+  }
+  function banTarget() {                                     // blacklist an unreachable target so we don't re-pick it
+    if (agent.tgt) { agent.badTs.push({ x: agent.tgt.x, y: agent.tgt.y, life: 900 }); if (agent.badTs.length > 4) agent.badTs.shift(); }
+    agent.path = null; agent.tgt = null;
+  }
   function agentPower() { return 1 + gear.sword + gear.armor * 0.6 + gear.pick * 0.2; }
   function beatable(e) { return !e || (e.lv || 1) <= agentPower() + 0.6; }
   function nearestBeatableEnemy() {
@@ -472,7 +480,7 @@
     for (var qi = 0; qi < q.length && qi < 8000; qi++) {
       var c = q[qi], cx = c % WW, cy = (c / WW) | 0, xs = [cx + 1, cx - 1, cx, cx], ys = [cy, cy, cy + 1, cy - 1], k, ni;
       for (k = 0; k < 4; k++) if (inb(xs[k], ys[k]) && !explored[idx(xs[k], ys[k])] && world[idx(xs[k], ys[k])] !== BEDROCK) {
-        if ((cx !== sx || cy !== sy) && cy + 2 >= (surf[cx] || 0)) return { x: cx, y: cy };
+        if ((cx !== sx || cy !== sy) && cy + 2 >= (surf[cx] || 0) && !badTarget(cx, cy)) return { x: cx, y: cy };
       }
       for (k = 0; k < 4; k++) {
         if (!inb(xs[k], ys[k])) continue; ni = idx(xs[k], ys[k]);
@@ -541,7 +549,7 @@
     var st;
     if (ne && ne.d < TS * 6 && (hpr < (lat === "cautious" ? 0.6 : 0.35) || strong)) st = "FLEE";
     else if ((h === "avoid" || lat === "cautious") && ne && ne.d < TS * 8) st = "FLEE";
-    else if (ne && ne.d < TS * fightR && !strong && (!busy || lat === "aggressive")) st = "FIGHT";
+    else if (ne && ne.d < TS * fightR && !strong && (!busy || lat === "aggressive") && agent.avoidT <= 0) st = "FIGHT";
     else if (h === "open_chest" && chest) st = "CHEST";
     else if (h === "mine_ore") st = "MINE";
     else if (h === "collect_gems") st = "GEMS";
@@ -560,10 +568,10 @@
     if (agent.replanT === undefined) agent.replanT = 0;
     agent.replanT--;
     var noPath = !agent.path || agent.pi >= agent.path.length;
-    if (noPath || agent.replanT <= 0 || agent.stuck > 55) {
+    if (noPath || agent.replanT <= 0 || agent.stuck > 110) {
       var t = chooseTarget(st, ne); agent.tgt = t;
       if (t) { agent.path = bfsPath(((P.x + P.w / 2) / TS) | 0, ((P.y + P.h - 2) / TS) | 0, t.x, t.y); agent.pi = 0; }
-      agent.replanT = 40; agent.hopN = 0; if (agent.stuck > 55) agent.stuck = 0;
+      agent.replanT = 40; agent.hopN = 0; if (agent.stuck > 110) agent.stuck = 60;
     }
     if (agent.hintT > 0) agent.hintT -= 15;
   }
@@ -575,7 +583,7 @@
       P.face = dx > 0 ? 1 : -1; P.vx = P.face * MOVE;
       var fx = mid + P.face, bf = isSolid(fx, footY), bh = isSolid(fx, headY);
       if (bf || bh) {
-        var stepUp = bf && !bh && !isSolid(fx, footY - 1) && !isSolid(mid, headY - 1);
+        var stepUp = bf && !bh && !isSolid(fx, footY - 1) && !isSolid(fx, headY - 1) && !isSolid(mid, headY - 1);
         if (stepUp && P.ground && agent.jumpCD <= 0) { P.vy = -JUMP; agent.jumpCD = 16; }
         else tryMine(fx, bh ? headY : footY);
       }
@@ -586,7 +594,7 @@
       else if (P.ground && agent.jumpCD <= 0) {
         P.vy = -JUMP; agent.jumpCD = 16;
         agent.hopN = (agent.hopN || 0) + 1;
-        if (agent.hopN > 4) { agent.hopN = 0; agent.path = null; agent.tgt = null; agent.exdir = -agent.exdir; }   // unreachable overhead target: give up, re-target
+        if (agent.hopN > 4) { agent.hopN = 0; banTarget(); agent.exdir = -agent.exdir; }   // unreachable overhead target: blacklist & re-target
       }
     } else if (dy > 1.2 && Math.abs(dx) < 1.3) {
       var by = ((P.y + P.h + 2) / TS) | 0;
@@ -605,9 +613,14 @@
   function act(dtf) {
     if (P.dead) return;
     if (agent.jumpCD > 0) agent.jumpCD -= dtf;
+    if (agent.avoidT > 0) agent.avoidT -= dtf;
+    for (var bi = agent.badTs.length - 1; bi >= 0; bi--) { agent.badTs[bi].life -= dtf; if (agent.badTs[bi].life <= 0) agent.badTs.splice(bi, 1); }
+    if (!agent.anchor) agent.anchor = { x: P.x, y: P.y };
+    if (Math.hypot(P.x - agent.anchor.x, P.y - agent.anchor.y) > TS * 1.5) { agent.anchor.x = P.x; agent.anchor.y = P.y; agent.stuck = 0; }
+    else agent.stuck += dtf;                                  // counts even mid-air: hopping in place IS stuck
     var ne = nearestEnemy();
     if (ne && ne.d < TS * 2.6) { P.face = ne.e.x > P.x ? 1 : -1; attack(); }
-    if (ne && ne.d < TS * 3.5 && P.hp / P.maxhp >= 0.35) {   // close-range melee only; far enemies use normal BFS navigation
+    if (ne && ne.d < TS * 3.5 && P.hp / P.maxhp >= 0.35 && agent.avoidT <= 0) {   // close-range melee
       var fmid = ((P.x + P.w / 2) / TS) | 0, ffoot = ((P.y + P.h - 3) / TS) | 0, fhead = ((P.y + 3) / TS) | 0, edx = ne.e.x - P.x;
       if (agent.atk > 10 && ne.d < TS * 1.4) { P.vx = (edx > 0 ? -1 : 1) * MOVE * 0.8; }        // kite while the sword recovers
       else if (Math.abs(edx) > TS * 0.6) {
@@ -618,16 +631,14 @@
           else tryMine(ffx, isSolid(ffx, fhead) ? fhead : ffoot);
         }
       } else P.vx *= 0.6;
-      if (ne.e.y + ne.e.h < P.y + 2 && P.ground && agent.jumpCD <= 0) { P.vy = -JUMP; agent.jumpCD = 16; }  // hop to reach bats
-      agent.stuck = 0; agent.lx = P.x;
+      if (ne.e.y + ne.e.h < P.y + 2 && P.ground && agent.jumpCD <= 0 && !isSolid(fmid, ((P.y - 3) / TS) | 0)) { P.vy = -JUMP; agent.jumpCD = 16; }  // hop at bats only with clear headroom
+      if (agent.stuck > 120) { agent.avoidT = 300; agent.stuck = 0; agent.anchor = { x: P.x, y: P.y }; }   // enemy unreachable: disengage for a while
       return;
     }
     var wp = nextWaypoint();
     var tx = wp ? wp.x : (agent.tgt ? agent.tgt.x : null), ty = wp ? wp.y : (agent.tgt ? agent.tgt.y : null);
     if (tx !== null) moveToward(tx, ty); else P.vx *= 0.6;
-    if (Math.abs(P.x - agent.lx) < 0.35 && P.ground) agent.stuck += 1; else agent.stuck = Math.max(0, agent.stuck - 3);
-    agent.lx = P.x;
-    if (agent.stuck > 20 && tx !== null) {
+    if (agent.stuck > 45 && tx !== null) {
       var mid = ((P.x + P.w / 2) / TS) | 0, cy = ((P.y + P.h / 2) / TS) | 0, ddx = tx - mid, ddy = ty - cy;
       var dgx, dgy;                                          // mine ONE tile per frame so digP accumulates
       if (Math.abs(ddx) >= Math.abs(ddy)) { dgx = mid + (ddx >= 0 ? 1 : -1); dgy = ((P.y + P.h - 3) / TS) | 0; if (!isSolid(dgx, dgy)) dgy = ((P.y + 3) / TS) | 0; }
@@ -635,8 +646,7 @@
       else { dgx = mid; dgy = ((P.y + P.h + 2) / TS) | 0; }
       if (!isSolid(dgx, dgy) || get(dgx, dgy) === BEDROCK) { dgx = mid; dgy = ((P.y + P.h + 2) / TS) | 0; }
       tryMine(dgx, dgy);
-      if (P.ground && agent.jumpCD <= 0 && Math.random() < 0.15) { P.vy = -JUMP; agent.jumpCD = 16; }
-      if (agent.stuck > 70) { agent.path = null; agent.tgt = null; agent.stuck = 0; }
+      if (agent.stuck > 170) { banTarget(); agent.exdir = -agent.exdir; agent.stuck = 0; agent.anchor = { x: P.x, y: P.y }; }
     }
   }
 
