@@ -210,7 +210,7 @@
   };
   var BUFF_NAME = { speed: "Speed", power: "Power", shield: "Shield", regen: "Regen" };
   var agent = { on: true, state: "EXPLORE", think: "Waking up…", hint: null, hintT: 0, tgt: null,
-                path: null, pi: 0, pathT: 0, digT: null, digP: 0, atk: 0, stuck: 0, lx: 0, decideT: 0, jumpCD: 0, hist: [], exdir: 1, since: 0, planQ: [], planT: 0, anchor: null, avoidT: 0, badTs: [] };
+                path: null, pi: 0, pathT: 0, digT: null, digP: 0, atk: 0, stuck: 0, lx: 0, decideT: 0, jumpCD: 0, hist: [], exdir: 1, since: 0, planQ: [], planT: 0, anchor: null, avoidT: 0, badTs: [], camp: null, campT: 0 };
   var cam = { x: 0, y: 0 }, keys = {}, wins = 0, frame = 0, regenT = 0, showMap = false;
   var evt = { name: "", label: "", t: 0, timer: 1900 };
   var llmEP = "", llmOn = false, llmModel = "", llmLast = 0, llmFail = 0;
@@ -635,6 +635,8 @@
     else if (chest && chest.d < (lat === "rush" ? 8 : 40)) st = "CHEST";
     else if (lat === "loot" && oreNear) st = "MINE";
     else st = "EXPLORE";
+    var wl = agent.campT > 720 && st !== "FLEE" && st !== "FIGHT";      // loitered ~12s in one area: force a long-range move
+    if (wl) st = "EXPLORE";
     var changed = st !== agent.state; agent.state = st;
     if (changed) { agent.path = null; agent.since = 0; if (!llmActive()) say(pickThink(st)); pushHist(st); }
     else agent.since++;
@@ -646,6 +648,15 @@
       var t = chooseTarget(st, ne); agent.tgt = t;
       if (t) { agent.path = bfsPath(((P.x + P.w / 2) / TS) | 0, ((P.y + P.h - 2) / TS) | 0, t.x, t.y); agent.pi = 0; }
       agent.replanT = 40; agent.hopN = 0; if (agent.stuck > 110) agent.stuck = 60;
+    }
+    if (wl) {
+      agent.badTs.push({ x: (P.x / TS) | 0, y: (P.y / TS) | 0, life: 1800 }); if (agent.badTs.length > 4) agent.badTs.shift();
+      var fxq = Math.max(3, Math.min(WW - 4, ((P.x / TS) | 0) + agent.exdir * (25 + (Math.random() * 14 | 0))));
+      var fyq = Math.max(3, Math.min(WH - 3, ((P.y / TS) | 0) - 5 + ((Math.random() * 18) | 0)));
+      agent.tgt = { x: fxq, y: fyq };
+      agent.path = bfsPath(((P.x + P.w / 2) / TS) | 0, ((P.y + P.h - 2) / TS) | 0, fxq, fyq); agent.pi = 0;
+      agent.replanT = 60; agent.campT = 0; agent.camp = { x: P.x, y: P.y }; pushHist("wanderlust");
+      if (!llmActive()) say("Been here too long — moving on!");
     }
     if (agent.hintT > 0) agent.hintT -= 15;
   }
@@ -665,6 +676,7 @@
     if (dy < -1.2) {
       var uy = ((P.y - 3) / TS) | 0;
       if (isSolid(mid, uy)) { if (agent.mineF !== frame && tryMine(mid, uy)) agent.hopN = 0; }
+      else if (isSolid(mid, uy - 1) && get(mid, uy - 1) !== BEDROCK) { if (agent.mineF !== frame && tryMine(mid, uy - 1)) agent.hopN = 0; }   // ceiling one gap above: dig it instead of bonking
       else if (P.ground && agent.jumpCD <= 0) {
         P.vy = -JUMP; agent.jumpCD = 18;
         agent.wantUp = dy < -1.8;                              // deep ascent: pillar a dirt block at the apex
@@ -706,6 +718,9 @@
     if (!agent.anchor) agent.anchor = { x: P.x, y: P.y };
     if (P.ground && Math.hypot(P.x - agent.anchor.x, P.y - agent.anchor.y) > TS * 1.5) { agent.anchor.x = P.x; agent.anchor.y = P.y; agent.stuck = 0; }
     else agent.stuck += dtf;                                  // jump arcs don't count: only grounded displacement resets the timer
+    if (!agent.camp) agent.camp = { x: P.x, y: P.y };
+    if (Math.hypot(P.x - agent.camp.x, P.y - agent.camp.y) > TS * 6) { agent.camp.x = P.x; agent.camp.y = P.y; agent.campT = 0; }
+    else agent.campT += dtf;                                  // loitering timer: too long near one spot => wanderlust
     var ne = nearestEnemy();
     if (ne && ne.d < TS * 2.6) { P.face = ne.e.x > P.x ? 1 : -1; attack(); }
     if (ne && ne.d < TS * 3.5 && P.hp / P.maxhp >= 0.35 && agent.avoidT <= 0) {   // close-range melee
@@ -780,7 +795,7 @@
       power: Math.round(agentPower() * 10) / 10, depth: Math.round(pcy - (surf[pcx] || 40)), state: agent.state, wins: wins,
       enemyNear: !!(ne && ne.d < TS * 10), enemy: eInfo, chestKnown: !!chest, chestDist: chest ? chest.d : null,
       chest: chestInfo, ore: oreInfo, lavaNear: lavaNear,
-      stuckSec: Math.round(agent.stuck / 6) / 10, bannedTargets: agent.badTs.length,
+      stuckSec: Math.round(agent.stuck / 6) / 10, bannedTargets: agent.badTs.length, loiterSec: Math.round(agent.campT / 6) / 10,
       goalKnown: !!(explored[idx(goal.x, goal.y)] && get(goal.x, goal.y) === GOAL),
       exploredPct: Math.round(100 * exploredCount / (WW * WH)),
       surroundings: { solidBelow: isSolid(pcx, pcy + 1), solidLeft: isSolid(pcx - 1, pcy), solidRight: isSolid(pcx + 1, pcy) },
