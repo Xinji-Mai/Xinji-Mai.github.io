@@ -464,6 +464,7 @@
     MINE: ["Mining ore to upgrade.", "Need better gear — digging.", "More ore, more power."],
     GEMS: ["Gem hunting — armor time.", "Sparkly things, come to me."],
     HUNT: ["Hunting something my size.", "Monster farming time."],
+    HEAL: ["Low HP — need a snack.", "Retreat, recover, return."],
     PILLAR: ["Building my way up!", "Stacking dirt — going up."],
     WIN: ["Grand Gem secured! 🎉", "Loot acquired!"]
   };
@@ -506,6 +507,11 @@
         var d = Math.abs(x - pcx) + Math.abs(y - pcy); if (d < bd) { bd = d; b = { x: x, y: y }; }
       }
     return b;
+  }
+  function nearestFood() {
+    var b = null, bd = 1e9;
+    for (var i = 0; i < items.length; i++) { var f = FOOD[items[i].kind]; if (!f || !f.heal) continue; var d = Math.abs(items[i].x - P.x) + Math.abs(items[i].y - P.y); if (d < bd) { bd = d; b = items[i]; } }
+    return b ? { x: (b.x / TS) | 0, y: (b.y / TS) | 0, d: bd / TS } : null;
   }
   function nearestKnownGem() {
     var b = null, bd = 1e9, pcx = (P.x / TS) | 0, pcy = (P.y / TS) | 0;
@@ -581,6 +587,12 @@
     if (st === "FLEE" && ne) return { x: Math.max(2, Math.min(WW - 3, ((P.x / TS) | 0) + (P.x < ne.e.x ? -16 : 16))), y: (P.y / TS) | 0 };
     if (st === "FIGHT" && ne) return enemyStandTile(ne.e);
     if (st === "CHEST") { var ch = nearestKnownChest(); return ch ? { x: ch.x, y: ch.y } : (nearestFrontier() || randFar()); }
+    if (st === "HEAL") {
+      var fd = nearestFood(); if (fd && fd.d < 45) return { x: fd.x, y: fd.y };
+      var away = ne ? (P.x < ne.e.x ? -1 : 1) : -1;
+      var hx = Math.max(3, Math.min(WW - 4, ((P.x / TS) | 0) + away * 18));
+      return { x: hx, y: Math.max(2, (surf[hx] || 40) - 1) };
+    }
     if (st === "MINE") { var o = nearestKnownOre(); return o ? o : { x: Math.max(2, Math.min(WW - 3, ((P.x / TS) | 0) + agent.exdir * 6)), y: Math.min(WH - 3, ((P.y / TS) | 0) + 10) }; }
     if (st === "GEMS") { var g = nearestKnownGem(); return g ? g : { x: (P.x / TS) | 0, y: Math.min(WH - 3, ((P.y / TS) | 0) + 14) }; }
     if (st === "HUNT") { var be = nearestBeatableEnemy(); return be ? enemyStandTile(be.e) : (nearestFrontier() || randFar()); }
@@ -601,6 +613,7 @@
       else if (curG === "fight" || curG === "hunt") gdone = (stat.kill - (sn.kill || 0) >= 1) || !nearestBeatableEnemy();
       else if (curG === "dig_deep") gdone = (P.y / TS - (sn.py || 0)) >= 6;
       else if (curG === "pillar_up") gdone = ((sn.py || 0) - P.y / TS) >= 6 || gear.dirt <= 0;
+      else if (curG === "eat_food") gdone = (P.hp / P.maxhp) > 0.8 || !nearestFood();
       else if (curG === "explore" || curG === "explore_left" || curG === "explore_right") gdone = (exploredCount - (sn.exp || 0)) >= 140;
       else if (curG === "surface") gdone = (P.y / TS) <= ((surf[(P.x / TS) | 0] || 40) + 1);
       if (gdone || agent.planT <= 0) {
@@ -618,12 +631,14 @@
     var lat = llmActive() ? (agent.latent || "loot") : "loot";              // latent policy: how AUTO handles surprises
     if (h === "explore_left") agent.exdir = -1; else if (h === "explore_right") agent.exdir = 1;
     else if (agentPower() >= 6) agent.exdir = 1;                        // well geared: default push to the right
-    var busy = (h === "mine_ore" || h === "collect_gems" || h === "open_chest" || h === "dig_deep" || h === "dig_down" || h === "surface" || h === "seek_goal" || h === "pillar_up");
+    var busy = (h === "mine_ore" || h === "collect_gems" || h === "open_chest" || h === "dig_deep" || h === "dig_down" || h === "surface" || h === "seek_goal" || h === "pillar_up" || h === "eat_food");
     var fightR = lat === "aggressive" ? 10 : (lat === "rush" ? 3 : 7);
     var o2 = nearestKnownOre(), pcx2 = (P.x / TS) | 0, pcy2 = (P.y / TS) | 0;
     var oreNear = o2 && (Math.abs(o2.x - pcx2) + Math.abs(o2.y - pcy2)) < 14;
+    if (hpr < 0.35) agent.lowHP = true; else if (hpr > 0.65) agent.lowHP = false;   // hysteresis: stay in recovery mode until truly healed
     var st;
-    if (ne && ne.d < TS * 6 && (hpr < (lat === "cautious" ? 0.6 : 0.35) || strong)) st = "FLEE";
+    if (ne && ne.d < TS * 6 && (agent.lowHP || strong || (lat === "cautious" && hpr < 0.6))) st = "FLEE";
+    else if (agent.lowHP || (h === "eat_food" && hpr < 0.9)) st = "HEAL";           // weak: food or safety, no combat, no gate march
     else if ((h === "avoid" || lat === "cautious") && ne && ne.d < TS * 8) st = "FLEE";
     else if (ne && ne.d < TS * fightR && !strong && (!busy || lat === "aggressive") && agent.avoidT <= 0) st = "FIGHT";
     else if (h === "open_chest" && chest) st = "CHEST";
@@ -728,7 +743,7 @@
     else agent.campT += dtf;                                  // loitering timer: too long near one spot => wanderlust
     var ne = nearestEnemy();
     if (ne && ne.d < TS * 2.6) { P.face = ne.e.x > P.x ? 1 : -1; attack(); }
-    if (ne && ne.d < TS * 3.5 && P.hp / P.maxhp >= 0.35 && agent.avoidT <= 0) {   // close-range melee
+    if (ne && ne.d < TS * 3.5 && !agent.lowHP && agent.avoidT <= 0) {   // close-range melee
       var fmid = ((P.x + P.w / 2) / TS) | 0, ffoot = ((P.y + P.h - 3) / TS) | 0, fhead = ((P.y + 3) / TS) | 0, edx = ne.e.x - P.x;
       if (agent.atk > 10 && ne.d < TS * 1.4) { P.vx = (edx > 0 ? -1 : 1) * MOVE * 0.8; }        // kite while the sword recovers
       else if (Math.abs(edx) > TS * 0.6) {
@@ -812,7 +827,7 @@
           llmFail = 0;
           if (j && j.model) llmModel = String(j.model).slice(0, 24);
           if (j && j.thought) say(String(j.thought).slice(0, 64));
-          var HL = ["explore", "explore_left", "explore_right", "mine_ore", "collect_gems", "dig_deep", "open_chest", "fight", "hunt", "avoid", "seek_goal", "surface", "pillar_up"];
+          var HL = ["explore", "explore_left", "explore_right", "mine_ore", "collect_gems", "dig_deep", "open_chest", "fight", "hunt", "avoid", "seek_goal", "surface", "pillar_up", "eat_food"];
           var plan = [];
           if (j && j.plan && j.plan.length) for (var q = 0; q < j.plan.length && plan.length < 4; q++) { if (HL.indexOf(String(j.plan[q])) >= 0) plan.push(String(j.plan[q])); }
           if (!plan.length && j && j.hint && HL.indexOf(String(j.hint)) >= 0) plan = [String(j.hint)];
