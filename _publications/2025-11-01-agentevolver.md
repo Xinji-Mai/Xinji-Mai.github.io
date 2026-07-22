@@ -7,7 +7,7 @@ excerpt: 'A system for efficient self-evolving LLM agents. Open-sourced with 1.5
 date: 2025-11-01
 venue: 'arXiv preprint arXiv:2511.10395'
 paperurl: 'https://arxiv.org/abs/2511.10395'
-citation: 'Yunpeng Zhai, Sheng Tao, Cheng Chen, ..., Xinji Mai, et al. "AgentEvolver: Towards Efficient Self-Evolving Agent System." arXiv:2511.10395 (2025).'
+citation: 'Yunpeng Zhai, Shuchang Tao, Cheng Chen, Anni Zou, Ziqian Chen, Qingxu Fu, Xinji Mai, et al. "AgentEvolver: Towards Efficient Self-Evolving Agent System." arXiv:2511.10395 (2025).'
 ---
 
 Co-authored work on an efficient self-evolving agent system. Code: [modelscope/AgentEvolver](https://github.com/modelscope/AgentEvolver).

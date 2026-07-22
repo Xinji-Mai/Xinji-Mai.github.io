@@ -60,17 +60,22 @@ http.createServer(function (req, res) {
   req.on("end", function () {
     var s = {}; try { s = JSON.parse(body); } catch (e) {}
     var model = process.env.LLM_MODEL || "qwen3.8-max-preview";
-    var sys = "You are the brain of a pixel game agent exploring a Terraria-like world. Reply ONLY compact JSON: " +
-      "{\"thought\":\"<witty first-person thought, <=10 words>\",\"hint\":\"<one of: explore|dig_down|seek_goal|fight|flee|surface>\"}";
-    var usr = "State: hp=" + s.hp + ", gems=" + s.gems + ", pick=" + s.pick + ", sword=" + s.sword + ", armor=" + s.armor +
-      ", depth=" + s.depth + ", enemyNear=" + s.enemyNear + ", treasureFound=" + s.goalKnown + ", explored=" + s.exploredPct + "%, state=" + s.state + ".";
+    var sys = "You are the strategic brain of an AI agent in a Terraria-like 2D mining sandbox. A low-level controller (pathfinding, digging, jumping, melee) executes the GOAL you choose; you only pick the next high-level goal plus a short first-person thought.\n" +
+      "Grow stronger before taking risks: explore and MINE ORE, and OPEN CHESTS, to upgrade pickaxe/sword/armor. Only FIGHT enemies you can beat (enemy.beatable=true); AVOID or flee enemies too strong (higher level, beatable=false) until your gear is upgraded. After leveling up, hunt tougher enemies. Seek the Grand Gem (seek_goal) only once it is known and you are decently geared.\n" +
+      "Be adaptive and avoid loops: read recentActions and do NOT repeat the same goal every turn. If the enemy is unreachable (reachable=false) or too strong, pick a different goal \u2014 mine ore, open a chest, explore the other direction, dig deeper, or flee.\n" +
+      "Reply ONLY compact JSON: {\"thought\":\"<=10 words, first person, lively>\",\"hint\":\"<one of: explore|explore_left|explore_right|mine_ore|dig_deep|open_chest|fight|avoid|seek_goal|surface>\"}";
+    var e = s.enemy;
+    var enemyStr = e ? (e.kind + " Lv" + e.lv + ", " + e.distTiles + " tiles " + e.dir + (e.above ? " (above)" : "") + ", reachable=" + e.reachable + ", beatable=" + e.beatable) : "none";
+    var usr = "hp=" + s.hp + "/" + s.maxhp + ", power=" + s.power + ", gear pick/sword/armor=" + s.pick + "/" + s.sword + "/" + s.armor + ", gems=" + s.gems +
+      ", depth=" + s.depth + ", exploredPct=" + s.exploredPct + ", goalKnown=" + s.goalKnown + ", chestKnown=" + s.chestKnown +
+      ", nearestEnemy=[" + enemyStr + "], recentActions=" + JSON.stringify(s.recentActions || []) + ", currentState=" + s.state + ". Choose the next goal.";
     dayCount++;
     callLLM({ model: model, messages: [{ role: "system", content: sys }, { role: "user", content: usr }], max_tokens: 80, temperature: 0.9 })
       .then(function (d) {
         var text = (d.choices && d.choices[0] && d.choices[0].message && d.choices[0].message.content) || "";
         var m = text.match(/\{[\s\S]*\}/), out = { thought: "Hmm…", hint: "explore" };
         if (m) { try { out = JSON.parse(m[0]); } catch (e) {} }
-        var H = ["explore", "dig_down", "seek_goal", "fight", "flee", "surface"];
+        var H = ["explore", "explore_left", "explore_right", "mine_ore", "dig_deep", "open_chest", "fight", "avoid", "seek_goal", "surface"];
         if (H.indexOf(out.hint) < 0) out.hint = "explore";
         out.thought = String(out.thought || "…").slice(0, 64); out.model = model;
         send(200, out);

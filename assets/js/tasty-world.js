@@ -179,7 +179,7 @@
   var gear = { pick: 1, sword: 1, armor: 0, gems: 0, pts: 0 };
   var enemies = [], drops = [], parts = [], msgs = [];
   var agent = { on: true, state: "EXPLORE", think: "Waking up…", hint: null, hintT: 0, tgt: null,
-                path: null, pi: 0, pathT: 0, digT: null, digP: 0, atk: 0, stuck: 0, lx: 0, decideT: 0, jumpCD: 0 };
+                path: null, pi: 0, pathT: 0, digT: null, digP: 0, atk: 0, stuck: 0, lx: 0, decideT: 0, jumpCD: 0, hist: [], exdir: 1, since: 0 };
   var cam = { x: 0, y: 0 }, keys = {}, wins = 0, frame = 0, regenT = 0, showMap = false;
   var llmEP = "", llmOn = false, llmModel = "", llmLast = 0, llmFail = 0;
   try { llmEP = (window.AGENT_LLM_ENDPOINT || "").trim() || localStorage.getItem("agent_llm_endpoint") || ""; } catch (e) {}
@@ -290,8 +290,10 @@
       else kind = Math.random() < 0.6 ? "slime" : "zombie";
       if (kind !== "bat" && !isSolid(tx, ty + 1)) continue;
       var k = EK[kind];
-      enemies.push({ kind: kind, x: tx * TS + 1, y: ty * TS + (TS - k.h) - 1, w: k.w, h: k.h,
-                     vx: 0, vy: 0, ground: false, hp: k.hp + wins * 3, hop: rnd(10, 50), face: 1, t: rnd(0, 6.28) });
+      var lv = Math.max(1, Math.min(6, 1 + Math.floor(depth / 8) + (Math.random() < 0.35 ? 1 : 0)));
+      var ehp = Math.round((k.hp + wins * 3) * (1 + 0.7 * (lv - 1)));
+      enemies.push({ kind: kind, x: tx * TS + 1, y: ty * TS + (TS - k.h) - 1, w: k.w, h: k.h, lv: lv,
+                     vx: 0, vy: 0, ground: false, hp: ehp, maxhp: ehp, hop: rnd(10, 50), face: 1, t: rnd(0, 6.28) });
       return;
     }
   }
@@ -322,7 +324,7 @@
       if (!P.dead && P.inv <= 0 &&
           Math.abs((s.x + s.w / 2) - (P.x + P.w / 2)) < (s.w + P.w) / 2 &&
           Math.abs((s.y + s.h / 2) - (P.y + P.h / 2)) < (s.h + P.h) / 2) {
-        var dmg = Math.max(2, k.dmg + wins * 2 - gear.armor * 2);
+        var dmg = Math.max(2, Math.round(k.dmg * (1 + 0.55 * ((s.lv || 1) - 1)) + wins - gear.armor * 2));
         P.hp -= dmg; P.inv = 45; P.vx = (dx > 0 ? -1 : 1) * 3; P.vy = -3;
         burst(P.x + P.w / 2, P.y + P.h / 2, "#e05555", 6);
         if (P.hp <= 0) die();
@@ -374,9 +376,13 @@
     DIG: ["Tunnelling downward…", "Digging for ore."],
     SURFACE: ["Heading back up for air.", "To the surface!"],
     CHEST: ["A chest! Gimme that loot.", "Treasure nearby — on my way.", "Free loot, don't mind if I do."],
+    MINE: ["Mining ore to upgrade.", "Need better gear — digging.", "More ore, more power."],
     WIN: ["Grand Gem secured! 🎉", "Loot acquired!"]
   };
   function pickThink(st) { var p = THINKS[st] || THINKS.EXPLORE; return p[(Math.random() * p.length) | 0]; }
+  function pushHist(s) { if (agent.hist[0] !== s) { agent.hist.unshift(s); if (agent.hist.length > 8) agent.hist.pop(); } }
+  function agentPower() { return 1 + gear.sword + gear.armor * 0.6 + gear.pick * 0.2; }
+  function beatable(e) { return !e || (e.lv || 1) <= agentPower() + 0.6; }
   function nearestEnemy() {
     var b = null, bd = 1e9;
     for (var i = 0; i < enemies.length; i++) { var d = Math.hypot(enemies[i].x - P.x, enemies[i].y - P.y); if (d < bd) { bd = d; b = enemies[i]; } }
@@ -389,6 +395,16 @@
       var d = Math.abs(c.x - pcx) + Math.abs(c.y - pcy); if (d < bd) { bd = d; b = c; }
     }
     return b ? { x: b.x, y: b.y, d: bd } : null;
+  }
+  function nearestKnownOre() {
+    var b = null, bd = 1e9, pcx = (P.x / TS) | 0, pcy = (P.y / TS) | 0;
+    for (var y = Math.max(1, pcy - 26); y < Math.min(WH - 1, pcy + 26); y++)
+      for (var x = Math.max(1, pcx - 34); x < Math.min(WW - 1, pcx + 34); x++) {
+        var ii = idx(x, y); if (!explored[ii]) continue; var t = world[ii];
+        if (!ORE_PTS[t] && t !== GEM) continue;
+        var d = Math.abs(x - pcx) + Math.abs(y - pcy); if (d < bd) { bd = d; b = { x: x, y: y }; }
+      }
+    return b;
   }
 
   /* ---- Dijkstra path over tiles (AIR cheap, diggable costs ~hardness, bedrock blocked) ---- */
@@ -440,7 +456,7 @@
   }
   function randFar() {
     for (var i = 0; i < 40; i++) {
-      var tx = ((P.x / TS) | 0) + ((rnd(8, 40) | 0) * (Math.random() < 0.7 ? 1 : -1)), ty = ((P.y / TS) | 0) + (rnd(-4, 28) | 0);
+      var tx = ((P.x / TS) | 0) + ((rnd(8, 40) | 0) * (Math.random() < 0.75 ? agent.exdir : -agent.exdir)), ty = ((P.y / TS) | 0) + (rnd(-4, 28) | 0);
       tx = Math.max(2, Math.min(WW - 3, tx)); ty = Math.max(2, Math.min(WH - 3, ty));
       if (world[idx(tx, ty)] !== BEDROCK) return { x: tx, y: ty };
     }
@@ -455,6 +471,7 @@
     if (st === "FLEE" && ne) return { x: Math.max(2, Math.min(WW - 3, ((P.x / TS) | 0) + (P.x < ne.e.x ? -16 : 16))), y: (P.y / TS) | 0 };
     if (st === "FIGHT" && ne) return enemyStandTile(ne.e);
     if (st === "CHEST") { var ch = nearestKnownChest(); return ch ? { x: ch.x, y: ch.y } : (nearestFrontier() || randFar()); }
+    if (st === "MINE") { var o = nearestKnownOre(); return o ? o : { x: Math.max(2, Math.min(WW - 3, ((P.x / TS) | 0) + agent.exdir * 6)), y: Math.min(WH - 3, ((P.y / TS) | 0) + 10) }; }
     if (st === "SEEK_GOAL") return { x: goal.x, y: goal.y };
     if (st === "DIG") return { x: (P.x / TS) | 0, y: Math.min(WH - 3, ((P.y / TS) | 0) + 16) };
     if (st === "SURFACE") { var cx = Math.max(0, Math.min(WW - 1, (P.x / TS) | 0)); return { x: cx, y: Math.max(2, (surf[cx] || 40) - 2) }; }
@@ -464,17 +481,27 @@
     if (P.dead) return;
     var ne = nearestEnemy(), hpr = P.hp / P.maxhp;
     var goalKnown = explored[idx(goal.x, goal.y)] && get(goal.x, goal.y) === GOAL;
-    var st, chest = nearestKnownChest();
-    if (ne && ne.d < TS * 6 && hpr < 0.4) st = "FLEE";
-    else if (ne && ne.d < TS * 7.5) st = "FIGHT";
-    else if (chest && chest.d < 42) st = "CHEST";
-    else if (agent.hint === "dig_down" && agent.hintT > 0) st = "DIG";
-    else if (agent.hint === "surface" && agent.hintT > 0) st = "SURFACE";
-    else if (goalKnown || (agent.hint === "seek_goal" && agent.hintT > 0)) st = "SEEK_GOAL";
-    else if (agent.hint === "flee" && agent.hintT > 0 && ne) st = "FLEE";
+    var chest = nearestKnownChest();
+    var strong = ne && !beatable(ne.e);
+    var h = agent.hintT > 0 ? agent.hint : null;
+    if (h === "explore_left") agent.exdir = -1; else if (h === "explore_right") agent.exdir = 1;
+    var busy = (h === "mine_ore" || h === "open_chest" || h === "dig_deep" || h === "dig_down" || h === "surface" || h === "seek_goal");
+    var st;
+    if (ne && ne.d < TS * 6 && (hpr < 0.35 || strong)) st = "FLEE";        // survive: flee if weak, or enemy too strong to beat
+    else if (h === "avoid" && ne && ne.d < TS * 9) st = "FLEE";
+    else if (ne && ne.d < TS * 7 && !strong && !busy) st = "FIGHT";         // only engage enemies we can beat
+    else if (h === "open_chest" && chest) st = "CHEST";
+    else if (h === "mine_ore") st = "MINE";
+    else if (h === "dig_deep" || h === "dig_down") st = "DIG";
+    else if (h === "surface" && hpr < 0.9) st = "SURFACE";
+    else if (h === "seek_goal" && goalKnown) st = "SEEK_GOAL";
+    else if (goalKnown && gear.sword >= 4) st = "SEEK_GOAL";                // chase the Grand Gem only once decently geared
+    else if (chest && chest.d < 40) st = "CHEST";
     else st = "EXPLORE";
     var changed = st !== agent.state; agent.state = st;
-    if (changed) { agent.path = null; if (!llmActive()) say(pickThink(st)); }
+    if (changed) { agent.path = null; agent.since = 0; if (!llmActive()) say(pickThink(st)); pushHist(st); }
+    else agent.since++;
+    if (st === "EXPLORE" && agent.since > 26) { agent.exdir = -agent.exdir; agent.since = 0; agent.tgt = null; agent.path = null; }   // break explore loops
     if (agent.replanT === undefined) agent.replanT = 0;
     agent.replanT--;
     var noPath = !agent.path || agent.pi >= agent.path.length;
@@ -557,10 +584,21 @@
   function askLLM() {
     if (!llmActive() || P.dead || document.hidden) return;
     var now = Date.now(); if (now - llmLast < 6000 || now < llmFail) return; llmLast = now;
-    var ne = nearestEnemy(), pcx = Math.max(0, Math.min(WW - 1, (P.x / TS) | 0));
-    var body = { hp: Math.round(P.hp), gems: gear.gems, pick: gear.pick, sword: gear.sword, armor: gear.armor,
-      state: agent.state, depth: Math.round(P.y / TS - (surf[pcx] || 40)), enemyNear: !!(ne && ne.d < TS * 10),
-      goalKnown: !!explored[idx(goal.x, goal.y)], exploredPct: Math.round(100 * exploredCount / (WW * WH)), wins: wins };
+    var ne = nearestEnemy(), pcx = Math.max(0, Math.min(WW - 1, (P.x / TS) | 0)), pcy = (P.y / TS) | 0;
+    var eInfo = null;
+    if (ne) {
+      var et = enemyStandTile(ne.e);
+      eInfo = { kind: ne.e.kind, lv: ne.e.lv || 1, distTiles: Math.round(ne.d / TS), dir: (ne.e.x < P.x ? "left" : "right"),
+        above: (ne.e.y + ne.e.h < P.y), reachable: !!bfsPath(pcx, ((P.y + P.h - 2) / TS) | 0, et.x, et.y), beatable: beatable(ne.e) };
+    }
+    var chest = nearestKnownChest();
+    var body = { hp: Math.round(P.hp), maxhp: P.maxhp, gems: gear.gems, pick: gear.pick, sword: gear.sword, armor: gear.armor,
+      power: Math.round(agentPower() * 10) / 10, depth: Math.round(pcy - (surf[pcx] || 40)), state: agent.state, wins: wins,
+      enemyNear: !!(ne && ne.d < TS * 10), enemy: eInfo, chestKnown: !!chest, chestDist: chest ? chest.d : null,
+      goalKnown: !!(explored[idx(goal.x, goal.y)] && get(goal.x, goal.y) === GOAL),
+      exploredPct: Math.round(100 * exploredCount / (WW * WH)),
+      surroundings: { solidBelow: isSolid(pcx, pcy + 1), solidLeft: isSolid(pcx - 1, pcy), solidRight: isSolid(pcx + 1, pcy) },
+      recentActions: agent.hist.slice(0, 6) };
     try {
       fetch(llmEP, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
         .then(function (r) { return r.json(); })
@@ -675,6 +713,11 @@
       ctx.fillStyle = "#7a5da8"; ctx.fillRect(ex + 3, ey + 1, s.w - 6, 6);
       ctx.fillStyle = "#ff5a5a"; ctx.fillRect(ex + 4, ey + 2, 1.6, 1.6); ctx.fillRect(ex + s.w - 5, ey + 2, 1.6, 1.6);
     }
+    var beat = beatable(s), lv = s.lv || 1;
+    if (s.maxhp && s.hp < s.maxhp) { ctx.fillStyle = "rgba(0,0,0,0.5)"; ctx.fillRect(ex, ey - 3, s.w, 2); ctx.fillStyle = beat ? "#63c74d" : "#e05555"; ctx.fillRect(ex, ey - 3, s.w * Math.max(0, s.hp / s.maxhp), 2); }
+    ctx.font = "bold 8px 'Source Sans 3', sans-serif"; ctx.textAlign = "center";
+    ctx.fillStyle = beat ? "#8fe388" : (lv - agentPower() > 1.6 ? "#ff6a6a" : "#ffcf5a");
+    ctx.fillText("Lv" + lv, ex + s.w / 2, ey - 5); ctx.textAlign = "left";
   }
   function drawMapOverlay(W, H) {
     ctx.fillStyle = "rgba(8,10,14,0.9)"; ctx.fillRect(0, 0, W, H);
