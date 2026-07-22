@@ -29,11 +29,19 @@ Built-in protections: origin lock (only your site may call it), per-IP rate limi
 The game calls the brain at most **once per 9 seconds**, and the proxy caps everything at
 `DAILY_LIMIT` upstream calls/day, so cost stays negligible.
 
-## Alternative: Aliyun Function Compute
+## Alternative: Aliyun Function Compute (Web Function)
 
-The same logic ports directly to an Aliyun FC HTTP handler (Node.js runtime): store
-`LLM_API_KEY` as an FC environment variable, check the `Origin` header, and forward to
-DashScope. Use FC if you prefer keeping everything inside Alibaba Cloud.
+Use `aliyun-fc.js` (no dependencies). ‼️ Choose **Web 函数 (Web Function)** — NOT
+**任务函数 (Task Function)** or **事件函数 (Event Function)**; only a Web Function gives
+a direct HTTPS URL the game can call.
+
+1. FC console → 创建函数 → **Web 函数** → Node.js 18/20 → 使用示例代码.
+2. Replace the sample with `aliyun-fc.js` (the *request handler* field is ignored for Web
+   functions — the file just starts an HTTP server on `FC_SERVER_PORT`).
+3. 函数配置 → 环境变量: `DASHSCOPE_API_KEY` (secret), `LLM_MODEL=qwen-plus`,
+   `ALLOWED_ORIGIN=https://xinji-mai.github.io`, `DAILY_LIMIT=800`.
+4. Enable the public HTTPS endpoint and copy the URL.
+5. On the game page click **🧠 LLM** and paste that URL.
 
 ## Why not put the key in the page / rent an ECS?
 

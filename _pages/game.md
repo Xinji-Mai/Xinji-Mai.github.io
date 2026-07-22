@@ -4,11 +4,7 @@ permalink: /game/
 author_profile: false
 ---
 
-<p><strong>Terramai</strong> is a tiny <em>Terraria-like</em> 2D pixel sandbox that an <strong>AI agent plays entirely on
-its own</strong> — it explores, mines ore, fights monsters, loots chests, upgrades its gear, and hunts the
-hidden <strong>Grand Gem</strong>. Every map is procedurally generated and <strong>guaranteed solvable</strong>
-(BFS-verified at generation). On death the agent <strong>drops all equipment</strong> (grab the 🎒 to recover it)
-and auto-respawns.</p>
+<p><strong>Terramai</strong> 是一款迷你 2D 像素沙盒游戏，由 AI 智能体自主操控——它会探索世界、挖掘矿石、与怪物战斗、搜刮宝箱、升级装备，并寻找隐藏的终极宝石。每张地图都是程序生成的。智能体死亡后会掉落所有装备（拾取 🎒 即可找回），并自动重生。</p>
 
 <p id="tw-keys"><b>Controls</b> — <kbd>M</kbd> toggle world map ·
 Agent runs itself by default; click <b>🎮 Mode</b> to take over manually:
@@ -29,9 +25,7 @@ The <b>🧠 LLM</b> button lets a real model take over the agent's high-level go
   <p id="tw-brain">Agent brain: <b>BFS pathfinding + frontier exploration + finite-state machine</b>
   (switching between Explore · Seek-Goal · Fight · Flee · Dig · Surface), all on-device. Turning on
   <b>🧠 LLM</b> lets a model pick the high-level goal &amp; narrate its thoughts — the banner shows which
-  model is in control. Your API key never touches the browser (it lives in the serverless proxy in
-  <a href="https://github.com/Xinji-Mai/Xinji-Mai.github.io/tree/master/agent-proxy"><code>agent-proxy/</code></a>,
-  with origin lock + rate limit + daily cap).</p>
+  model is in control.</p>
 </div>
 
 <style>

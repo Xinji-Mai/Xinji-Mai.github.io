@@ -463,38 +463,51 @@
     agent.replanT--;
     var noPath = !agent.path || agent.pi >= agent.path.length;
     if (noPath || agent.replanT <= 0 || agent.stuck > 55) {
-      var t = chooseTarget(st, ne);
-      if (t) { agent.path = bfsPath((P.x + P.w / 2) / TS | 0, (P.y + P.h + 2) / TS | 0, t.x, t.y) || bfsPath((P.x / TS) | 0, (P.y / TS) | 0, t.x, t.y); agent.pi = 0; }
-      agent.replanT = 48; if (agent.stuck > 55) agent.stuck = 0;
+      var t = chooseTarget(st, ne); agent.tgt = t;
+      if (t) { agent.path = bfsPath(((P.x + P.w / 2) / TS) | 0, ((P.y + P.h - 2) / TS) | 0, t.x, t.y); agent.pi = 0; }
+      agent.replanT = 40; if (agent.stuck > 55) agent.stuck = 0;
     }
     if (agent.hintT > 0) agent.hintT -= 15;
   }
-  function followPath() {
-    if (!agent.path || agent.pi >= agent.path.length) { P.vx *= 0.6; return; }
-    var node = agent.path[agent.pi];
-    var ptx = (P.x + P.w / 2) / TS, pty = (P.y + P.h / 2) / TS, dx = (node.x + 0.5) - ptx, dy = (node.y + 0.5) - pty;
-    if (Math.abs(dx) < 0.7 && Math.abs(dy) < 1.0) { agent.pi++; return; }
-    if (Math.abs(dx) > 0.3) { P.face = dx > 0 ? 1 : -1; P.vx = P.face * MOVE; } else P.vx *= 0.6;
-    var nt = get(node.x, node.y); if (SOLID[nt] && HARD[nt]) tryMine(node.x, node.y);
-    var fx = ((P.x + (P.face > 0 ? P.w + 2 : -3)) / TS) | 0, footY = ((P.y + P.h - 3) / TS) | 0, headY = ((P.y + 3) / TS) | 0;
-    if (isSolid(fx, footY) || isSolid(fx, headY)) {
-      var canStep = P.ground && !isSolid(fx, footY - 1) && !isSolid(fx, headY - 1);
-      if (canStep) P.vy = -JUMP; else tryMine(fx, isSolid(fx, headY) ? headY : footY);
+  function followPath() {}
+  function moveToward(txp, typ) {
+    var ptx = (P.x + P.w / 2) / TS, pty = (P.y + P.h / 2) / TS, dx = (txp + 0.5) - ptx, dy = (typ + 0.5) - pty;
+    if (Math.abs(dx) > 0.5) {
+      P.face = dx > 0 ? 1 : -1; P.vx = P.face * MOVE;
+      var fx = ((P.x + (P.face > 0 ? P.w + 2 : -3)) / TS) | 0, footY = ((P.y + P.h - 3) / TS) | 0, headY = ((P.y + 3) / TS) | 0;
+      if (isSolid(fx, footY) || isSolid(fx, headY)) {
+        var canStep = P.ground && !isSolid(fx, footY - 1) && !isSolid(fx, headY - 1) && !isSolid(((P.x + P.w / 2) / TS) | 0, headY - 1);
+        if (canStep) { if (P.ground) P.vy = -JUMP; } else tryMine(fx, isSolid(fx, headY) ? headY : footY);
+      }
+    } else P.vx *= 0.6;
+    if (dy < -1.0) { if (P.ground) P.vy = -JUMP; var ux = ((P.x + P.w / 2) / TS) | 0, uy = ((P.y - 3) / TS) | 0; if (isSolid(ux, uy) && get(ux, uy) !== BEDROCK) tryMine(ux, uy); }
+    else if (dy > 1.0 && Math.abs(dx) < 1.4) { var bx = ((P.x + P.w / 2) / TS) | 0, by = ((P.y + P.h + 2) / TS) | 0; if (isSolid(bx, by) && get(bx, by) !== BEDROCK) tryMine(bx, by); }
+  }
+  function nextWaypoint() {
+    if (!agent.path || agent.pi >= agent.path.length) return null;
+    var pcx = (P.x + P.w / 2) / TS, pcy = (P.y + P.h / 2) / TS, guard = 0;
+    while (agent.pi < agent.path.length - 1 && guard++ < 300) {
+      var n = agent.path[agent.pi];
+      if (Math.abs((n.x + 0.5) - pcx) < 1.15 && Math.abs((n.y + 0.5) - pcy) < 1.5) agent.pi++; else break;
     }
-    if (dy < -0.7) { if (P.ground) P.vy = -JUMP; var ux = ((P.x + P.w / 2) / TS) | 0, uy = ((P.y - 3) / TS) | 0; if (isSolid(ux, uy)) tryMine(ux, uy); }
-    else if (dy > 0.7 && Math.abs(dx) < 1.4) { var bx = ((P.x + P.w / 2) / TS) | 0, by = ((P.y + P.h + 2) / TS) | 0; if (isSolid(bx, by) && get(bx, by) !== BEDROCK) tryMine(bx, by); }
+    return agent.path[agent.pi];
   }
   function act(dtf) {
     if (P.dead) return;
     var ne = nearestEnemy();
     if (ne && ne.d < TS * 2.4) { P.face = ne.e.x > P.x ? 1 : -1; attack(); }
-    followPath();
-    if (Math.abs(P.x - agent.lx) < 0.4) agent.stuck += 1; else agent.stuck = 0;
+    var wp = nextWaypoint();
+    if (wp) moveToward(wp.x, wp.y);
+    else if (agent.tgt) moveToward(agent.tgt.x, agent.tgt.y);
+    else P.vx *= 0.6;
+    if (Math.abs(P.x - agent.lx) < 0.4 && P.ground) agent.stuck += 1; else agent.stuck = Math.max(0, agent.stuck - 2);
     agent.lx = P.x;
-    if (agent.stuck > 40) {
-      if (P.ground && Math.random() < 0.4) P.vy = -JUMP;
+    if (agent.stuck > 30) {
+      if (P.ground && Math.random() < 0.5) P.vy = -JUMP;
       var sx = (((P.x + P.w / 2) / TS) + P.face) | 0, sy = ((P.y + P.h - 3) / TS) | 0;
-      if (isSolid(sx, sy)) tryMine(sx, sy); else tryMine(((P.x + P.w / 2) / TS) | 0, ((P.y + P.h + 2) / TS) | 0);
+      if (isSolid(sx, sy) && get(sx, sy) !== BEDROCK) tryMine(sx, sy);
+      else { var bx = ((P.x + P.w / 2) / TS) | 0, by = ((P.y + P.h + 2) / TS) | 0; if (get(bx, by) !== BEDROCK) tryMine(bx, by); }
+      if (agent.stuck > 120) { agent.path = null; agent.tgt = null; agent.stuck = 0; }
     }
   }
 
@@ -641,7 +654,7 @@
     cam.x = Math.max(0, Math.min(WW * TS - W, P.x + P.w / 2 - W / 2));
     cam.y = Math.max(0, Math.min(WH * TS - H, P.y + P.h / 2 - H / 2));
     drawSky(W, H);
-    var x0 = (cam.x / TS) | 0, y0 = (cam.y / TS) | 0, x1 = ((cam.x + W) / TS) | 0 + 1, y1 = ((cam.y + H) / TS) | 0 + 1, tx, ty;
+    var x0 = (cam.x / TS) | 0, y0 = (cam.y / TS) | 0, x1 = (((cam.x + W) / TS) | 0) + 1, y1 = (((cam.y + H) / TS) | 0) + 1, tx, ty;
     for (ty = y0; ty <= y1; ty++) for (tx = x0; tx <= x1; tx++) {
       if (!inb(tx, ty)) continue;
       var px = tx * TS - cam.x, py = ty * TS - cam.y, t = world[idx(tx, ty)];
