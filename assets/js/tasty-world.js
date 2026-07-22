@@ -516,7 +516,7 @@
     if (agent.jumpCD > 0) agent.jumpCD -= dtf;
     var ne = nearestEnemy();
     if (ne && ne.d < TS * 2.6) { P.face = ne.e.x > P.x ? 1 : -1; attack(); }
-    if (ne && ne.d < TS * 7.5 && P.hp / P.maxhp >= 0.35) {   // FIGHT: ground approach + attack; never dig-chase into the sky
+    if (ne && ne.d < TS * 3.5 && P.hp / P.maxhp >= 0.35) {   // close-range melee only; far enemies use normal BFS navigation
       var fmid = ((P.x + P.w / 2) / TS) | 0, ffoot = ((P.y + P.h - 3) / TS) | 0, fhead = ((P.y + 3) / TS) | 0, edx = ne.e.x - P.x;
       if (Math.abs(edx) > TS * 0.6) {
         P.face = edx > 0 ? 1 : -1; P.vx = P.face * MOVE;
