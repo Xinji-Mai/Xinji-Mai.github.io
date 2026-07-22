@@ -646,9 +646,10 @@
       var uy = ((P.y - 3) / TS) | 0;
       if (isSolid(mid, uy)) { if (agent.mineF !== frame && tryMine(mid, uy)) agent.hopN = 0; }
       else if (P.ground && agent.jumpCD <= 0) {
-        P.vy = -JUMP; agent.jumpCD = 16;
+        P.vy = -JUMP; agent.jumpCD = 18;
+        agent.wantUp = dy < -1.8;                              // deep ascent: pillar a dirt block at the apex
         agent.hopN = (agent.hopN || 0) + 1;
-        if (agent.hopN > 4) { agent.hopN = 0; banTarget(); agent.exdir = -agent.exdir; }   // unreachable overhead target: blacklist & re-target
+        if (agent.hopN > 6) { agent.hopN = 0; banTarget(); agent.exdir = -agent.exdir; }   // truly unreachable: blacklist & re-target
       }
     } else if (dy > 0.8 && Math.abs(dx) < 1.6) {
       var by = ((P.y + P.h + 2) / TS) | 0;
@@ -705,6 +706,14 @@
     var wp = nextWaypoint();
     var tx = wp ? wp.x : (agent.tgt ? agent.tgt.x : null), ty = wp ? wp.y : (agent.tgt ? agent.tgt.y : null);
     if (tx !== null) moveToward(tx, ty); else P.vx *= 0.6;
+    if (agent.wantUp && !P.ground && P.vy > -2.5) {            // near jump apex: pack a dirt block underfoot (pillar up)
+      var pbx = ((P.x + P.w / 2) / TS) | 0, pby = (((P.y + P.h) / TS) | 0) + 1;
+      if (get(pbx, pby) === AIR) {
+        setT(pbx, pby, DIRT); burst((pbx + 0.5) * TS, (pby + 0.5) * TS, "#6e4a28", 5);
+        agent.hopN = 0; agent.stuck = Math.max(0, agent.stuck - 40);
+      }
+      agent.wantUp = false;
+    }
     if (agent.stuck > 45 && tx !== null && agent.mineF !== frame) {
       var mid = ((P.x + P.w / 2) / TS) | 0, cy = ((P.y + P.h / 2) / TS) | 0, ddx = tx - mid, ddy = ty - cy;
       var dgx, dgy;                                          // mine ONE tile per frame so digP accumulates
