@@ -541,6 +541,7 @@
       fetch(llmEP, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
         .then(function (r) { return r.json(); })
         .then(function (j) {
+          llmFail = 0;
           if (j && j.model) llmModel = String(j.model).slice(0, 24);
           if (j && j.thought) say(String(j.thought).slice(0, 64));
           if (j && j.hint) { agent.hint = String(j.hint); agent.hintT = 720; }
@@ -588,7 +589,7 @@
     var hb = document.getElementById("tw-hpbar"); if (hb) hb.style.width = Math.max(0, P.hp / P.maxhp * 100) + "%";
     var ge = document.getElementById("tw-gear"); if (ge) ge.textContent = "⛏️Lv" + gear.pick + " 🗡️Lv" + gear.sword + " 🛡️Lv" + gear.armor + " 💎" + gear.gems + " 🏆" + wins;
     var stt = document.getElementById("tw-state");
-    if (stt) stt.textContent = !agent.on ? "MANUAL" : (llmActive() ? ("🧠 " + (llmModel || "LLM") + " · " + agent.state) : ("BFS+Frontier+FSM · " + agent.state));
+    if (stt) stt.textContent = !agent.on ? "MANUAL" : (llmActive() ? ("🧠 " + (llmModel || (Date.now() < llmFail ? "offline" : "…")) + " · " + agent.state) : ("BFS+Frontier+FSM · " + agent.state));
     var lb = document.getElementById("tw-llm"); if (lb) { lb.textContent = llmActive() ? "🧠 LLM: ON" : "🧠 LLM: OFF"; lb.className = llmActive() ? "on" : ""; }
   }
 
@@ -703,10 +704,13 @@
       ctx.fillStyle = "rgba(255,255,255,0.94)"; ctx.fillRect(bx, by, tw, 18);
       ctx.fillStyle = llmActive() ? "#7b3fe4" : "#20242a"; ctx.fillText(label, bx + 6, by + 13);
     }
-    if (llmActive()) {                                              // "model in control" banner
-      var t2 = "🧠 " + (llmModel || "LLM") + " in control";
+    if (llmActive()) {                                              // LLM status banner
+      var t2, col;
+      if (llmModel) { t2 = "🧠 " + llmModel + " in control"; col = "rgba(123,63,228,0.92)"; }
+      else if (Date.now() < llmFail) { t2 = "🧠 LLM offline — using local brain"; col = "rgba(180,60,60,0.9)"; }
+      else { t2 = "🧠 LLM connecting…"; col = "rgba(123,63,228,0.7)"; }
       ctx.font = "bold 12px 'Source Sans 3',sans-serif"; var bw = ctx.measureText(t2).width + 18;
-      ctx.fillStyle = "rgba(123,63,228,0.92)"; ctx.fillRect(W / 2 - bw / 2, 6, bw, 20);
+      ctx.fillStyle = col; ctx.fillRect(W / 2 - bw / 2, 6, bw, 20);
       ctx.fillStyle = "#fff"; ctx.textAlign = "center"; ctx.fillText(t2, W / 2, 20); ctx.textAlign = "left";
     }
     ctx.font = "12px 'Source Sans 3',sans-serif";                    // toast messages

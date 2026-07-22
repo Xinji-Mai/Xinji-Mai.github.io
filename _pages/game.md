@@ -47,6 +47,6 @@ The <b>🧠 LLM</b> button lets a real model take over the agent's high-level go
   /* Optional LLM proxy endpoint. Leave "" to use the built-in BFS+FSM brain; the 🧠 LLM
      button can also set it at runtime. NEVER put an API key here — deploy agent-proxy/
      and use only the PROXY URL. */
-  window.AGENT_LLM_ENDPOINT = "";
+  window.AGENT_LLM_ENDPOINT = "https://llm-call-uxclormbsa.cn-beijing.fcapp.run";
 </script>
 <script src="/assets/js/tasty-world.js"></script>

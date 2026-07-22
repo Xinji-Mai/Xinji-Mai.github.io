@@ -12,7 +12,7 @@
  * Environment variables (FC console → 函数配置 → 环境变量):
  *   DASHSCOPE_API_KEY  = sk-...     (your key — stays on the server)
  *   LLM_BASE_URL       = https://token-plan.cn-beijing.maas.aliyuncs.com/compatible-mode/v1
- *   LLM_MODEL          = qwen-plus
+ *   LLM_MODEL          = qwen3.8-max-preview
  *   ALLOWED_ORIGIN     = https://xinji-mai.github.io
  *   DAILY_LIMIT        = 800
  */
@@ -59,7 +59,7 @@ http.createServer(function (req, res) {
   req.on("data", function (c) { body += c; });
   req.on("end", function () {
     var s = {}; try { s = JSON.parse(body); } catch (e) {}
-    var model = process.env.LLM_MODEL || "qwen-plus";
+    var model = process.env.LLM_MODEL || "qwen3.8-max-preview";
     var sys = "You are the brain of a pixel game agent exploring a Terraria-like world. Reply ONLY compact JSON: " +
       "{\"thought\":\"<witty first-person thought, <=10 words>\",\"hint\":\"<one of: explore|dig_down|seek_goal|fight|flee|surface>\"}";
     var usr = "State: hp=" + s.hp + ", gems=" + s.gems + ", pick=" + s.pick + ", sword=" + s.sword + ", armor=" + s.armor +
