@@ -4,7 +4,7 @@ permalink: /game/
 author_profile: false
 ---
 
-<p><strong>Terramai</strong> 是一款迷你 2D 像素沙盒游戏，由 AI 智能体自主操控——它会探索世界、挖掘矿石、与怪物战斗、搜刮宝箱、升级装备，并寻找隐藏的终极宝石。每张地图都是程序生成的。智能体死亡后会掉落所有装备（拾取 🎒 即可找回），并自动重生。</p>
+<p><strong>Terramai</strong> is a tiny 2D pixel sandbox game played entirely by an AI agent on its own — it explores the world, mines ore, fights monsters, loots chests, upgrades its gear, and seeks the hidden Grand Gem. Every map is procedurally generated. When the agent dies it drops all its equipment (grab the 🎒 to recover it) and auto-respawns.</p>
 
 <p id="tw-keys"><b>Controls</b> — <kbd>M</kbd> toggle world map ·
 Agent runs itself by default; click <b>🎮 Mode</b> to take over manually:

@@ -179,7 +179,7 @@
   var gear = { pick: 1, sword: 1, armor: 0, gems: 0, pts: 0 };
   var enemies = [], drops = [], parts = [], msgs = [];
   var agent = { on: true, state: "EXPLORE", think: "Waking up…", hint: null, hintT: 0, tgt: null,
-                path: null, pi: 0, pathT: 0, digT: null, digP: 0, atk: 0, stuck: 0, lx: 0, decideT: 0 };
+                path: null, pi: 0, pathT: 0, digT: null, digP: 0, atk: 0, stuck: 0, lx: 0, decideT: 0, jumpCD: 0 };
   var cam = { x: 0, y: 0 }, keys = {}, wins = 0, frame = 0, regenT = 0, showMap = false;
   var llmEP = "", llmOn = false, llmModel = "", llmLast = 0, llmFail = 0;
   try { llmEP = (window.AGENT_LLM_ENDPOINT || "").trim() || localStorage.getItem("agent_llm_endpoint") || ""; } catch (e) {}
@@ -373,6 +373,7 @@
     FLEE: ["Too risky — retreating.", "Fall back and heal!", "Nope, running."],
     DIG: ["Tunnelling downward…", "Digging for ore."],
     SURFACE: ["Heading back up for air.", "To the surface!"],
+    CHEST: ["A chest! Gimme that loot.", "Treasure nearby — on my way.", "Free loot, don't mind if I do."],
     WIN: ["Grand Gem secured! 🎉", "Loot acquired!"]
   };
   function pickThink(st) { var p = THINKS[st] || THINKS.EXPLORE; return p[(Math.random() * p.length) | 0]; }
@@ -380,6 +381,14 @@
     var b = null, bd = 1e9;
     for (var i = 0; i < enemies.length; i++) { var d = Math.hypot(enemies[i].x - P.x, enemies[i].y - P.y); if (d < bd) { bd = d; b = enemies[i]; } }
     return b ? { e: b, d: bd } : null;
+  }
+  function nearestKnownChest() {
+    var b = null, bd = 1e9, pcx = (P.x / TS) | 0, pcy = (P.y / TS) | 0;
+    for (var i = 0; i < chests.length; i++) {
+      var c = chests[i]; if (!explored[idx(c.x, c.y)] || get(c.x, c.y) !== CHEST) continue;
+      var d = Math.abs(c.x - pcx) + Math.abs(c.y - pcy); if (d < bd) { bd = d; b = c; }
+    }
+    return b ? { x: b.x, y: b.y, d: bd } : null;
   }
 
   /* ---- Dijkstra path over tiles (AIR cheap, diggable costs ~hardness, bedrock blocked) ---- */
@@ -440,6 +449,7 @@
   function chooseTarget(st, ne) {
     if (st === "FLEE" && ne) return { x: Math.max(2, Math.min(WW - 3, ((P.x / TS) | 0) + (P.x < ne.e.x ? -16 : 16))), y: (P.y / TS) | 0 };
     if (st === "FIGHT" && ne) return { x: (ne.e.x / TS) | 0, y: ((ne.e.y + ne.e.h - 2) / TS) | 0 };
+    if (st === "CHEST") { var ch = nearestKnownChest(); return ch ? { x: ch.x, y: ch.y } : (nearestFrontier() || randFar()); }
     if (st === "SEEK_GOAL") return { x: goal.x, y: goal.y };
     if (st === "DIG") return { x: (P.x / TS) | 0, y: Math.min(WH - 3, ((P.y / TS) | 0) + 16) };
     if (st === "SURFACE") { var cx = Math.max(0, Math.min(WW - 1, (P.x / TS) | 0)); return { x: cx, y: Math.max(2, (surf[cx] || 40) - 2) }; }
@@ -449,9 +459,10 @@
     if (P.dead) return;
     var ne = nearestEnemy(), hpr = P.hp / P.maxhp;
     var goalKnown = explored[idx(goal.x, goal.y)] && get(goal.x, goal.y) === GOAL;
-    var st;
+    var st, chest = nearestKnownChest();
     if (ne && ne.d < TS * 6 && hpr < 0.4) st = "FLEE";
     else if (ne && ne.d < TS * 7.5) st = "FIGHT";
+    else if (chest && chest.d < 42) st = "CHEST";
     else if (agent.hint === "dig_down" && agent.hintT > 0) st = "DIG";
     else if (agent.hint === "surface" && agent.hintT > 0) st = "SURFACE";
     else if (goalKnown || (agent.hint === "seek_goal" && agent.hintT > 0)) st = "SEEK_GOAL";
@@ -471,17 +482,25 @@
   }
   function followPath() {}
   function moveToward(txp, typ) {
-    var ptx = (P.x + P.w / 2) / TS, pty = (P.y + P.h / 2) / TS, dx = (txp + 0.5) - ptx, dy = (typ + 0.5) - pty;
-    if (Math.abs(dx) > 0.5) {
+    var mid = ((P.x + P.w / 2) / TS) | 0, footY = ((P.y + P.h - 3) / TS) | 0, headY = ((P.y + 3) / TS) | 0;
+    var pcx = (P.x + P.w / 2) / TS, pcy = (P.y + P.h / 2) / TS, dx = (txp + 0.5) - pcx, dy = (typ + 0.5) - pcy;
+    if (Math.abs(dx) > 0.45) {
       P.face = dx > 0 ? 1 : -1; P.vx = P.face * MOVE;
-      var fx = ((P.x + (P.face > 0 ? P.w + 2 : -3)) / TS) | 0, footY = ((P.y + P.h - 3) / TS) | 0, headY = ((P.y + 3) / TS) | 0;
-      if (isSolid(fx, footY) || isSolid(fx, headY)) {
-        var canStep = P.ground && !isSolid(fx, footY - 1) && !isSolid(fx, headY - 1) && !isSolid(((P.x + P.w / 2) / TS) | 0, headY - 1);
-        if (canStep) { if (P.ground) P.vy = -JUMP; } else tryMine(fx, isSolid(fx, headY) ? headY : footY);
+      var fx = mid + P.face, bf = isSolid(fx, footY), bh = isSolid(fx, headY);
+      if (bf || bh) {
+        var stepUp = bf && !bh && !isSolid(fx, footY - 1) && !isSolid(mid, headY - 1);
+        if (stepUp && P.ground && agent.jumpCD <= 0) { P.vy = -JUMP; agent.jumpCD = 16; }
+        else tryMine(fx, bh ? headY : footY);
       }
     } else P.vx *= 0.6;
-    if (dy < -1.0) { if (P.ground) P.vy = -JUMP; var ux = ((P.x + P.w / 2) / TS) | 0, uy = ((P.y - 3) / TS) | 0; if (isSolid(ux, uy) && get(ux, uy) !== BEDROCK) tryMine(ux, uy); }
-    else if (dy > 1.0 && Math.abs(dx) < 1.4) { var bx = ((P.x + P.w / 2) / TS) | 0, by = ((P.y + P.h + 2) / TS) | 0; if (isSolid(bx, by) && get(bx, by) !== BEDROCK) tryMine(bx, by); }
+    if (dy < -1.2) {
+      var uy = ((P.y - 3) / TS) | 0;
+      if (isSolid(mid, uy)) tryMine(mid, uy);
+      else if (P.ground && agent.jumpCD <= 0) { P.vy = -JUMP; agent.jumpCD = 16; }
+    } else if (dy > 1.2 && Math.abs(dx) < 1.3) {
+      var by = ((P.y + P.h + 2) / TS) | 0;
+      if (isSolid(mid, by) && get(mid, by) !== BEDROCK) tryMine(mid, by);
+    }
   }
   function nextWaypoint() {
     if (!agent.path || agent.pi >= agent.path.length) return null;
@@ -494,20 +513,19 @@
   }
   function act(dtf) {
     if (P.dead) return;
+    if (agent.jumpCD > 0) agent.jumpCD -= dtf;
     var ne = nearestEnemy();
     if (ne && ne.d < TS * 2.4) { P.face = ne.e.x > P.x ? 1 : -1; attack(); }
     var wp = nextWaypoint();
-    if (wp) moveToward(wp.x, wp.y);
-    else if (agent.tgt) moveToward(agent.tgt.x, agent.tgt.y);
-    else P.vx *= 0.6;
-    if (Math.abs(P.x - agent.lx) < 0.4 && P.ground) agent.stuck += 1; else agent.stuck = Math.max(0, agent.stuck - 2);
+    var tx = wp ? wp.x : (agent.tgt ? agent.tgt.x : null), ty = wp ? wp.y : (agent.tgt ? agent.tgt.y : null);
+    if (tx !== null) moveToward(tx, ty); else P.vx *= 0.6;
+    if (Math.abs(P.x - agent.lx) < 0.35 && P.ground) agent.stuck += 1; else agent.stuck = Math.max(0, agent.stuck - 3);
     agent.lx = P.x;
-    if (agent.stuck > 30) {
-      if (P.ground && Math.random() < 0.5) P.vy = -JUMP;
-      var sx = (((P.x + P.w / 2) / TS) + P.face) | 0, sy = ((P.y + P.h - 3) / TS) | 0;
-      if (isSolid(sx, sy) && get(sx, sy) !== BEDROCK) tryMine(sx, sy);
-      else { var bx = ((P.x + P.w / 2) / TS) | 0, by = ((P.y + P.h + 2) / TS) | 0; if (get(bx, by) !== BEDROCK) tryMine(bx, by); }
-      if (agent.stuck > 120) { agent.path = null; agent.tgt = null; agent.stuck = 0; }
+    if (agent.stuck > 24 && tx !== null) {
+      var mid = ((P.x + P.w / 2) / TS) | 0, cy = ((P.y + P.h / 2) / TS) | 0, ddx = tx - mid, ddy = ty - cy;
+      if (Math.abs(ddy) >= Math.abs(ddx) && ddy !== 0) tryMine(mid, ddy > 0 ? (((P.y + P.h + 2) / TS) | 0) : (((P.y - 3) / TS) | 0));
+      else { var dgx = mid + (ddx >= 0 ? 1 : -1); tryMine(dgx, ((P.y + P.h - 3) / TS) | 0); tryMine(dgx, ((P.y + 3) / TS) | 0); }
+      if (agent.stuck > 80) { agent.path = null; agent.tgt = null; agent.stuck = 0; }
     }
   }
 
@@ -749,13 +767,13 @@
     }
     llmOn = !llmOn; try { localStorage.setItem("agent_llm_on", llmOn ? "1" : "0"); } catch (e) {}
     if (!llmOn) llmModel = "";
-    say(llmOn ? "Handing high-level control to the LLM…" : "Back to the local BFS+FSM brain.");
+    say(llmOn ? "Handing high-level control to the LLM…" : "OK, I'll take it from here.");
     hud();
   });
   function fit() { var w = Math.min(900, (canvas.parentElement && canvas.parentElement.clientWidth) || 880); canvas.width = Math.max(480, w); canvas.height = 480; ctx.imageSmoothingEnabled = false; }
   window.addEventListener("resize", fit);
   buildTex(); fit(); generate(); resetPlayer(); hud();
-  say(llmActive() ? "LLM brain connected." : "Local brain: BFS pathfinding + frontier exploration + FSM.");
+  say(llmActive() ? "LLM brain connected." : "Ready — let's explore!");
   msg("🌍 World generated — the agent explores on its own. Press M for the map.");
   requestAnimationFrame(loop);
 })();
