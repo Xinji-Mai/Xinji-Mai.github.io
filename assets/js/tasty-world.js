@@ -446,9 +446,14 @@
     }
     return { x: goal.x, y: goal.y };
   }
+  function enemyStandTile(e) {                              // reachable ground spot near an enemy (not a floating air tile)
+    var ex = Math.max(1, Math.min(WW - 2, ((e.x + e.w / 2) / TS) | 0)), ey = Math.max(1, Math.min(WH - 2, ((e.y + e.h - 2) / TS) | 0));
+    for (var y = ey; y < WH - 1; y++) { if (get(ex, y) !== BEDROCK && !isSolid(ex, y) && isSolid(ex, y + 1)) return { x: ex, y: y }; }
+    return { x: ex, y: ey };
+  }
   function chooseTarget(st, ne) {
     if (st === "FLEE" && ne) return { x: Math.max(2, Math.min(WW - 3, ((P.x / TS) | 0) + (P.x < ne.e.x ? -16 : 16))), y: (P.y / TS) | 0 };
-    if (st === "FIGHT" && ne) return { x: (ne.e.x / TS) | 0, y: ((ne.e.y + ne.e.h - 2) / TS) | 0 };
+    if (st === "FIGHT" && ne) return enemyStandTile(ne.e);
     if (st === "CHEST") { var ch = nearestKnownChest(); return ch ? { x: ch.x, y: ch.y } : (nearestFrontier() || randFar()); }
     if (st === "SEEK_GOAL") return { x: goal.x, y: goal.y };
     if (st === "DIG") return { x: (P.x / TS) | 0, y: Math.min(WH - 3, ((P.y / TS) | 0) + 16) };
