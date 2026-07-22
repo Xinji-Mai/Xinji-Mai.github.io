@@ -14,16 +14,16 @@
   var TS = 16, WW = 240, WH = 100;
   var GRAV = 0.55, MAXFALL = 11, MOVE = 1.8, JUMP = 8.9;
   var AIR = 0, DIRT = 1, GRASS = 2, STONE = 3, COPPER = 4, IRON = 5, GOLD = 6, DIAMOND = 7,
-      GEM = 8, WOOD = 9, LEAF = 10, BEDROCK = 11, GOAL = 12, CHEST = 13;
+      GEM = 8, WOOD = 9, LEAF = 10, BEDROCK = 11, GOAL = 12, CHEST = 13, LAVA = 14;
   var SOLID = { 1: 1, 2: 1, 3: 1, 4: 1, 5: 1, 6: 1, 7: 1, 8: 1, 9: 1, 11: 1 };
   var HARD = { 1: 10, 2: 10, 3: 24, 4: 28, 5: 34, 6: 40, 7: 55, 8: 45, 9: 16, 10: 4 };
   var ORE_PTS = { 4: 1, 5: 2, 6: 3, 7: 5 };
   var ORE_NAME = { 4: "Copper", 5: "Iron", 6: "Gold", 7: "Diamond" };
   var BASECOL = { 1: "#6e4a28", 2: "#6e4a28", 3: "#6b6f76", 4: "#6b6f76", 5: "#6b6f76", 6: "#6b6f76",
-                  7: "#5d6166", 8: "#5d6166", 9: "#5b3b22", 10: "#2f7d2a", 11: "#23252b", 12: "#ffd54a", 13: "#7a4a1e" };
+                  7: "#5d6166", 8: "#5d6166", 9: "#5b3b22", 10: "#2f7d2a", 11: "#23252b", 12: "#ffd54a", 13: "#7a4a1e", 14: "#e2581f" };
   var NUG = { 4: "#c47a3a", 5: "#d8cfc0", 6: "#ffd24a", 7: "#6ee6f2", 8: "#b06ef2" };
   var MAPCOL = { 0: "#181c24", 1: "#6e4a28", 2: "#3e9e3a", 3: "#6b6f76", 4: "#c47a3a", 5: "#d8cfc0",
-                 6: "#ffd24a", 7: "#6ee6f2", 8: "#b06ef2", 9: "#5b3b22", 10: "#2f7d2a", 11: "#0c0d10", 12: "#ffd54a", 13: "#e8a33d" };
+                 6: "#ffd24a", 7: "#6ee6f2", 8: "#b06ef2", 9: "#5b3b22", 10: "#2f7d2a", 11: "#0c0d10", 12: "#ffd54a", 13: "#e8a33d", 14: "#ff6a2a" };
 
   var world = new Uint8Array(WW * WH), explored = new Uint8Array(WW * WH), exploredCount = 0;
   function idx(x, y) { return y * WW + x; }
@@ -77,6 +77,11 @@
       g.fillStyle = "#ffd24a"; g.fillRect(1, 7, TS - 2, 2); g.fillRect(TS / 2 - 1, 6, 3, 5);
       g.fillStyle = "#3a2508"; g.fillRect(TS / 2, 8, 1, 2);
     }
+    if (t === LAVA) {                                           // molten glow
+      g.fillStyle = "#e2581f"; g.fillRect(0, 0, TS, TS);
+      g.fillStyle = "#ff9c40"; for (i = 0; i < 6; i++) g.fillRect((Math.random() * TS) | 0, (Math.random() * TS) | 0, 3, 2);
+      g.fillStyle = "#ffd54a"; for (i = 0; i < 3; i++) g.fillRect((Math.random() * TS) | 0, (Math.random() * TS) | 0, 2, 1);
+    }
     if (t !== GOAL && t !== CHEST) {                            // beveled edges
       g.fillStyle = "rgba(255,255,255,0.14)"; g.fillRect(0, 0, TS, 1); g.fillRect(0, 0, 1, TS);
       g.fillStyle = "rgba(0,0,0,0.22)"; g.fillRect(0, TS - 1, TS, 1); g.fillRect(TS - 1, 0, 1, TS);
@@ -84,7 +89,7 @@
     return c;
   }
   function buildTex() {
-    for (var t = 1; t <= 13; t++) { TEX[t] = [makeTex(t), makeTex(t), makeTex(t)]; }
+    for (var t = 1; t <= 14; t++) { TEX[t] = [makeTex(t), makeTex(t), makeTex(t)]; }
   }
 
   /* ---------------- world generation (procedural + guaranteed solvable) ---------------- */
@@ -138,6 +143,21 @@
         if (far) { setT(qx, qy, CHEST); chests.push({ x: qx, y: qy }); }
       }
     }
+    for (var lp = 0; lp < 12; lp++) {                           // lava pools in the deep caves
+      var lx0 = rnd(8, WW - 10) | 0, ly0 = rnd(WH * 0.7, WH - 4) | 0, span = 3 + (Math.random() * 6 | 0);
+      for (var ly2 = ly0 + 1; ly2 >= ly0; ly2--)
+        for (var lx = lx0; lx < Math.min(WW - 2, lx0 + span); lx++)
+          if (get(lx, ly2) === AIR && (isSolid(lx, ly2 + 1) || get(lx, ly2 + 1) === LAVA)) setT(lx, ly2, LAVA);
+    }
+    items.length = 0;
+    for (var fi = 0; fi < 9; fi++) {                            // surface snacks
+      var fx2 = rnd(10, WW - 10) | 0, fk = ["apple", "apple", "meat", "shroom", "honey"][(Math.random() * 5) | 0];
+      spawnItem(fx2 * TS + 8, (surf[fx2] - 2) * TS, fk);
+    }
+    for (var fj = 0, fc = 0; fj < 200 && fc < 6; fj++) {        // cave mushrooms & honey
+      var mx = rnd(10, WW - 10) | 0, my = rnd(WH * 0.45, WH - 4) | 0;
+      if (get(mx, my) === AIR && isSolid(mx, my + 1)) { spawnItem(mx * TS + 8, my * TS + 4, Math.random() < 0.7 ? "shroom" : "honey"); fc++; }
+    }
     var sx = 5; spawn.x = sx * TS + 2; spawn.y = (surf[sx] - 3) * TS;
     for (var cy2 = surf[sx] - 5; cy2 < surf[sx]; cy2++) { setT(sx, cy2, AIR); setT(sx + 1, cy2, AIR); }
     var gx = WW - 8, gy = WH - 6;                               // goal: the Grand Gem, deep & far
@@ -179,6 +199,16 @@
   var gear = { pick: 1, sword: 1, armor: 0, gems: 0, pts: 0 };
   var enemies = [], drops = [], parts = [], msgs = [];
   var stat = { ore: 0, gem: 0, chest: 0, kill: 0 };
+  var items = [], buffs = { speed: 0, power: 0, shield: 0, regen: 0 };
+  var FOOD = {
+    apple:  { icon: "🍎", heal: 15, buff: null },
+    meat:   { icon: "🍖", heal: 30, buff: null },
+    shroom: { icon: "🍄", heal: 10, buff: "speed" },
+    honey:  { icon: "🍯", heal: 5,  buff: "regen" },
+    pshard: { icon: "⚔️", heal: 0,  buff: "power" },
+    star:   { icon: "⭐", heal: 0,  buff: "shield" }
+  };
+  var BUFF_NAME = { speed: "Speed", power: "Power", shield: "Shield", regen: "Regen" };
   var agent = { on: true, state: "EXPLORE", think: "Waking up…", hint: null, hintT: 0, tgt: null,
                 path: null, pi: 0, pathT: 0, digT: null, digP: 0, atk: 0, stuck: 0, lx: 0, decideT: 0, jumpCD: 0, hist: [], exdir: 1, since: 0, planQ: [], planT: 0, anchor: null, avoidT: 0, badTs: [] };
   var cam = { x: 0, y: 0 }, keys = {}, wins = 0, frame = 0, regenT = 0, showMap = false;
@@ -244,7 +274,7 @@
     var d = Math.hypot((tx + 0.5) * TS - (P.x + P.w / 2), (ty + 0.5) * TS - (P.y + P.h / 2));
     if (d > TS * 3) return false;
     if (!agent.digT || agent.digT.x !== tx || agent.digT.y !== ty) { agent.digT = { x: tx, y: ty }; agent.digP = 0; }
-    agent.digP += 1 + gear.pick * 0.8; agent.mineF = frame;
+    agent.digP += 1 + gear.pick * 0.8; agent.mineF = frame; agent.stuck = Math.max(0, agent.stuck - 6);
     if (frame % 5 === 0) burst((tx + 0.5) * TS, (ty + 0.5) * TS, BASECOL[t] || "#999", 1);
     if (agent.digP >= HARD[t]) {
       agent.digT = null; agent.digP = 0; agent.stuck = 0;
@@ -328,10 +358,12 @@
         if (!hitSolid(s.x, s.y + my, s.w, s.h)) s.y += my;
       }
       if (s.y > WH * TS + 40) s.hp = 0;
+      if (get(((s.x + s.w / 2) / TS) | 0, ((s.y + s.h / 2) / TS) | 0) === LAVA) { s.hp -= 0.7 * dtf; if (frame % 9 === 0) burst(s.x + s.w / 2, s.y, "#ff9c40", 1); }
       if (!P.dead && P.inv <= 0 &&
           Math.abs((s.x + s.w / 2) - (P.x + P.w / 2)) < (s.w + P.w) / 2 &&
           Math.abs((s.y + s.h / 2) - (P.y + P.h / 2)) < (s.h + P.h) / 2) {
         var dmg = Math.max(2, Math.round(k.dmg * (1 + 0.55 * ((s.lv || 1) - 1)) + wins - gear.armor * 2));
+        if (buffs.shield > 0) dmg = 0;
         P.hp -= dmg; P.inv = 45; P.vx = (dx > 0 ? -1 : 1) * 3; P.vy = -3;
         burst(P.x + P.w / 2, P.y + P.h / 2, "#e05555", 6);
         if (P.hp <= 0) die();
@@ -341,6 +373,11 @@
         gear.pts += (s.lv || 1); levelUp();
         if ((s.lv || 1) >= 3) { gear.gems++; msg("💎 Lv" + s.lv + " " + s.kind + " dropped a gem! (" + gear.gems + ")"); if (gear.gems % 2 === 0 && gear.armor < 6) { gear.armor++; msg("🛡️ Armor Lv." + gear.armor); } }
         else msg("⚔️ " + s.kind + " Lv" + (s.lv || 1) + " down! +" + (s.lv || 1) + " pts");
+        var dr = Math.random();
+        if (s.kind === "zombie" && dr < 0.55) spawnItem(s.x + s.w / 2, s.y, "meat");
+        else if (s.kind === "slime" && dr < 0.5) spawnItem(s.x + s.w / 2, s.y, dr < 0.18 ? "pshard" : "shroom");
+        else if (s.kind === "bat" && dr < 0.5) spawnItem(s.x + s.w / 2, s.y, dr < 0.15 ? "star" : "apple");
+        if ((s.lv || 1) >= 4 && Math.random() < 0.3) spawnItem(s.x + s.w / 2, s.y - 4, "star");
         enemies.splice(i, 1);
       }
     }
@@ -352,7 +389,7 @@
     for (var i = 0; i < enemies.length; i++) {
       var s = enemies[i];
       if (s.x + s.w > rx && s.x < rx + 24 && s.y + s.h > P.y - 6 && s.y < P.y + P.h + 6) {
-        s.hp -= 5 + gear.sword * 4; s.vx = P.face * 4; s.vy = -3; agent.stuck = 0;
+        s.hp -= (5 + gear.sword * 4) * (buffs.power > 0 ? 1.6 : 1); s.vx = P.face * 4; s.vy = -3; agent.stuck = 0;
         burst(s.x + s.w / 2, s.y + s.h / 2, "#ffe9a3", 5);
       }
     }
@@ -367,6 +404,23 @@
         msg("🎒 Recovered your equipment!"); burst(d.x, d.y, "#ffd24a", 8); drops.splice(i, 1);
       }
     }
+  }
+  /* ---------------- food & buff items ---------------- */
+  function spawnItem(x, y, kind) { items.push({ x: x, y: y, vx: rnd(-1, 1), vy: -2, w: 8, h: 8, ground: false, kind: kind, life: 3600 }); }
+  function updItems(dtf) {
+    for (var i = items.length - 1; i >= 0; i--) {
+      var it = items[i]; step(it, dtf); it.vx *= 0.9; it.life -= dtf;
+      if (it.life <= 0 || get((it.x / TS) | 0, (it.y / TS) | 0) === LAVA) { items.splice(i, 1); continue; }
+      if (!P.dead && Math.abs(it.x - (P.x + P.w / 2)) < 15 && Math.abs(it.y - (P.y + P.h / 2)) < 20) {
+        var f = FOOD[it.kind];
+        if (f.heal) P.hp = Math.min(P.maxhp, P.hp + f.heal);
+        if (f.buff) { buffs[f.buff] = 720; msg(f.icon + " " + BUFF_NAME[f.buff] + " buff (12s)!"); say("Power-up!"); }
+        else { msg(f.icon + " +" + f.heal + " ❤️"); say("Yum!"); }
+        burst(it.x, it.y, "#aef29a", 8);
+        items.splice(i, 1);
+      }
+    }
+    for (var b in buffs) if (buffs[b] > 0) buffs[b] -= dtf;
   }
   function burst(x, y, c, n) { for (var i = 0; i < n; i++) parts.push({ x: x, y: y, vx: rnd(-2, 2), vy: rnd(-3, 0.5), l: rnd(15, 35), c: c }); }
   function updParts(dtf) {
@@ -419,7 +473,7 @@
   function nearestKnownChest() {
     var b = null, bd = 1e9, pcx = (P.x / TS) | 0, pcy = (P.y / TS) | 0;
     for (var i = 0; i < chests.length; i++) {
-      var c = chests[i]; if (!explored[idx(c.x, c.y)] || get(c.x, c.y) !== CHEST) continue;
+      var c = chests[i]; if (!explored[idx(c.x, c.y)] || get(c.x, c.y) !== CHEST || badTarget(c.x, c.y)) continue;
       var d = Math.abs(c.x - pcx) + Math.abs(c.y - pcy); if (d < bd) { bd = d; b = c; }
     }
     return b ? { x: b.x, y: b.y, d: bd } : null;
@@ -429,7 +483,7 @@
     for (var y = Math.max(1, pcy - 26); y < Math.min(WH - 1, pcy + 26); y++)
       for (var x = Math.max(1, pcx - 34); x < Math.min(WW - 1, pcx + 34); x++) {
         var ii = idx(x, y); if (!explored[ii]) continue; var t = world[ii];
-        if (!ORE_PTS[t] && t !== GEM) continue;
+        if ((!ORE_PTS[t] && t !== GEM) || badTarget(x, y)) continue;
         var d = Math.abs(x - pcx) + Math.abs(y - pcy); if (d < bd) { bd = d; b = { x: x, y: y }; }
       }
     return b;
@@ -438,14 +492,14 @@
     var b = null, bd = 1e9, pcx = (P.x / TS) | 0, pcy = (P.y / TS) | 0;
     for (var y = Math.max(1, pcy - 26); y < Math.min(WH - 1, pcy + 26); y++)
       for (var x = Math.max(1, pcx - 34); x < Math.min(WW - 1, pcx + 34); x++) {
-        var ii = idx(x, y); if (!explored[ii] || world[ii] !== GEM) continue;
+        var ii = idx(x, y); if (!explored[ii] || world[ii] !== GEM || badTarget(x, y)) continue;
         var d = Math.abs(x - pcx) + Math.abs(y - pcy); if (d < bd) { bd = d; b = { x: x, y: y }; }
       }
     return b;
   }
 
   /* ---- Dijkstra path over tiles (AIR cheap, diggable costs ~hardness, bedrock blocked) ---- */
-  function passCost(t) { if (t === AIR || t === GOAL || t === CHEST) return 1; if (t === BEDROCK) return Infinity; if (HARD[t]) return 4 + HARD[t] * 0.5; return Infinity; }
+  function passCost(t) { if (t === AIR || t === GOAL || t === CHEST) return 1; if (t === LAVA) return 90; if (t === BEDROCK) return Infinity; if (HARD[t]) return 4 + HARD[t] * 0.5; return Infinity; }
   function bfsPath(sx, sy, gx, gy) {
     if (!inb(sx, sy) || !inb(gx, gy)) return null;
     var N = WW * WH, dist = new Float32Array(N), prev = new Int32Array(N);
@@ -590,7 +644,7 @@
     } else P.vx *= 0.6;
     if (dy < -1.2) {
       var uy = ((P.y - 3) / TS) | 0;
-      if (isSolid(mid, uy)) { if (agent.mineF !== frame) tryMine(mid, uy); agent.hopN = 0; }
+      if (isSolid(mid, uy)) { if (agent.mineF !== frame && tryMine(mid, uy)) agent.hopN = 0; }
       else if (P.ground && agent.jumpCD <= 0) {
         P.vy = -JUMP; agent.jumpCD = 16;
         agent.hopN = (agent.hopN || 0) + 1;
@@ -623,10 +677,14 @@
     if (P.dead) return;
     if (agent.jumpCD > 0) agent.jumpCD -= dtf;
     if (agent.avoidT > 0) agent.avoidT -= dtf;
+    if (get(((P.x + P.w / 2) / TS) | 0, ((P.y + P.h - 4) / TS) | 0) === LAVA) {   // in lava: swim out!
+      if (agent.jumpCD <= 0) { P.vy = -JUMP * 0.8; agent.jumpCD = 8; }
+      P.vx = agent.exdir * MOVE; say("Hot hot hot!");
+    }
     for (var bi = agent.badTs.length - 1; bi >= 0; bi--) { agent.badTs[bi].life -= dtf; if (agent.badTs[bi].life <= 0) agent.badTs.splice(bi, 1); }
     if (!agent.anchor) agent.anchor = { x: P.x, y: P.y };
-    if (Math.hypot(P.x - agent.anchor.x, P.y - agent.anchor.y) > TS * 1.5) { agent.anchor.x = P.x; agent.anchor.y = P.y; agent.stuck = 0; }
-    else agent.stuck += dtf;                                  // counts even mid-air: hopping in place IS stuck
+    if (P.ground && Math.hypot(P.x - agent.anchor.x, P.y - agent.anchor.y) > TS * 1.5) { agent.anchor.x = P.x; agent.anchor.y = P.y; agent.stuck = 0; }
+    else agent.stuck += dtf;                                  // jump arcs don't count: only grounded displacement resets the timer
     var ne = nearestEnemy();
     if (ne && ne.d < TS * 2.6) { P.face = ne.e.x > P.x ? 1 : -1; attack(); }
     if (ne && ne.d < TS * 3.5 && P.hp / P.maxhp >= 0.35 && agent.avoidT <= 0) {   // close-range melee
@@ -654,10 +712,13 @@
       else if (ddy < 0) { dgx = mid; dgy = ((P.y - 3) / TS) | 0; }
       else { dgx = mid; dgy = ((P.y + P.h + 2) / TS) | 0; }
       if (!isSolid(dgx, dgy) || get(dgx, dgy) === BEDROCK) {
-        dgx = mid; dgy = ((P.y + P.h + 2) / TS) | 0;
-        if (!isSolid(dgx, dgy)) { var l2 = ((P.x + 1) / TS) | 0, r2 = ((P.x + P.w - 1) / TS) | 0; if (isSolid(l2, dgy) && get(l2, dgy) !== BEDROCK) dgx = l2; else if (isSolid(r2, dgy) && get(r2, dgy) !== BEDROCK) dgx = r2; }
+        if (ddy < 0) { dgx = -1; }                             // up-target with open air above: digging the floor won't help
+        else {
+          dgx = mid; dgy = ((P.y + P.h + 2) / TS) | 0;
+          if (!isSolid(dgx, dgy)) { var l2 = ((P.x + 1) / TS) | 0, r2 = ((P.x + P.w - 1) / TS) | 0; if (isSolid(l2, dgy) && get(l2, dgy) !== BEDROCK) dgx = l2; else if (isSolid(r2, dgy) && get(r2, dgy) !== BEDROCK) dgx = r2; }
+        }
       }
-      tryMine(dgx, dgy);
+      if (dgx >= 0) tryMine(dgx, dgy);
     }
     if (agent.stuck > 100) {                                   // last resort: random wander to shake out of odd geometry
       if (!agent.wanderT || agent.wanderT <= 0) { agent.wanderT = 30 + Math.random() * 40; agent.wanderD = Math.random() < 0.5 ? -1 : 1; }
@@ -771,6 +832,7 @@
     if (!keepGear) { gear.pick = 1; gear.sword = 1; gear.armor = 0; gear.gems = 0; gear.pts = 0; wins = 0; }
     resetPlayer(); agent.state = "EXPLORE"; agent.path = null; agent.stuck = 0; agent.planQ.length = 0; agent.snap = null; regenT = 0; showMap = false;
     evt.name = ""; evt.label = ""; evt.t = 0; evt.timer = 1900;
+    buffs.speed = 0; buffs.power = 0; buffs.shield = 0; buffs.regen = 0;
     msg("🌍 New world (procedurally generated, solvable ✔)"); say("A fresh world to conquer!");
   }
 
@@ -789,7 +851,7 @@
   /* ---------------- HUD (DOM) ---------------- */
   function hud() {
     var hb = document.getElementById("tw-hpbar"); if (hb) hb.style.width = Math.max(0, P.hp / P.maxhp * 100) + "%";
-    var ge = document.getElementById("tw-gear"); if (ge) ge.textContent = "⛏️Lv" + gear.pick + " 🗡️Lv" + gear.sword + " 🛡️Lv" + gear.armor + " 💎" + gear.gems + " 🏆" + wins;
+    var ge = document.getElementById("tw-gear"); if (ge) ge.textContent = "⛏️Lv" + gear.pick + " 🗡️Lv" + gear.sword + " 🛡️Lv" + gear.armor + " 💎" + gear.gems + " 🏆" + wins + (buffs.speed > 0 ? " 🏃" : "") + (buffs.power > 0 ? " ⚔️↑" : "") + (buffs.shield > 0 ? " 🛡️↑" : "") + (buffs.regen > 0 ? " 💗" : "");
     var stt = document.getElementById("tw-state");
     if (stt) stt.textContent = !agent.on ? "MANUAL" : (llmActive() ? ("🧠 " + (llmModel || (Date.now() < llmFail ? "offline" : "…")) + " · " + agent.state) : ("BFS+Frontier+FSM · " + agent.state));
     var lb = document.getElementById("tw-llm"); if (lb) { lb.textContent = llmActive() ? "🧠 LLM: ON" : "🧠 LLM: OFF"; lb.className = llmActive() ? "on" : ""; }
@@ -892,12 +954,14 @@
         ctx.fillStyle = "#ffd54a"; ctx.fillRect(px, py, TS, TS); if (TEX[GOAL]) ctx.drawImage(TEX[GOAL][0], px, py);
       } else if (TEX[t]) {
         ctx.drawImage(TEX[t][(tx * 7 + ty * 3) % 3], px, py);
-        var sh = Math.min(0.4, Math.max(0, (ty - (surf[tx] || 0)) * 0.010));
-        if (sh > 0) { ctx.fillStyle = "rgba(0,0,0," + sh.toFixed(2) + ")"; ctx.fillRect(px, py, TS, TS); }
+        if (t === LAVA) { ctx.fillStyle = "rgba(255,170,60," + (0.10 + 0.10 * Math.sin(frame * 0.15 + tx)).toFixed(2) + ")"; ctx.fillRect(px, py - 1, TS, TS + 1); }
+        else { var sh = Math.min(0.4, Math.max(0, (ty - (surf[tx] || 0)) * 0.010)); if (sh > 0) { ctx.fillStyle = "rgba(0,0,0," + sh.toFixed(2) + ")"; ctx.fillRect(px, py, TS, TS); } }
       } else { ctx.fillStyle = BASECOL[t] || "#666"; ctx.fillRect(px, py, TS, TS); }
     }
     var i;
     for (i = 0; i < drops.length; i++) { var d = drops[i]; ctx.fillStyle = "#8a5a26"; ctx.fillRect(d.x - cam.x, d.y - cam.y, 10, 9); ctx.fillStyle = "#ffd24a"; ctx.fillRect(d.x - cam.x, d.y - cam.y + 3, 10, 2); }
+    ctx.font = "11px sans-serif"; ctx.textAlign = "left";
+    for (i = 0; i < items.length; i++) { var itq = items[i]; ctx.fillText(FOOD[itq.kind].icon, itq.x - cam.x - 5, itq.y - cam.y + 4 + Math.sin(frame * 0.1 + i) * 1.5); }
     for (i = 0; i < enemies.length; i++) drawEnemy(enemies[i]);
     if (!P.dead && (P.inv <= 0 || (frame % 6) < 3)) {
       if (gear.armor > 0) { ctx.fillStyle = "rgba(200,220,255,0.85)"; ctx.fillRect(P.x - cam.x, P.y - cam.y + 6, P.w, 3); }
@@ -964,14 +1028,21 @@
     else {
       if (agent.on) { if (agent.decideT === undefined) agent.decideT = 0; agent.decideT -= dtf; if (agent.decideT <= 0) { decide(); agent.decideT = 12; } act(dtf); askLLM(); }
       else manual();
+      if (buffs.speed > 0) P.vx *= 1.35;
       step(P, dtf);
+      if (buffs.regen > 0) P.hp = Math.min(P.maxhp, P.hp + 0.05 * dtf);
+      if (get(((P.x + P.w / 2) / TS) | 0, ((P.y + P.h - 4) / TS) | 0) === LAVA) {
+        P.hp -= (buffs.shield > 0 ? 0.35 : 0.9) * dtf;
+        if (frame % 7 === 0) burst(P.x + P.w / 2, P.y + 2, "#ff9c40", 2);
+        if (P.hp <= 0) die();
+      }
       if (P.y > WH * TS + 40) { P.hp = 0; die(); }
       reveal(); checkChest(); checkGoal();
     }
     if (P.inv > 0) P.inv -= dtf;
     if (agent.atk > 0) agent.atk -= dtf;
     if (frame % 140 === 0) spawnEnemy();
-    updEnemies(dtf); updDrops(dtf); updParts(dtf); updEvents(dtf);
+    updEnemies(dtf); updDrops(dtf); updItems(dtf); updParts(dtf); updEvents(dtf);
     for (var i = msgs.length - 1; i >= 0; i--) { msgs[i].life -= dtf; if (msgs[i].life <= 0) msgs.splice(i, 1); }
     for (var li = llmLog.length - 1; li >= 0; li--) { llmLog[li].life -= dtf; if (llmLog[li].life <= 0) llmLog.splice(li, 1); }
     if (regenT > 0) { regenT -= dtf; if (regenT <= 0) newWorld(true); }

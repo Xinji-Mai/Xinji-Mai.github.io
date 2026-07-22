@@ -4,7 +4,7 @@ permalink: /game/
 author_profile: false
 ---
 
-<p><strong>Terramai</strong> is a tiny 2D pixel sandbox game played entirely by an AI agent on its own — it explores the world, mines ore, fights monsters, loots chests, upgrades its gear, and seeks the hidden Grand Gem. Every map is procedurally generated. When the agent dies it drops all its equipment (grab the 🎒 to recover it) and auto-respawns.</p>
+<p><strong>Terramai</strong> is a tiny 2D pixel sandbox game played entirely by an AI agent on its own — it explores the world, mines ore, fights leveled monsters, loots chests, eats food for HP &amp; buffs, dodges lava, upgrades its gear, and seeks the hidden Grand Gem. Every map is procedurally generated. When the agent dies it drops all its equipment (grab the 🎒 to recover it) and auto-respawns.</p>
 
 <p id="tw-keys"><b>Controls</b> — <kbd>M</kbd> toggle world map · the <b>Mode</b> button cycles
 <b>AUTO</b> (local BFS+FSM brain) → <b>LLM</b> (a model picks the goals) → <b>MANUAL</b>.
