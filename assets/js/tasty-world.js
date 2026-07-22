@@ -210,7 +210,7 @@
   };
   var BUFF_NAME = { speed: "Speed", power: "Power", shield: "Shield", regen: "Regen" };
   var agent = { on: true, state: "EXPLORE", think: "Waking up…", hint: null, hintT: 0, tgt: null,
-                path: null, pi: 0, pathT: 0, digT: null, digP: 0, atk: 0, stuck: 0, lx: 0, decideT: 0, jumpCD: 0, hist: [], exdir: 1, since: 0, planQ: [], planT: 0, anchor: null, avoidT: 0, badTs: [], camp: null, campT: 0 };
+                path: null, pi: 0, pathT: 0, digT: null, digP: 0, atk: 0, stuck: 0, lx: 0, decideT: 0, jumpCD: 0, hist: [], exdir: 1, since: 0, planQ: [], planT: 0, anchor: null, avoidT: 0, badTs: [], camp: null, campT: 0, escapeT: 0, progSig: "", progT: 0 };
   var cam = { x: 0, y: 0 }, keys = {}, wins = 0, frame = 0, regenT = 0, showMap = false;
   var evt = { name: "", label: "", t: 0, timer: 1900 };
   var llmEP = "", llmOn = false, llmModel = "", llmLast = 0, llmFail = 0;
@@ -623,6 +623,18 @@
         else { agent.hintT = 0; agent.path = null; }               // plan done: hand control back to auto until next reply
       }
     }
+    if (agent.escapeT > 0) {                                    // breakout mode: tunnel down & away, ignore fear and food
+      agent.state = "EXPLORE";
+      if (!agent.tgt || !agent.path || agent.pi >= agent.path.length) {
+        var edir = agentPower() >= 6 ? 1 : (Math.random() < 0.5 ? -1 : 1);
+        var ex2 = Math.max(3, Math.min(WW - 4, ((P.x / TS) | 0) + edir * (28 + (Math.random() * 12 | 0))));
+        var ey2 = Math.min(WH - 3, ((P.y / TS) | 0) + 8 + ((Math.random() * 8) | 0));
+        agent.tgt = { x: ex2, y: ey2 };
+        agent.path = bfsPath(((P.x + P.w / 2) / TS) | 0, ((P.y + P.h - 2) / TS) | 0, ex2, ey2); agent.pi = 0;
+      }
+      if (agent.hintT > 0) agent.hintT -= 15;
+      return;
+    }
     var ne = nearestEnemy(), hpr = P.hp / P.maxhp;
     var goalKnown = explored[idx(goal.x, goal.y)] && get(goal.x, goal.y) === GOAL;
     var chest = nearestKnownChest();
@@ -730,6 +742,15 @@
     if (P.dead) return;
     if (agent.jumpCD > 0) agent.jumpCD -= dtf;
     if (agent.avoidT > 0) agent.avoidT -= dtf;
+    if (agent.escapeT > 0) agent.escapeT -= dtf;
+    var sig = Math.round(P.hp) + "|" + gear.pick + "|" + gear.sword + "|" + gear.armor + "|" + gear.gems + "|" + gear.dirt + "|" + stat.ore + "|" + stat.chest + "|" + stat.kill + "|" + exploredCount + "|" + wins + "|" + ((P.x / (TS * 8)) | 0) + "|" + ((P.y / (TS * 8)) | 0);
+    if (sig !== agent.progSig) { agent.progSig = sig; agent.progT = 0; }
+    else if ((agent.progT += dtf) > 3600) {                    // 60s with ZERO progress (hp/gear/loot/map/position): deadlock
+      agent.progT = 0; agent.escapeT = 600;
+      agent.planQ.length = 0; agent.hintT = 0; agent.path = null; agent.tgt = null;
+      agent.badTs.push({ x: (P.x / TS) | 0, y: (P.y / TS) | 0, life: 1800 }); if (agent.badTs.length > 4) agent.badTs.shift();
+      msg("⛏️ Deadlock detected — breakout expedition!"); say("Enough! Digging my way out of here.");
+    }
     if (get(((P.x + P.w / 2) / TS) | 0, ((P.y + P.h - 4) / TS) | 0) === LAVA) {   // in lava: swim out!
       if (agent.jumpCD <= 0) { P.vy = -JUMP * 0.8; agent.jumpCD = 8; }
       P.vx = agent.exdir * MOVE; say("Hot hot hot!");
@@ -743,7 +764,7 @@
     else agent.campT += dtf;                                  // loitering timer: too long near one spot => wanderlust
     var ne = nearestEnemy();
     if (ne && ne.d < TS * 2.6) { P.face = ne.e.x > P.x ? 1 : -1; attack(); }
-    if (ne && ne.d < TS * 3.5 && !agent.lowHP && agent.avoidT <= 0) {   // close-range melee
+    if (ne && ne.d < TS * 3.5 && !agent.lowHP && agent.avoidT <= 0 && agent.escapeT <= 0) {   // close-range melee
       var fmid = ((P.x + P.w / 2) / TS) | 0, ffoot = ((P.y + P.h - 3) / TS) | 0, fhead = ((P.y + 3) / TS) | 0, edx = ne.e.x - P.x;
       if (agent.atk > 10 && ne.d < TS * 1.4) { P.vx = (edx > 0 ? -1 : 1) * MOVE * 0.8; }        // kite while the sword recovers
       else if (Math.abs(edx) > TS * 0.6) {
