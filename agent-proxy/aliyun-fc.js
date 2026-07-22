@@ -61,22 +61,25 @@ http.createServer(function (req, res) {
     var s = {}; try { s = JSON.parse(body); } catch (e) {}
     var model = process.env.LLM_MODEL || "qwen3.8-max-preview";
     var sys = "You are the strategic brain of an AI agent in a Terraria-like 2D mining sandbox. A low-level controller (pathfinding, digging, jumping, melee) executes the GOAL you choose; you only pick the next high-level goal plus a short first-person thought.\n" +
-      "Grow stronger before taking risks: explore and MINE ORE, and OPEN CHESTS, to upgrade pickaxe/sword/armor. Only FIGHT enemies you can beat (enemy.beatable=true); AVOID or flee enemies too strong (higher level, beatable=false) until your gear is upgraded. After leveling up, hunt tougher enemies. Seek the Grand Gem (seek_goal) only once it is known and you are decently geared.\n" +
+      "Grow stronger before taking risks: mine_ore upgrades pickaxe/sword, collect_gems upgrades armor, open_chest gives random upgrades, hunt seeks out a beatable monster to farm. Only fight/hunt enemies you can beat (enemy.beatable=true); avoid ones too strong (beatable=false) until geared. Seek the Grand Gem (seek_goal) only once it is known and you are well geared.\n" +
       "Be adaptive and avoid loops: read recentActions and do NOT repeat the same goal every turn. If the enemy is unreachable (reachable=false) or too strong, pick a different goal \u2014 mine ore, open a chest, explore the other direction, dig deeper, or flee.\n" +
-      "Reply ONLY compact JSON: {\"thought\":\"<=10 words, first person, lively>\",\"hint\":\"<one of: explore|explore_left|explore_right|mine_ore|dig_deep|open_chest|fight|avoid|seek_goal|surface>\"}";
+      "Reply ONLY compact JSON: {\"thought\":\"<=10 words, first person, lively\",\"plan\":[\"goal1\",\"goal2\",\"goal3\"]} with 2 to 4 goals executed in order until your next reply. Each goal one of: explore|explore_left|explore_right|mine_ore|collect_gems|dig_deep|open_chest|fight|hunt|avoid|seek_goal|surface. Compose complementary sequences and vary them across replies.";
     var e = s.enemy;
     var enemyStr = e ? (e.kind + " Lv" + e.lv + ", " + e.distTiles + " tiles " + e.dir + (e.above ? " (above)" : "") + ", reachable=" + e.reachable + ", beatable=" + e.beatable) : "none";
     var usr = "hp=" + s.hp + "/" + s.maxhp + ", power=" + s.power + ", gear pick/sword/armor=" + s.pick + "/" + s.sword + "/" + s.armor + ", gems=" + s.gems +
       ", depth=" + s.depth + ", exploredPct=" + s.exploredPct + ", goalKnown=" + s.goalKnown + ", chestKnown=" + s.chestKnown +
       ", nearestEnemy=[" + enemyStr + "], recentActions=" + JSON.stringify(s.recentActions || []) + ", currentState=" + s.state + ". Choose the next goal.";
     dayCount++;
-    callLLM({ model: model, messages: [{ role: "system", content: sys }, { role: "user", content: usr }], max_tokens: 80, temperature: 0.9 })
+    callLLM({ model: model, messages: [{ role: "system", content: sys }, { role: "user", content: usr }], max_tokens: 120, temperature: 0.9 })
       .then(function (d) {
         var text = (d.choices && d.choices[0] && d.choices[0].message && d.choices[0].message.content) || "";
         var m = text.match(/\{[\s\S]*\}/), out = { thought: "Hmm…", hint: "explore" };
         if (m) { try { out = JSON.parse(m[0]); } catch (e) {} }
-        var H = ["explore", "explore_left", "explore_right", "mine_ore", "dig_deep", "open_chest", "fight", "avoid", "seek_goal", "surface"];
-        if (H.indexOf(out.hint) < 0) out.hint = "explore";
+        var H = ["explore", "explore_left", "explore_right", "mine_ore", "collect_gems", "dig_deep", "open_chest", "fight", "hunt", "avoid", "seek_goal", "surface"];
+        var plan = [];
+        if (out.plan && out.plan.length) for (var q = 0; q < out.plan.length && plan.length < 4; q++) { if (H.indexOf(String(out.plan[q])) >= 0) plan.push(String(out.plan[q])); }
+        if (!plan.length) plan = [H.indexOf(out.hint) >= 0 ? out.hint : "explore"];
+        out.plan = plan; out.hint = plan[0];
         out.thought = String(out.thought || "…").slice(0, 64); out.model = model;
         send(200, out);
       })

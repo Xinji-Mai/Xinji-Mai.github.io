@@ -7,7 +7,7 @@ excerpt: 'Studies how agentic reinforcement learning induces spontaneous code ex
 date: 2025-09-01
 venue: 'Advances in Neural Information Processing Systems (NeurIPS)'
 paperurl: 'https://arxiv.org/abs/2505.07773'
-citation: 'Xinji Mai, Haotian Xu, Weinong Wang, Yingying Zhang, Wenqiang Zhang. "Agentic RL Scaling Law: Spontaneous Code Execution for Mathematical Problem Solving." NeurIPS 2025. arXiv:2505.07773.'
+citation: 'Xinji Mai, Haotian Xu, Xing W, Weinong Wang, Yingying Zhang, Wenqiang Zhang. "Agentic RL Scaling Law: Spontaneous Code Execution for Mathematical Problem Solving." NeurIPS 2025. arXiv:2505.07773.'
 ---
 
 First-author work on scaling laws for agentic reinforcement learning, where models learn to spontaneously execute code to solve mathematical problems.
