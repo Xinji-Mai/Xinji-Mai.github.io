@@ -11,6 +11,7 @@
  *
  * Environment variables (FC console → 函数配置 → 环境变量):
  *   DASHSCOPE_API_KEY  = sk-...     (your key — stays on the server)
+ *   LLM_BASE_URL       = https://token-plan.cn-beijing.maas.aliyuncs.com/compatible-mode/v1
  *   LLM_MODEL          = qwen-plus
  *   ALLOWED_ORIGIN     = https://xinji-mai.github.io
  *   DAILY_LIMIT        = 800
@@ -18,18 +19,20 @@
 const http = require("http");
 const https = require("https");
 const PORT = process.env.FC_SERVER_PORT || 9000;
+const LLM_BASE = process.env.LLM_BASE_URL || "https://token-plan.cn-beijing.maas.aliyuncs.com/compatible-mode/v1";
 
 let dayKey = "", dayCount = 0;
 const ipHits = new Map();
 
 function callLLM(payload) {
   return new Promise(function (resolve, reject) {
+    var u = new URL(LLM_BASE.replace(/\/+$/, "") + "/chat/completions");
+    var key = process.env.DASHSCOPE_API_KEY || process.env.LLM_API_KEY || "";
     var data = JSON.stringify(payload);
     var req = https.request({
-      hostname: "dashscope.aliyuncs.com",
-      path: "/compatible-mode/v1/chat/completions",
+      hostname: u.hostname, port: u.port || 443, path: u.pathname + (u.search || ""),
       method: "POST",
-      headers: { "Content-Type": "application/json", "Content-Length": Buffer.byteLength(data), Authorization: "Bearer " + process.env.DASHSCOPE_API_KEY }
+      headers: { "Content-Type": "application/json", "Content-Length": Buffer.byteLength(data), Authorization: "Bearer " + key }
     }, function (r) { var b = ""; r.on("data", function (c) { b += c; }); r.on("end", function () { try { resolve(JSON.parse(b)); } catch (e) { reject(e); } }); });
     req.on("error", reject); req.write(data); req.end();
   });
