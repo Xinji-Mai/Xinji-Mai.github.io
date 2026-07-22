@@ -599,6 +599,15 @@
     } else if (dy > 1.2 && Math.abs(dx) < 1.3) {
       var by = ((P.y + P.h + 2) / TS) | 0;
       if (isSolid(mid, by) && get(mid, by) !== BEDROCK && agent.mineF !== frame) tryMine(mid, by);
+      else if (!isSolid(mid, by) && P.ground) {                 // hole is open below but we're perched on its edge
+        var hc = (mid + 0.5) * TS - (P.x + P.w / 2);
+        if (hc > 1) P.vx = 0.9; else if (hc < -1) P.vx = -0.9;
+        else if (agent.mineF !== frame) {                       // centered yet still supported: chew the edge tile under us
+          var lft = ((P.x + 1) / TS) | 0, rgt = ((P.x + P.w - 1) / TS) | 0;
+          if (lft !== mid && isSolid(lft, by) && get(lft, by) !== BEDROCK) tryMine(lft, by);
+          else if (rgt !== mid && isSolid(rgt, by) && get(rgt, by) !== BEDROCK) tryMine(rgt, by);
+        }
+      }
     }
   }
   function nextWaypoint() {
@@ -644,7 +653,10 @@
       if (Math.abs(ddx) >= Math.abs(ddy)) { dgx = mid + (ddx >= 0 ? 1 : -1); dgy = ((P.y + P.h - 3) / TS) | 0; if (!isSolid(dgx, dgy)) dgy = ((P.y + 3) / TS) | 0; }
       else if (ddy < 0) { dgx = mid; dgy = ((P.y - 3) / TS) | 0; }
       else { dgx = mid; dgy = ((P.y + P.h + 2) / TS) | 0; }
-      if (!isSolid(dgx, dgy) || get(dgx, dgy) === BEDROCK) { dgx = mid; dgy = ((P.y + P.h + 2) / TS) | 0; }
+      if (!isSolid(dgx, dgy) || get(dgx, dgy) === BEDROCK) {
+        dgx = mid; dgy = ((P.y + P.h + 2) / TS) | 0;
+        if (!isSolid(dgx, dgy)) { var l2 = ((P.x + 1) / TS) | 0, r2 = ((P.x + P.w - 1) / TS) | 0; if (isSolid(l2, dgy) && get(l2, dgy) !== BEDROCK) dgx = l2; else if (isSolid(r2, dgy) && get(r2, dgy) !== BEDROCK) dgx = r2; }
+      }
       tryMine(dgx, dgy);
       if (agent.stuck > 170) { banTarget(); agent.exdir = -agent.exdir; agent.stuck = 0; agent.anchor = { x: P.x, y: P.y }; }
     }
