@@ -596,7 +596,7 @@
         agent.hopN = (agent.hopN || 0) + 1;
         if (agent.hopN > 4) { agent.hopN = 0; banTarget(); agent.exdir = -agent.exdir; }   // unreachable overhead target: blacklist & re-target
       }
-    } else if (dy > 1.2 && Math.abs(dx) < 1.3) {
+    } else if (dy > 0.8 && Math.abs(dx) < 1.6) {
       var by = ((P.y + P.h + 2) / TS) | 0;
       if (isSolid(mid, by) && get(mid, by) !== BEDROCK && agent.mineF !== frame) tryMine(mid, by);
       else if (!isSolid(mid, by) && P.ground) {                 // hole is open below but we're perched on its edge
@@ -658,8 +658,14 @@
         if (!isSolid(dgx, dgy)) { var l2 = ((P.x + 1) / TS) | 0, r2 = ((P.x + P.w - 1) / TS) | 0; if (isSolid(l2, dgy) && get(l2, dgy) !== BEDROCK) dgx = l2; else if (isSolid(r2, dgy) && get(r2, dgy) !== BEDROCK) dgx = r2; }
       }
       tryMine(dgx, dgy);
-      if (agent.stuck > 170) { banTarget(); agent.exdir = -agent.exdir; agent.stuck = 0; agent.anchor = { x: P.x, y: P.y }; }
     }
+    if (agent.stuck > 100) {                                   // last resort: random wander to shake out of odd geometry
+      if (!agent.wanderT || agent.wanderT <= 0) { agent.wanderT = 30 + Math.random() * 40; agent.wanderD = Math.random() < 0.5 ? -1 : 1; }
+      agent.wanderT -= dtf;
+      P.vx = agent.wanderD * MOVE * (0.6 + Math.random() * 0.5); P.face = agent.wanderD;
+      if (P.ground && agent.jumpCD <= 0 && Math.random() < 0.2) { P.vy = -JUMP; agent.jumpCD = 14; }
+    }
+    if (agent.stuck > 170) { banTarget(); agent.exdir = -agent.exdir; agent.stuck = 0; agent.anchor = { x: P.x, y: P.y }; agent.wanderT = 0; }
   }
 
   /* ---------------- optional LLM brain (via YOUR serverless proxy; no key here) ---------------- */
