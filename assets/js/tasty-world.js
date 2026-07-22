@@ -643,7 +643,7 @@
   /* ---------------- optional LLM brain (via YOUR serverless proxy; no key here) ---------------- */
   function askLLM() {
     if (!llmActive() || P.dead || document.hidden) return;
-    var now = Date.now(); if (now - llmLast < 9000 || now < llmFail) return; llmLast = now;
+    var now = Date.now(); if (now - llmLast < 15000 || now < llmFail) return; llmLast = now;
     var ne = nearestEnemy(), pcx = Math.max(0, Math.min(WW - 1, (P.x / TS) | 0)), pcy = (P.y / TS) | 0;
     var eInfo = null;
     if (ne) {
