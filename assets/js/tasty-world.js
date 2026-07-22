@@ -427,7 +427,7 @@
     for (var qi = 0; qi < q.length && qi < 8000; qi++) {
       var c = q[qi], cx = c % WW, cy = (c / WW) | 0, xs = [cx + 1, cx - 1, cx, cx], ys = [cy, cy, cy + 1, cy - 1], k, ni;
       for (k = 0; k < 4; k++) if (inb(xs[k], ys[k]) && !explored[idx(xs[k], ys[k])] && world[idx(xs[k], ys[k])] !== BEDROCK) {
-        if (cx !== sx || cy !== sy) return { x: cx, y: cy };
+        if ((cx !== sx || cy !== sy) && cy + 2 >= (surf[cx] || 0)) return { x: cx, y: cy };
       }
       for (k = 0; k < 4; k++) {
         if (!inb(xs[k], ys[k])) continue; ni = idx(xs[k], ys[k]);
@@ -521,11 +521,16 @@
     if (tx !== null) moveToward(tx, ty); else P.vx *= 0.6;
     if (Math.abs(P.x - agent.lx) < 0.35 && P.ground) agent.stuck += 1; else agent.stuck = Math.max(0, agent.stuck - 3);
     agent.lx = P.x;
-    if (agent.stuck > 24 && tx !== null) {
+    if (agent.stuck > 20 && tx !== null) {
       var mid = ((P.x + P.w / 2) / TS) | 0, cy = ((P.y + P.h / 2) / TS) | 0, ddx = tx - mid, ddy = ty - cy;
-      if (Math.abs(ddy) >= Math.abs(ddx) && ddy !== 0) tryMine(mid, ddy > 0 ? (((P.y + P.h + 2) / TS) | 0) : (((P.y - 3) / TS) | 0));
-      else { var dgx = mid + (ddx >= 0 ? 1 : -1); tryMine(dgx, ((P.y + P.h - 3) / TS) | 0); tryMine(dgx, ((P.y + 3) / TS) | 0); }
-      if (agent.stuck > 80) { agent.path = null; agent.tgt = null; agent.stuck = 0; }
+      var dgx, dgy;                                          // mine ONE tile per frame so digP accumulates
+      if (Math.abs(ddx) >= Math.abs(ddy)) { dgx = mid + (ddx >= 0 ? 1 : -1); dgy = ((P.y + P.h - 3) / TS) | 0; if (!isSolid(dgx, dgy)) dgy = ((P.y + 3) / TS) | 0; }
+      else if (ddy < 0) { dgx = mid; dgy = ((P.y - 3) / TS) | 0; }
+      else { dgx = mid; dgy = ((P.y + P.h + 2) / TS) | 0; }
+      if (!isSolid(dgx, dgy) || get(dgx, dgy) === BEDROCK) { dgx = mid; dgy = ((P.y + P.h + 2) / TS) | 0; }
+      tryMine(dgx, dgy);
+      if (P.ground && agent.jumpCD <= 0 && Math.random() < 0.15) { P.vy = -JUMP; agent.jumpCD = 16; }
+      if (agent.stuck > 70) { agent.path = null; agent.tgt = null; agent.stuck = 0; }
     }
   }
 
