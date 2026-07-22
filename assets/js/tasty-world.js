@@ -126,25 +126,27 @@
         }
       }
     }
-    for (var i = 0; i < world.length; i++) {                    // ore bands by depth
+    for (var i = 0; i < world.length; i++) {                    // ore: rarer overall, gold/diamond richer with depth
       if (world[i] !== STONE) continue;
       var yy = (i / WW) | 0, xx = i % WW, d = yy - (surf[xx] || 0), rr = Math.random();
-      if (d > 2 && d < 24 && rr < 0.035) world[i] = COPPER;
-      else if (d > 10 && d < 45 && rr < 0.055) world[i] = IRON;
-      else if (d > 28 && rr < 0.072) world[i] = GOLD;
-      else if (d > 45 && rr < 0.082) world[i] = DIAMOND;
-      else if (d > 40 && rr < 0.09) world[i] = GEM;
+      var df = Math.min(1, d / 55);
+      if (d > 2 && d < 22 && rr < 0.03) world[i] = COPPER;
+      else if (d > 8 && d < 40 && rr < 0.035) world[i] = IRON;
+      else if (d > 24 && rr < 0.012 + 0.05 * df) world[i] = GOLD;
+      else if (d > 38 && rr < 0.008 + 0.055 * df) world[i] = DIAMOND;
+      else if (d > 34 && rr < 0.01 + 0.03 * df) world[i] = GEM;
     }
-    for (var tr = 0; tr < 200 && chests.length < 8; tr++) {     // treasure chests in caves
+    for (var tr = 0; tr < 500 && chests.length < 7; tr++) {     // treasure chests, denser toward the right
       var qx = rnd(12, WW - 6) | 0, qy = rnd(WH * 0.42, WH - 4) | 0;
+      if (Math.random() > Math.pow(qx / WW, 1.4)) continue;
       if (get(qx, qy) === AIR && get(qx, qy - 1) === AIR && get(qx, qy + 1) === STONE) {
         var far = true;
         for (var ci = 0; ci < chests.length; ci++) if (Math.abs(chests[ci].x - qx) < 18) far = false;
         if (far) { setT(qx, qy, CHEST); chests.push({ x: qx, y: qy }); }
       }
     }
-    for (var lp = 0; lp < 12; lp++) {                           // lava pools in the deep caves
-      var lx0 = rnd(8, WW - 10) | 0, ly0 = rnd(WH * 0.7, WH - 4) | 0, span = 3 + (Math.random() * 6 | 0);
+    for (var lp = 0; lp < 16; lp++) {                           // lava pools in the deep caves
+      var lx0 = rnd(8, WW - 10) | 0, ly0 = rnd(WH * 0.62, WH - 4) | 0, span = 3 + (Math.random() * 6 | 0);
       for (var ly2 = ly0 + 1; ly2 >= ly0; ly2--)
         for (var lx = lx0; lx < Math.min(WW - 2, lx0 + span); lx++)
           if (get(lx, ly2) === AIR && (isSolid(lx, ly2 + 1) || get(lx, ly2 + 1) === LAVA)) setT(lx, ly2, LAVA);
@@ -160,11 +162,9 @@
     }
     var sx = 5; spawn.x = sx * TS + 2; spawn.y = (surf[sx] - 3) * TS;
     for (var cy2 = surf[sx] - 5; cy2 < surf[sx]; cy2++) { setT(sx, cy2, AIR); setT(sx + 1, cy2, AIR); }
-    var gx = WW - 8, gy = WH - 6;                               // goal: the Grand Gem, deep & far
-    while (gy > WH * 0.5 && get(gx, gy) === AIR) gy--;
+    var gx = WW - 3, gy = Math.max(2, (surf[WW - 3] || 40) - 1); // VICTORY GATE on the surface at the far right
     goal.x = gx; goal.y = gy;
-    for (var a = -1; a <= 1; a++) for (var b = -1; b <= 1; b++) if (get(gx + a, gy + b) === BEDROCK) setT(gx + a, gy + b, STONE);
-    setT(gx, gy, GOAL);
+    setT(gx, gy, GOAL); setT(gx, gy - 1, GOAL);
     ensureSolvable();
     clouds = [];
     for (var cl = 0; cl < 10; cl++) clouds.push({ x: rnd(0, WW * TS), y: rnd(20, 150), w: rnd(60, 150), v: rnd(0.08, 0.25) });
@@ -317,7 +317,7 @@
     bat:    { w: 12, h: 8,  hp: 8,  dmg: 6,  col: "#7a5da8" }
   };
   function spawnEnemy(force) {
-    if (enemies.length >= (force ? 10 : 6)) return;
+    if (enemies.length >= (force ? 12 : 8)) return;
     for (var tr = 0; tr < 24; tr++) {
       var tx = rnd(2, WW - 2) | 0, ty = rnd(4, WH - 4) | 0;
       if (get(tx, ty) !== AIR || get(tx, ty - 1) !== AIR) continue;
@@ -328,12 +328,26 @@
       else kind = Math.random() < 0.6 ? "slime" : "zombie";
       if (kind !== "bat" && !isSolid(tx, ty + 1)) continue;
       var k = EK[kind];
-      var lv = Math.max(1, Math.min(6, 1 + Math.floor(depth / 8) + (Math.random() < 0.35 ? 1 : 0)));
+      var lv = Math.max(1, Math.min(8, 1 + Math.floor(depth / 9) + Math.floor((tx / WW) * 3) + (Math.random() < 0.3 ? 1 : 0)));
       var ehp = Math.round((k.hp + wins * 3) * (1 + 0.7 * (lv - 1)));
       enemies.push({ kind: kind, x: tx * TS + 1, y: ty * TS + (TS - k.h) - 1, w: k.w, h: k.h, lv: lv,
                      vx: 0, vy: 0, ground: false, hp: ehp, maxhp: ehp, hop: rnd(10, 50), face: 1, t: rnd(0, 6.28) });
       return;
     }
+  }
+  function spawnBossAt(tx, groundY, kind, lv) {
+    var k = EK[kind], sc = 2.1, w = k.w * sc, h = k.h * sc;
+    var ehp = Math.round((k.hp + 30) * (1 + 0.7 * (lv - 1)) * 3);
+    enemies.push({ kind: kind, boss: true, x: tx * TS + 1, y: groundY * TS - h - 1, w: w, h: h, lv: lv,
+                   vx: 0, vy: 0, ground: false, hp: ehp, maxhp: ehp, hop: rnd(20, 60), face: -1, t: rnd(0, 6.28) });
+  }
+  function spawnBosses() {
+    for (var tr = 0; tr < 300; tr++) {                          // deep boss guarding the diamond depths
+      var bx = rnd(WW * 0.35, WW * 0.65) | 0, by = rnd(WH * 0.7, WH - 4) | 0;
+      if (get(bx, by) === AIR && get(bx, by - 1) === AIR && isSolid(bx, by + 1)) { spawnBossAt(bx, by + 1, "slime", 7); break; }
+    }
+    var rx2 = (WW * 0.72) | 0; spawnBossAt(rx2, surf[rx2] || 40, "zombie", 8);   // mid-right surface boss
+    var gx2 = WW - 10; spawnBossAt(gx2, surf[gx2] || 40, "zombie", 10);          // gate boss
   }
   function updEnemies(dtf) {
     for (var i = enemies.length - 1; i >= 0; i--) {
@@ -374,6 +388,7 @@
         gear.pts += (s.lv || 1); levelUp();
         if ((s.lv || 1) >= 3) { gear.gems++; msg("💎 Lv" + s.lv + " " + s.kind + " dropped a gem! (" + gear.gems + ")"); if (gear.gems % 2 === 0 && gear.armor < 6) { gear.armor++; msg("🛡️ Armor Lv." + gear.armor); } }
         else msg("⚔️ " + s.kind + " Lv" + (s.lv || 1) + " down! +" + (s.lv || 1) + " pts");
+        if (s.boss) { gear.gems += 5; msg("👑 BOSS DOWN! +5 💎"); spawnItem(s.x + s.w / 2, s.y, "star"); spawnItem(s.x + s.w / 2 + 8, s.y, "meat"); }
         var dr = Math.random();
         if (s.kind === "zombie" && dr < 0.55) spawnItem(s.x + s.w / 2, s.y, "meat");
         else if (s.kind === "slime" && dr < 0.5) spawnItem(s.x + s.w / 2, s.y, dr < 0.18 ? "pshard" : "shroom");
@@ -752,7 +767,7 @@
     var eInfo = null;
     if (ne) {
       var et = enemyStandTile(ne.e);
-      eInfo = { kind: ne.e.kind, lv: ne.e.lv || 1, distTiles: Math.round(ne.d / TS), dir: (ne.e.x < P.x ? "left" : "right"),
+      eInfo = { kind: ne.e.kind, boss: !!ne.e.boss, lv: ne.e.lv || 1, distTiles: Math.round(ne.d / TS), dir: (ne.e.x < P.x ? "left" : "right"),
         above: (ne.e.y + ne.e.h < P.y), reachable: !!bfsPath(pcx, ((P.y + P.h - 2) / TS) | 0, et.x, et.y), beatable: beatable(ne.e) };
     }
     var chest = nearestKnownChest();
@@ -802,8 +817,8 @@
     if (get(goal.x, goal.y) !== GOAL) return;
     var d = Math.hypot((goal.x + 0.5) * TS - (P.x + P.w / 2), (goal.y + 0.5) * TS - (P.y + P.h / 2));
     if (d < TS * 1.8) {
-      setT(goal.x, goal.y, AIR); wins++; gear.gems += 5;
-      msg("🏆 Grand Gem found! +5 💎 (run " + wins + ")"); say(pickThink("WIN"));
+      setT(goal.x, goal.y, AIR); setT(goal.x, goal.y - 1, AIR); wins++;
+      msg("🚪 VICTORY GATE cleared! World " + wins + " done — fresh start incoming."); say(pickThink("WIN"));
       burst((goal.x + 0.5) * TS, (goal.y + 0.5) * TS, "#ffd54a", 34); regenT = 280;
     }
   }
@@ -849,9 +864,10 @@
       if (r < 0.34) meteorStrike(); else if (r < 0.67) monsterWave(); else supplyDrop();
     }
   }
-  function newWorld(keepGear) {
-    generate(); enemies.length = 0; drops.length = 0; parts.length = 0;
-    if (!keepGear) { gear.pick = 1; gear.sword = 1; gear.armor = 0; gear.gems = 0; gear.pts = 0; gear.dirt = 5; wins = 0; }
+  function newWorld(keepGear, keepWins) {
+    enemies.length = 0; drops.length = 0; parts.length = 0;
+    generate(); spawnBosses();
+    if (!keepGear) { gear.pick = 1; gear.sword = 1; gear.armor = 0; gear.gems = 0; gear.pts = 0; gear.dirt = 5; if (!keepWins) wins = 0; }
     resetPlayer(); agent.state = "EXPLORE"; agent.path = null; agent.stuck = 0; agent.planQ.length = 0; agent.snap = null; regenT = 0; showMap = false;
     evt.name = ""; evt.label = ""; evt.t = 0; evt.timer = 1900;
     buffs.speed = 0; buffs.power = 0; buffs.shield = 0; buffs.regen = 0;
@@ -940,6 +956,7 @@
     ctx.font = "bold 8px 'Source Sans 3', sans-serif"; ctx.textAlign = "center";
     ctx.fillStyle = beat ? "#8fe388" : (lv - agentPower() > 1.6 ? "#ff6a6a" : "#ffcf5a");
     ctx.fillText("Lv" + lv, ex + s.w / 2, ey - 5); ctx.textAlign = "left";
+    if (s.boss) { ctx.font = "11px sans-serif"; ctx.textAlign = "center"; ctx.fillText("👑", ex + s.w / 2, ey - 14); ctx.textAlign = "left"; }
   }
   function drawMapOverlay(W, H) {
     ctx.fillStyle = "rgba(8,10,14,0.9)"; ctx.fillRect(0, 0, W, H);
@@ -956,7 +973,7 @@
     ctx.fillStyle = "#fff"; ctx.font = "bold 16px 'Source Sans 3',sans-serif"; ctx.textAlign = "center";
     ctx.fillText("WORLD MAP  ·  explored " + Math.round(100 * exploredCount / (WW * WH)) + "%  ·  press M to close", W / 2, 26);
     ctx.font = "12px 'Source Sans 3',sans-serif";
-    ctx.fillText("🔵 you   🟡 Grand Gem   🟠 chest   (unexplored = hidden)", W / 2, oy + mh + 18);
+    ctx.fillText("🔵 you   🟡 Victory Gate   🟠 chest   (unexplored = hidden)", W / 2, oy + mh + 18);
     ctx.textAlign = "left";
   }
   function render() {
@@ -1054,7 +1071,7 @@
       step(P, dtf);
       if (buffs.regen > 0) P.hp = Math.min(P.maxhp, P.hp + 0.05 * dtf);
       if (get(((P.x + P.w / 2) / TS) | 0, ((P.y + P.h - 4) / TS) | 0) === LAVA) {
-        P.hp -= (buffs.shield > 0 ? 0.35 : 0.9) * dtf;
+        P.hp -= (buffs.shield > 0 ? 0.6 : 1.6) * dtf;
         if (frame % 7 === 0) burst(P.x + P.w / 2, P.y + 2, "#ff9c40", 2);
         if (P.hp <= 0) die();
       }
@@ -1067,7 +1084,7 @@
     updEnemies(dtf); updDrops(dtf); updItems(dtf); updParts(dtf); updEvents(dtf);
     for (var i = msgs.length - 1; i >= 0; i--) { msgs[i].life -= dtf; if (msgs[i].life <= 0) msgs.splice(i, 1); }
     for (var li = llmLog.length - 1; li >= 0; li--) { llmLog[li].life -= dtf; if (llmLog[li].life <= 0) llmLog.splice(li, 1); }
-    if (regenT > 0) { regenT -= dtf; if (regenT <= 0) newWorld(true); }
+    if (regenT > 0) { regenT -= dtf; if (regenT <= 0) newWorld(false, true); }
     if (frame % 10 === 0) hud();
   }
   var last = 0;
@@ -1102,7 +1119,7 @@
   applyMode("auto");
   function fit() { var w = Math.min(900, (canvas.parentElement && canvas.parentElement.clientWidth) || 880); canvas.width = Math.max(480, w); canvas.height = 480; ctx.imageSmoothingEnabled = false; }
   window.addEventListener("resize", fit);
-  buildTex(); fit(); generate(); resetPlayer(); hud();
+  buildTex(); fit(); generate(); spawnBosses(); resetPlayer(); hud();
   say(llmActive() ? "LLM brain connected." : "Ready — let's explore!");
   msg("🌍 World generated — the agent explores on its own. Press M for the map.");
   requestAnimationFrame(loop);
