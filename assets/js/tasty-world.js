@@ -244,10 +244,10 @@
     var d = Math.hypot((tx + 0.5) * TS - (P.x + P.w / 2), (ty + 0.5) * TS - (P.y + P.h / 2));
     if (d > TS * 3) return false;
     if (!agent.digT || agent.digT.x !== tx || agent.digT.y !== ty) { agent.digT = { x: tx, y: ty }; agent.digP = 0; }
-    agent.digP += 1 + gear.pick * 0.8;
+    agent.digP += 1 + gear.pick * 0.8; agent.mineF = frame;
     if (frame % 5 === 0) burst((tx + 0.5) * TS, (ty + 0.5) * TS, BASECOL[t] || "#999", 1);
     if (agent.digP >= HARD[t]) {
-      agent.digT = null; agent.digP = 0;
+      agent.digT = null; agent.digP = 0; agent.stuck = 0;
       if (ORE_PTS[t]) gainOre(t);
       else if (t === GEM) {
         gear.gems++; stat.gem++; msg("💎 Amethyst! (" + gear.gems + ")");
@@ -352,7 +352,7 @@
     for (var i = 0; i < enemies.length; i++) {
       var s = enemies[i];
       if (s.x + s.w > rx && s.x < rx + 24 && s.y + s.h > P.y - 6 && s.y < P.y + P.h + 6) {
-        s.hp -= 5 + gear.sword * 4; s.vx = P.face * 4; s.vy = -3;
+        s.hp -= 5 + gear.sword * 4; s.vx = P.face * 4; s.vy = -3; agent.stuck = 0;
         burst(s.x + s.w / 2, s.y + s.h / 2, "#ffe9a3", 5);
       }
     }
@@ -590,7 +590,7 @@
     } else P.vx *= 0.6;
     if (dy < -1.2) {
       var uy = ((P.y - 3) / TS) | 0;
-      if (isSolid(mid, uy)) { tryMine(mid, uy); agent.hopN = 0; }
+      if (isSolid(mid, uy)) { if (agent.mineF !== frame) tryMine(mid, uy); agent.hopN = 0; }
       else if (P.ground && agent.jumpCD <= 0) {
         P.vy = -JUMP; agent.jumpCD = 16;
         agent.hopN = (agent.hopN || 0) + 1;
@@ -598,7 +598,7 @@
       }
     } else if (dy > 1.2 && Math.abs(dx) < 1.3) {
       var by = ((P.y + P.h + 2) / TS) | 0;
-      if (isSolid(mid, by) && get(mid, by) !== BEDROCK) tryMine(mid, by);
+      if (isSolid(mid, by) && get(mid, by) !== BEDROCK && agent.mineF !== frame) tryMine(mid, by);
     }
   }
   function nextWaypoint() {
@@ -638,7 +638,7 @@
     var wp = nextWaypoint();
     var tx = wp ? wp.x : (agent.tgt ? agent.tgt.x : null), ty = wp ? wp.y : (agent.tgt ? agent.tgt.y : null);
     if (tx !== null) moveToward(tx, ty); else P.vx *= 0.6;
-    if (agent.stuck > 45 && tx !== null) {
+    if (agent.stuck > 45 && tx !== null && agent.mineF !== frame) {
       var mid = ((P.x + P.w / 2) / TS) | 0, cy = ((P.y + P.h / 2) / TS) | 0, ddx = tx - mid, ddy = ty - cy;
       var dgx, dgy;                                          // mine ONE tile per frame so digP accumulates
       if (Math.abs(ddx) >= Math.abs(ddy)) { dgx = mid + (ddx >= 0 ? 1 : -1); dgy = ((P.y + P.h - 3) / TS) | 0; if (!isSolid(dgx, dgy)) dgy = ((P.y + 3) / TS) | 0; }
