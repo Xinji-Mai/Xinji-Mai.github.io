@@ -62,15 +62,16 @@ http.createServer(function (req, res) {
     var model = process.env.LLM_MODEL || "qwen3.8-max-preview";
     var sys = "You are the strategic brain of an AI agent in a Terraria-like 2D mining sandbox. A low-level controller (pathfinding, digging, jumping, melee) executes the GOAL you choose; you only pick the next high-level goal plus a short first-person thought.\n" +
       "Grow stronger before taking risks: mine_ore upgrades pickaxe/sword, collect_gems upgrades armor, open_chest gives random upgrades, hunt seeks out a beatable monster to farm. Only fight/hunt enemies you can beat (enemy.beatable=true); avoid ones too strong (beatable=false) until geared. Seek the Grand Gem (seek_goal) only once it is known and you are well geared.\n" +
+      "Keep CONTINUITY across replies: lastPlan shows your previous plan. Continue or extend the same theme (e.g., finish a mining trip: mine_ore, collect_gems, open_chest) instead of switching activities every reply. Only switch themes when the situation changes: low hp, new threat, a discovery, or the theme is finished.\n" +
       "Be adaptive and avoid loops: read recentActions and do NOT repeat the same goal every turn. If the enemy is unreachable (reachable=false) or too strong, pick a different goal \u2014 mine ore, open a chest, explore the other direction, dig deeper, or flee.\n" +
       "Reply ONLY compact JSON: {\"thought\":\"<=10 words, first person, lively\",\"plan\":[\"goal1\",\"goal2\",\"goal3\"]} with 2 to 4 goals executed in order until your next reply. Each goal one of: explore|explore_left|explore_right|mine_ore|collect_gems|dig_deep|open_chest|fight|hunt|avoid|seek_goal|surface. Compose complementary sequences and vary them across replies.";
     var e = s.enemy;
     var enemyStr = e ? (e.kind + " Lv" + e.lv + ", " + e.distTiles + " tiles " + e.dir + (e.above ? " (above)" : "") + ", reachable=" + e.reachable + ", beatable=" + e.beatable) : "none";
     var usr = "hp=" + s.hp + "/" + s.maxhp + ", power=" + s.power + ", gear pick/sword/armor=" + s.pick + "/" + s.sword + "/" + s.armor + ", gems=" + s.gems +
       ", depth=" + s.depth + ", exploredPct=" + s.exploredPct + ", goalKnown=" + s.goalKnown + ", chestKnown=" + s.chestKnown +
-      ", nearestEnemy=[" + enemyStr + "], recentActions=" + JSON.stringify(s.recentActions || []) + ", currentState=" + s.state + ". Choose the next goal.";
+      ", nearestEnemy=[" + enemyStr + "], lastPlan=" + JSON.stringify(s.lastPlan || []) + ", recentActions=" + JSON.stringify(s.recentActions || []) + ", currentState=" + s.state + ". Compose the next plan.";
     dayCount++;
-    callLLM({ model: model, messages: [{ role: "system", content: sys }, { role: "user", content: usr }], max_tokens: 120, temperature: 0.9 })
+    callLLM({ model: model, messages: [{ role: "system", content: sys }, { role: "user", content: usr }], max_tokens: 120, temperature: 0.7 })
       .then(function (d) {
         var text = (d.choices && d.choices[0] && d.choices[0].message && d.choices[0].message.content) || "";
         var m = text.match(/\{[\s\S]*\}/), out = { thought: "Hmm…", hint: "explore" };

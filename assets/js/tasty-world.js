@@ -492,7 +492,7 @@
     if (st === "HUNT") { var be = nearestBeatableEnemy(); return be ? enemyStandTile(be.e) : (nearestFrontier() || randFar()); }
     if (st === "SEEK_GOAL") return { x: goal.x, y: goal.y };
     if (st === "DIG") return { x: (P.x / TS) | 0, y: Math.min(WH - 3, ((P.y / TS) | 0) + 16) };
-    if (st === "SURFACE") { var cx = Math.max(0, Math.min(WW - 1, (P.x / TS) | 0)); return { x: cx, y: Math.max(2, (surf[cx] || 40) - 2) }; }
+    if (st === "SURFACE") { var cx = Math.max(0, Math.min(WW - 1, (P.x / TS) | 0)); return { x: cx, y: Math.max(2, (surf[cx] || 40) - 1) }; }
     return nearestFrontier() || randFar();
   }
   function decide() {
@@ -507,6 +507,7 @@
       if (gdone || agent.planT <= 0) {
         agent.planQ.shift(); agent.planT = 10;
         if (agent.planQ.length) { agent.hint = agent.planQ[0]; agent.hintT = 720; agent.path = null; pushHist("»" + agent.planQ[0]); }
+        else { agent.hintT = 0; agent.path = null; }               // plan done: hand control back to auto until next reply
       }
     }
     var ne = nearestEnemy(), hpr = P.hp / P.maxhp;
@@ -540,7 +541,7 @@
     if (noPath || agent.replanT <= 0 || agent.stuck > 55) {
       var t = chooseTarget(st, ne); agent.tgt = t;
       if (t) { agent.path = bfsPath(((P.x + P.w / 2) / TS) | 0, ((P.y + P.h - 2) / TS) | 0, t.x, t.y); agent.pi = 0; }
-      agent.replanT = 40; if (agent.stuck > 55) agent.stuck = 0;
+      agent.replanT = 40; agent.hopN = 0; if (agent.stuck > 55) agent.stuck = 0;
     }
     if (agent.hintT > 0) agent.hintT -= 15;
   }
@@ -559,8 +560,12 @@
     } else P.vx *= 0.6;
     if (dy < -1.2) {
       var uy = ((P.y - 3) / TS) | 0;
-      if (isSolid(mid, uy)) tryMine(mid, uy);
-      else if (P.ground && agent.jumpCD <= 0) { P.vy = -JUMP; agent.jumpCD = 16; }
+      if (isSolid(mid, uy)) { tryMine(mid, uy); agent.hopN = 0; }
+      else if (P.ground && agent.jumpCD <= 0) {
+        P.vy = -JUMP; agent.jumpCD = 16;
+        agent.hopN = (agent.hopN || 0) + 1;
+        if (agent.hopN > 4) { agent.hopN = 0; agent.path = null; agent.tgt = null; agent.exdir = -agent.exdir; }   // unreachable overhead target: give up, re-target
+      }
     } else if (dy > 1.2 && Math.abs(dx) < 1.3) {
       var by = ((P.y + P.h + 2) / TS) | 0;
       if (isSolid(mid, by) && get(mid, by) !== BEDROCK) tryMine(mid, by);
@@ -630,7 +635,7 @@
       goalKnown: !!(explored[idx(goal.x, goal.y)] && get(goal.x, goal.y) === GOAL),
       exploredPct: Math.round(100 * exploredCount / (WW * WH)),
       surroundings: { solidBelow: isSolid(pcx, pcy + 1), solidLeft: isSolid(pcx - 1, pcy), solidRight: isSolid(pcx + 1, pcy) },
-      recentActions: agent.hist.slice(0, 6) };
+      recentActions: agent.hist.slice(0, 6), lastPlan: agent.lastPlan || [], planLeft: agent.planQ.length };
     try {
       fetch(llmEP, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
         .then(function (r) { return r.json(); })
@@ -642,7 +647,7 @@
           var plan = [];
           if (j && j.plan && j.plan.length) for (var q = 0; q < j.plan.length && plan.length < 4; q++) { if (HL.indexOf(String(j.plan[q])) >= 0) plan.push(String(j.plan[q])); }
           if (!plan.length && j && j.hint && HL.indexOf(String(j.hint)) >= 0) plan = [String(j.hint)];
-          if (plan.length) { agent.planQ = plan.slice(); agent.planT = 10; agent.hint = plan[0]; agent.hintT = 720; agent.path = null; }
+          if (plan.length) { agent.planQ = plan.slice(); agent.lastPlan = plan.slice(); agent.planT = 10; agent.hint = plan[0]; agent.hintT = 720; agent.path = null; }
           llmLog.unshift({ hint: plan.length ? plan.join(" → ") : ((j && j.hint) || "?"), thought: (j && j.thought) || "", life: 600 });
           if (llmLog.length > 5) llmLog.pop();
         })
