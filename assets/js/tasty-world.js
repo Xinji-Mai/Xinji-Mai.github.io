@@ -283,7 +283,7 @@
         gear.gems++; stat.gem++; msg("💎 Amethyst! (" + gear.gems + ")");
         if (gear.gems % 2 === 0 && gear.armor < 6) { gear.armor++; msg("🛡️ Armor Lv." + gear.armor); }
       }
-      else if (t === DIRT || t === GRASS) gear.dirt = Math.min(99, gear.dirt + 1);
+      else if (t === DIRT || t === GRASS || t === STONE) gear.dirt = Math.min(99, gear.dirt + 1);
       setT(tx, ty, AIR);
     }
     return true;
@@ -747,7 +747,7 @@
   /* ---------------- optional LLM brain (via YOUR serverless proxy; no key here) ---------------- */
   function askLLM() {
     if (!llmActive() || P.dead || document.hidden) return;
-    var now = Date.now(); if (now - llmLast < 15000 || now < llmFail) return; llmLast = now;
+    var now = Date.now(); if (now - llmLast < 8000 || now < llmFail) return; llmLast = now;
     var ne = nearestEnemy(), pcx = Math.max(0, Math.min(WW - 1, (P.x / TS) | 0)), pcy = (P.y / TS) | 0;
     var eInfo = null;
     if (ne) {
@@ -756,9 +756,16 @@
         above: (ne.e.y + ne.e.h < P.y), reachable: !!bfsPath(pcx, ((P.y + P.h - 2) / TS) | 0, et.x, et.y), beatable: beatable(ne.e) };
     }
     var chest = nearestKnownChest();
+    var chestInfo = chest ? { dist: chest.d, dir: (chest.x < pcx ? "left" : "right"), above: chest.y < pcy - 2 } : null;
+    var o3 = nearestKnownOre();
+    var oreInfo = o3 ? { dist: Math.abs(o3.x - pcx) + Math.abs(o3.y - pcy), dir: (o3.x < pcx ? "left" : "right"), above: o3.y < pcy - 2 } : null;
+    var lavaNear = false;
+    for (var lx3 = pcx - 4; lx3 <= pcx + 4 && !lavaNear; lx3++) for (var ly3 = pcy - 3; ly3 <= pcy + 4; ly3++) if (get(lx3, ly3) === LAVA) { lavaNear = true; break; }
     var body = { hp: Math.round(P.hp), maxhp: P.maxhp, gems: gear.gems, pick: gear.pick, sword: gear.sword, armor: gear.armor, dirt: gear.dirt,
       power: Math.round(agentPower() * 10) / 10, depth: Math.round(pcy - (surf[pcx] || 40)), state: agent.state, wins: wins,
       enemyNear: !!(ne && ne.d < TS * 10), enemy: eInfo, chestKnown: !!chest, chestDist: chest ? chest.d : null,
+      chest: chestInfo, ore: oreInfo, lavaNear: lavaNear,
+      stuckSec: Math.round(agent.stuck / 6) / 10, bannedTargets: agent.badTs.length,
       goalKnown: !!(explored[idx(goal.x, goal.y)] && get(goal.x, goal.y) === GOAL),
       exploredPct: Math.round(100 * exploredCount / (WW * WH)),
       surroundings: { solidBelow: isSolid(pcx, pcy + 1), solidLeft: isSolid(pcx - 1, pcy), solidRight: isSolid(pcx + 1, pcy) },
