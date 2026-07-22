@@ -178,9 +178,11 @@
   var P = { x: 0, y: 0, w: 10, h: 20, vx: 0, vy: 0, ground: false, face: 1, hp: 100, maxhp: 100, inv: 0, dead: 0 };
   var gear = { pick: 1, sword: 1, armor: 0, gems: 0, pts: 0 };
   var enemies = [], drops = [], parts = [], msgs = [];
+  var stat = { ore: 0, gem: 0, chest: 0, kill: 0 };
   var agent = { on: true, state: "EXPLORE", think: "Waking up…", hint: null, hintT: 0, tgt: null,
                 path: null, pi: 0, pathT: 0, digT: null, digP: 0, atk: 0, stuck: 0, lx: 0, decideT: 0, jumpCD: 0, hist: [], exdir: 1, since: 0, planQ: [], planT: 0 };
   var cam = { x: 0, y: 0 }, keys = {}, wins = 0, frame = 0, regenT = 0, showMap = false;
+  var evt = { name: "", label: "", t: 0, timer: 1900 };
   var llmEP = "", llmOn = false, llmModel = "", llmLast = 0, llmFail = 0;
   try { llmEP = (window.AGENT_LLM_ENDPOINT || "").trim() || localStorage.getItem("agent_llm_endpoint") || ""; } catch (e) {}
   var llmLog = [];   // recent LLM decisions, shown on the right while in LLM mode
@@ -223,14 +225,18 @@
   }
 
   /* ---------------- mining ---------------- */
-  function gainOre(t) {
-    gear.pts += ORE_PTS[t];
-    msg("⛏️ " + ORE_NAME[t] + "!");
+  function levelUp() {
     while (gear.pts >= 4) {
       gear.pts -= 4;
       if (gear.pick <= gear.sword && gear.pick < 6) { gear.pick++; msg("⬆️ Pickaxe Lv." + gear.pick); }
       else if (gear.sword < 6) { gear.sword++; msg("⬆️ Sword Lv." + gear.sword); }
+      else if (gear.armor < 6) { gear.armor++; msg("⬆️ Armor Lv." + gear.armor); }
     }
+  }
+  function gainOre(t) {
+    gear.pts += ORE_PTS[t]; stat.ore++;
+    msg("⛏️ " + ORE_NAME[t] + "!");
+    levelUp();
   }
   function tryMine(tx, ty) {
     var t = get(tx, ty);
@@ -244,7 +250,7 @@
       agent.digT = null; agent.digP = 0;
       if (ORE_PTS[t]) gainOre(t);
       else if (t === GEM) {
-        gear.gems++; msg("💎 Amethyst! (" + gear.gems + ")");
+        gear.gems++; stat.gem++; msg("💎 Amethyst! (" + gear.gems + ")");
         if (gear.gems % 2 === 0 && gear.armor < 6) { gear.armor++; msg("🛡️ Armor Lv." + gear.armor); }
       }
       setT(tx, ty, AIR);
@@ -256,6 +262,7 @@
   function openChest(tx, ty) {
     setT(tx, ty, AIR);
     for (var i = 0; i < chests.length; i++) if (chests[i].x === tx && chests[i].y === ty) { chests.splice(i, 1); break; }
+    stat.chest++;
     burst((tx + 0.5) * TS, (ty + 0.5) * TS, "#ffd24a", 18);
     var roll = Math.random();
     if (roll < 0.3 && gear.pick < 6) { gear.pick++; msg("🧰 Chest: shiny pickaxe! ⛏️Lv." + gear.pick); }
@@ -278,8 +285,8 @@
     zombie: { w: 12, h: 20, hp: 30, dmg: 13, col: "#7d9e5a" },
     bat:    { w: 12, h: 8,  hp: 8,  dmg: 6,  col: "#7a5da8" }
   };
-  function spawnEnemy() {
-    if (enemies.length >= 6) return;
+  function spawnEnemy(force) {
+    if (enemies.length >= (force ? 10 : 6)) return;
     for (var tr = 0; tr < 24; tr++) {
       var tx = rnd(2, WW - 2) | 0, ty = rnd(4, WH - 4) | 0;
       if (get(tx, ty) !== AIR || get(tx, ty - 1) !== AIR) continue;
@@ -329,7 +336,13 @@
         burst(P.x + P.w / 2, P.y + P.h / 2, "#e05555", 6);
         if (P.hp <= 0) die();
       }
-      if (s.hp <= 0) { burst(s.x + s.w / 2, s.y + s.h / 2, k.col, 10); enemies.splice(i, 1); }
+      if (s.hp <= 0) {
+        burst(s.x + s.w / 2, s.y + s.h / 2, k.col, 10); stat.kill++;
+        gear.pts += (s.lv || 1); levelUp();
+        if ((s.lv || 1) >= 3) { gear.gems++; msg("💎 Lv" + s.lv + " " + s.kind + " dropped a gem! (" + gear.gems + ")"); if (gear.gems % 2 === 0 && gear.armor < 6) { gear.armor++; msg("🛡️ Armor Lv." + gear.armor); } }
+        else msg("⚔️ " + s.kind + " Lv" + (s.lv || 1) + " down! +" + (s.lv || 1) + " pts");
+        enemies.splice(i, 1);
+      }
     }
   }
   function attack() {
@@ -497,16 +510,20 @@
   }
   function decide() {
     if (P.dead) return;
-    if (llmActive() && agent.planQ.length) {                        // advance the LLM's multi-step plan between replies
+    if (llmActive() && agent.planQ.length) {                        // advance the plan on real accomplishment (or generous timeout)
       agent.planT--;
-      var curG = agent.planQ[0], gdone = false;
-      if (curG === "mine_ore") gdone = !nearestKnownOre();
-      else if (curG === "collect_gems") gdone = !nearestKnownGem();
-      else if (curG === "open_chest") gdone = !nearestKnownChest();
-      else if (curG === "fight" || curG === "hunt") gdone = !nearestBeatableEnemy();
+      var curG = agent.planQ[0], sn = agent.snap || {}, gdone = false;
+      if (curG === "mine_ore") gdone = (stat.ore - (sn.ore || 0) >= 2) || !nearestKnownOre();
+      else if (curG === "collect_gems") gdone = (stat.gem - (sn.gem || 0) >= 1) || !nearestKnownGem();
+      else if (curG === "open_chest") gdone = (stat.chest - (sn.chest || 0) >= 1) || !nearestKnownChest();
+      else if (curG === "fight" || curG === "hunt") gdone = (stat.kill - (sn.kill || 0) >= 1) || !nearestBeatableEnemy();
+      else if (curG === "dig_deep") gdone = (P.y / TS - (sn.py || 0)) >= 6;
+      else if (curG === "explore" || curG === "explore_left" || curG === "explore_right") gdone = (exploredCount - (sn.exp || 0)) >= 140;
+      else if (curG === "surface") gdone = (P.y / TS) <= ((surf[(P.x / TS) | 0] || 40) + 1);
       if (gdone || agent.planT <= 0) {
-        agent.planQ.shift(); agent.planT = 10;
-        if (agent.planQ.length) { agent.hint = agent.planQ[0]; agent.hintT = 720; agent.path = null; pushHist("»" + agent.planQ[0]); }
+        agent.planQ.shift(); agent.planT = 50;
+        agent.snap = { ore: stat.ore, gem: stat.gem, chest: stat.chest, kill: stat.kill, py: P.y / TS, exp: exploredCount };
+        if (agent.planQ.length) { agent.hint = agent.planQ[0]; agent.hintT = 999; agent.path = null; pushHist("»" + agent.planQ[0]); }
         else { agent.hintT = 0; agent.path = null; }               // plan done: hand control back to auto until next reply
       }
     }
@@ -515,12 +532,16 @@
     var chest = nearestKnownChest();
     var strong = ne && !beatable(ne.e);
     var h = agent.hintT > 0 ? agent.hint : null;
+    var lat = llmActive() ? (agent.latent || "loot") : "loot";              // latent policy: how AUTO handles surprises
     if (h === "explore_left") agent.exdir = -1; else if (h === "explore_right") agent.exdir = 1;
     var busy = (h === "mine_ore" || h === "collect_gems" || h === "open_chest" || h === "dig_deep" || h === "dig_down" || h === "surface" || h === "seek_goal");
+    var fightR = lat === "aggressive" ? 10 : (lat === "rush" ? 3 : 7);
+    var o2 = nearestKnownOre(), pcx2 = (P.x / TS) | 0, pcy2 = (P.y / TS) | 0;
+    var oreNear = o2 && (Math.abs(o2.x - pcx2) + Math.abs(o2.y - pcy2)) < 14;
     var st;
-    if (ne && ne.d < TS * 6 && (hpr < 0.35 || strong)) st = "FLEE";        // survive: flee if weak, or enemy too strong to beat
-    else if (h === "avoid" && ne && ne.d < TS * 9) st = "FLEE";
-    else if (ne && ne.d < TS * 7 && !strong && !busy) st = "FIGHT";         // only engage enemies we can beat
+    if (ne && ne.d < TS * 6 && (hpr < (lat === "cautious" ? 0.6 : 0.35) || strong)) st = "FLEE";
+    else if ((h === "avoid" || lat === "cautious") && ne && ne.d < TS * 8) st = "FLEE";
+    else if (ne && ne.d < TS * fightR && !strong && (!busy || lat === "aggressive")) st = "FIGHT";
     else if (h === "open_chest" && chest) st = "CHEST";
     else if (h === "mine_ore") st = "MINE";
     else if (h === "collect_gems") st = "GEMS";
@@ -529,7 +550,8 @@
     else if (h === "surface" && hpr < 0.9) st = "SURFACE";
     else if (h === "seek_goal" && goalKnown) st = "SEEK_GOAL";
     else if (goalKnown && gear.sword >= 4) st = "SEEK_GOAL";                // chase the Grand Gem only once decently geared
-    else if (chest && chest.d < 40) st = "CHEST";
+    else if (chest && chest.d < (lat === "rush" ? 8 : 40)) st = "CHEST";
+    else if (lat === "loot" && oreNear) st = "MINE";
     else st = "EXPLORE";
     var changed = st !== agent.state; agent.state = st;
     if (changed) { agent.path = null; agent.since = 0; if (!llmActive()) say(pickThink(st)); pushHist(st); }
@@ -587,7 +609,8 @@
     if (ne && ne.d < TS * 2.6) { P.face = ne.e.x > P.x ? 1 : -1; attack(); }
     if (ne && ne.d < TS * 3.5 && P.hp / P.maxhp >= 0.35) {   // close-range melee only; far enemies use normal BFS navigation
       var fmid = ((P.x + P.w / 2) / TS) | 0, ffoot = ((P.y + P.h - 3) / TS) | 0, fhead = ((P.y + 3) / TS) | 0, edx = ne.e.x - P.x;
-      if (Math.abs(edx) > TS * 0.6) {
+      if (agent.atk > 10 && ne.d < TS * 1.4) { P.vx = (edx > 0 ? -1 : 1) * MOVE * 0.8; }        // kite while the sword recovers
+      else if (Math.abs(edx) > TS * 0.6) {
         P.face = edx > 0 ? 1 : -1; P.vx = P.face * MOVE;
         var ffx = fmid + P.face;
         if (isSolid(ffx, ffoot) || isSolid(ffx, fhead)) {
@@ -620,7 +643,7 @@
   /* ---------------- optional LLM brain (via YOUR serverless proxy; no key here) ---------------- */
   function askLLM() {
     if (!llmActive() || P.dead || document.hidden) return;
-    var now = Date.now(); if (now - llmLast < 6000 || now < llmFail) return; llmLast = now;
+    var now = Date.now(); if (now - llmLast < 9000 || now < llmFail) return; llmLast = now;
     var ne = nearestEnemy(), pcx = Math.max(0, Math.min(WW - 1, (P.x / TS) | 0)), pcy = (P.y / TS) | 0;
     var eInfo = null;
     if (ne) {
@@ -635,7 +658,7 @@
       goalKnown: !!(explored[idx(goal.x, goal.y)] && get(goal.x, goal.y) === GOAL),
       exploredPct: Math.round(100 * exploredCount / (WW * WH)),
       surroundings: { solidBelow: isSolid(pcx, pcy + 1), solidLeft: isSolid(pcx - 1, pcy), solidRight: isSolid(pcx + 1, pcy) },
-      recentActions: agent.hist.slice(0, 6), lastPlan: agent.lastPlan || [], planLeft: agent.planQ.length };
+      recentActions: agent.hist.slice(0, 6), lastPlan: agent.lastPlan || [], planLeft: agent.planQ.length, latent: agent.latent || "loot", event: evt.name || "none" };
     try {
       fetch(llmEP, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
         .then(function (r) { return r.json(); })
@@ -647,8 +670,11 @@
           var plan = [];
           if (j && j.plan && j.plan.length) for (var q = 0; q < j.plan.length && plan.length < 4; q++) { if (HL.indexOf(String(j.plan[q])) >= 0) plan.push(String(j.plan[q])); }
           if (!plan.length && j && j.hint && HL.indexOf(String(j.hint)) >= 0) plan = [String(j.hint)];
-          if (plan.length) { agent.planQ = plan.slice(); agent.lastPlan = plan.slice(); agent.planT = 10; agent.hint = plan[0]; agent.hintT = 720; agent.path = null; }
-          llmLog.unshift({ hint: plan.length ? plan.join(" → ") : ((j && j.hint) || "?"), thought: (j && j.thought) || "", life: 600 });
+          var LAT = ["loot", "aggressive", "cautious", "rush"];
+          if (j && j.latent && LAT.indexOf(String(j.latent)) >= 0) agent.latent = String(j.latent);
+          if (plan.length) { agent.planQ = plan.slice(); agent.lastPlan = plan.slice(); agent.planT = 50; agent.hint = plan[0]; agent.hintT = 999; agent.path = null;
+            agent.snap = { ore: stat.ore, gem: stat.gem, chest: stat.chest, kill: stat.kill, py: P.y / TS, exp: exploredCount }; }
+          llmLog.unshift({ hint: (plan.length ? plan.join(" → ") : ((j && j.hint) || "?")) + " ⋄" + (agent.latent || "loot").toUpperCase(), thought: (j && j.thought) || "", life: 600 });
           if (llmLog.length > 5) llmLog.pop();
         })
         .catch(function () { llmFail = Date.now() + 60000; });
@@ -670,10 +696,53 @@
       burst((goal.x + 0.5) * TS, (goal.y + 0.5) * TS, "#ffd54a", 34); regenT = 280;
     }
   }
+  /* ---------------- random world events: meteor / monster wave / supply drop ---------------- */
+  function revealAt(cx, cy, R) {
+    for (var y = cy - R; y <= cy + R; y++) for (var x = cx - R; x <= cx + R; x++)
+      if (inb(x, y) && !explored[idx(x, y)] && (x - cx) * (x - cx) + (y - cy) * (y - cy) <= R * R) { explored[idx(x, y)] = 1; exploredCount++; }
+  }
+  function meteorStrike() {
+    var cx = Math.max(6, Math.min(WW - 7, ((P.x / TS) | 0) + ((rnd(10, 26) | 0) * (Math.random() < 0.5 ? 1 : -1))));
+    var cy = Math.max(6, Math.min(WH - 8, surf[cx] || 40));
+    for (var y = cy - 3; y <= cy + 3; y++) for (var x = cx - 4; x <= cx + 4; x++) {
+      if (!inb(x, y) || get(x, y) === BEDROCK) continue;
+      var dd = (x - cx) * (x - cx) + (y - cy) * (y - cy);
+      if (dd <= 8) setT(x, y, AIR);
+      else if (dd <= 16 && get(x, y) !== AIR && Math.random() < 0.55) setT(x, y, Math.random() < 0.6 ? GOLD : DIAMOND);
+    }
+    for (var i = 0; i < 42; i++) parts.push({ x: (cx + rnd(-3, 3)) * TS, y: (cy + rnd(-4, 0)) * TS, vx: rnd(-3, 3), vy: rnd(-5, -0.5), l: rnd(25, 60), c: i % 2 ? "#ff9c40" : "#ffd54a" });
+    revealAt(cx, cy, 7);
+    msg("☄️ Meteor strike! Rare ore exposed."); evt.name = "meteor"; evt.label = "METEOR STRIKE — rare ore!"; evt.t = 620;
+  }
+  function monsterWave() {
+    for (var i = 0; i < 3; i++) spawnEnemy(true);
+    msg("👹 Monster wave incoming!"); evt.name = "wave"; evt.label = "MONSTER WAVE!"; evt.t = 620;
+  }
+  function supplyDrop() {
+    for (var tr = 0; tr < 24; tr++) {
+      var cx = Math.max(3, Math.min(WW - 4, ((P.x / TS) | 0) + ((rnd(6, 18) | 0) * (Math.random() < 0.5 ? 1 : -1))));
+      var cy = (surf[cx] || 40) - 1;
+      if (!inb(cx, cy) || get(cx, cy) !== AIR) continue;
+      setT(cx, cy, CHEST); chests.push({ x: cx, y: cy }); revealAt(cx, cy, 5);
+      burst((cx + 0.5) * TS, (cy + 0.5) * TS, "#ffd24a", 14);
+      msg("🎁 Supply chest dropped nearby!"); evt.name = "supply"; evt.label = "SUPPLY DROP — free chest!"; evt.t = 620;
+      return;
+    }
+  }
+  function updEvents(dtf) {
+    if (evt.t > 0) { evt.t -= dtf; if (evt.t <= 0) evt.name = ""; }
+    evt.timer -= dtf;
+    if (evt.timer <= 0) {
+      evt.timer = rnd(1700, 3200);
+      var r = Math.random();
+      if (r < 0.34) meteorStrike(); else if (r < 0.67) monsterWave(); else supplyDrop();
+    }
+  }
   function newWorld(keepGear) {
     generate(); enemies.length = 0; drops.length = 0; parts.length = 0;
     if (!keepGear) { gear.pick = 1; gear.sword = 1; gear.armor = 0; gear.gems = 0; gear.pts = 0; wins = 0; }
-    resetPlayer(); agent.state = "EXPLORE"; agent.path = null; agent.stuck = 0; regenT = 0; showMap = false;
+    resetPlayer(); agent.state = "EXPLORE"; agent.path = null; agent.stuck = 0; agent.planQ.length = 0; agent.snap = null; regenT = 0; showMap = false;
+    evt.name = ""; evt.label = ""; evt.t = 0; evt.timer = 1900;
     msg("🌍 New world (procedurally generated, solvable ✔)"); say("A fresh world to conquer!");
   }
 
@@ -823,6 +892,12 @@
       ctx.fillStyle = col; ctx.fillRect(W / 2 - bw / 2, 6, bw, 20);
       ctx.fillStyle = "#fff"; ctx.textAlign = "center"; ctx.fillText(t2, W / 2, 20); ctx.textAlign = "left";
     }
+    if (evt.t > 0 && evt.label) {                                    // world-event banner
+      var eb = "⚡ " + evt.label, ea = Math.min(1, evt.t / 120);
+      ctx.font = "bold 13px 'Source Sans 3',sans-serif"; var ew = ctx.measureText(eb).width + 20;
+      ctx.globalAlpha = ea; ctx.fillStyle = "rgba(205,92,26,0.93)"; ctx.fillRect(W / 2 - ew / 2, 30, ew, 22);
+      ctx.fillStyle = "#fff"; ctx.textAlign = "center"; ctx.fillText(eb, W / 2, 46); ctx.textAlign = "left"; ctx.globalAlpha = 1;
+    }
     ctx.font = "12px 'Source Sans 3',sans-serif";                    // toast messages
     for (i = 0; i < msgs.length; i++) {
       ctx.fillStyle = "rgba(0,0,0," + Math.min(0.55, msgs[i].life / 120).toFixed(2) + ")"; ctx.fillRect(8, H - 22 - i * 20, ctx.measureText(msgs[i].t).width + 12, 17);
@@ -868,7 +943,7 @@
     if (P.inv > 0) P.inv -= dtf;
     if (agent.atk > 0) agent.atk -= dtf;
     if (frame % 140 === 0) spawnEnemy();
-    updEnemies(dtf); updDrops(dtf); updParts(dtf);
+    updEnemies(dtf); updDrops(dtf); updParts(dtf); updEvents(dtf);
     for (var i = msgs.length - 1; i >= 0; i--) { msgs[i].life -= dtf; if (msgs[i].life <= 0) msgs.splice(i, 1); }
     for (var li = llmLog.length - 1; li >= 0; li--) { llmLog[li].life -= dtf; if (llmLog[li].life <= 0) llmLog.splice(li, 1); }
     if (regenT > 0) { regenT -= dtf; if (regenT <= 0) newWorld(true); }
