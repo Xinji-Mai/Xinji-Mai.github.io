@@ -255,12 +255,19 @@
   }
 
   /* ---------------- mining ---------------- */
+  function upCost(lv) { return 3 + lv; }                       // upgrades get pricier: L1->2 costs 4 ... L9->10 costs 12
+  function tryArmorUp() { while (gear.armor < 10 && gear.gems >= (gear.armor + 1) * 2) { gear.armor++; msg("🛡️ Armor Lv." + gear.armor); } }
   function levelUp() {
-    while (gear.pts >= 4) {
-      gear.pts -= 4;
-      if (gear.pick <= gear.sword && gear.pick < 6) { gear.pick++; msg("⬆️ Pickaxe Lv." + gear.pick); }
-      else if (gear.sword < 6) { gear.sword++; msg("⬆️ Sword Lv." + gear.sword); }
-      else if (gear.armor < 6) { gear.armor++; msg("⬆️ Armor Lv." + gear.armor); }
+    for (; ;) {
+      var t = null;
+      if (gear.pick <= gear.sword && gear.pick < 10) t = "pick";
+      else if (gear.sword < 10) t = "sword";
+      else if (gear.armor < 10) t = "armor";
+      else break;
+      var c = upCost(gear[t]);
+      if (gear.pts < c) break;
+      gear.pts -= c; gear[t]++;
+      msg("⬆️ " + (t === "pick" ? "Pickaxe" : (t === "sword" ? "Sword" : "Armor")) + " Lv." + gear[t]);
     }
   }
   function gainOre(t) {
@@ -281,7 +288,7 @@
       if (ORE_PTS[t]) gainOre(t);
       else if (t === GEM) {
         gear.gems++; stat.gem++; msg("💎 Amethyst! (" + gear.gems + ")");
-        if (gear.gems % 2 === 0 && gear.armor < 6) { gear.armor++; msg("🛡️ Armor Lv." + gear.armor); }
+        tryArmorUp();
       }
       else if (t === DIRT || t === GRASS || t === STONE) gear.dirt = Math.min(99, gear.dirt + 1);
       setT(tx, ty, AIR);
@@ -296,9 +303,9 @@
     stat.chest++;
     burst((tx + 0.5) * TS, (ty + 0.5) * TS, "#ffd24a", 18);
     var roll = Math.random();
-    if (roll < 0.3 && gear.pick < 6) { gear.pick++; msg("🧰 Chest: shiny pickaxe! ⛏️Lv." + gear.pick); }
-    else if (roll < 0.55 && gear.sword < 6) { gear.sword++; msg("🧰 Chest: sharp sword! 🗡️Lv." + gear.sword); }
-    else if (roll < 0.75 && gear.armor < 6) { gear.armor++; msg("🧰 Chest: armor plate! 🛡️Lv." + gear.armor); }
+    if (roll < 0.3 && gear.pick < 10) { gear.pick++; msg("🧰 Chest: shiny pickaxe! ⛏️Lv." + gear.pick); }
+    else if (roll < 0.55 && gear.sword < 10) { gear.sword++; msg("🧰 Chest: sharp sword! 🗡️Lv." + gear.sword); }
+    else if (roll < 0.75 && gear.armor < 10) { gear.armor++; msg("🧰 Chest: armor plate! 🛡️Lv." + gear.armor); }
     else if (roll < 0.9) { gear.gems += 3; msg("🧰 Chest: 3 gems! 💎" + gear.gems); }
     else { P.hp = Math.min(P.maxhp, P.hp + 40); msg("🧰 Chest: heart! +40 ❤️"); }
     say("Treasure chest! Lucky me.");
@@ -386,7 +393,7 @@
       if (s.hp <= 0) {
         burst(s.x + s.w / 2, s.y + s.h / 2, k.col, 10); stat.kill++;
         gear.pts += (s.lv || 1); levelUp();
-        if ((s.lv || 1) >= 3) { gear.gems++; msg("💎 Lv" + s.lv + " " + s.kind + " dropped a gem! (" + gear.gems + ")"); if (gear.gems % 2 === 0 && gear.armor < 6) { gear.armor++; msg("🛡️ Armor Lv." + gear.armor); } }
+        if ((s.lv || 1) >= 3) { gear.gems++; msg("💎 Lv" + s.lv + " " + s.kind + " dropped a gem! (" + gear.gems + ")"); tryArmorUp(); }
         else msg("⚔️ " + s.kind + " Lv" + (s.lv || 1) + " down! +" + (s.lv || 1) + " pts");
         if (s.boss) { gear.gems += 5; msg("👑 BOSS DOWN! +5 💎"); spawnItem(s.x + s.w / 2, s.y, "star"); spawnItem(s.x + s.w / 2 + 8, s.y, "meat"); }
         var dr = Math.random();
@@ -615,6 +622,7 @@
     var h = agent.hintT > 0 ? agent.hint : null;
     var lat = llmActive() ? (agent.latent || "loot") : "loot";              // latent policy: how AUTO handles surprises
     if (h === "explore_left") agent.exdir = -1; else if (h === "explore_right") agent.exdir = 1;
+    else if (agentPower() >= 6) agent.exdir = 1;                        // well geared: default push to the right
     var busy = (h === "mine_ore" || h === "collect_gems" || h === "open_chest" || h === "dig_deep" || h === "dig_down" || h === "surface" || h === "seek_goal" || h === "pillar_up");
     var fightR = lat === "aggressive" ? 10 : (lat === "rush" ? 3 : 7);
     var o2 = nearestKnownOre(), pcx2 = (P.x / TS) | 0, pcy2 = (P.y / TS) | 0;
@@ -632,6 +640,7 @@
     else if (h === "surface" && hpr < 0.9) st = "SURFACE";
     else if (h === "seek_goal" && goalKnown) st = "SEEK_GOAL";
     else if (goalKnown && gear.sword >= 4) st = "SEEK_GOAL";                // chase the Grand Gem only once decently geared
+    else if (agentPower() >= 8 && hpr > 0.5) st = "SEEK_GOAL";              // strong enough: march right to the victory gate
     else if (chest && chest.d < (lat === "rush" ? 8 : 40)) st = "CHEST";
     else if (lat === "loot" && oreNear) st = "MINE";
     else st = "EXPLORE";
@@ -679,6 +688,7 @@
       else if (isSolid(mid, uy - 1) && get(mid, uy - 1) !== BEDROCK) { if (agent.mineF !== frame && tryMine(mid, uy - 1)) agent.hopN = 0; }   // ceiling one gap above: dig it instead of bonking
       else if (P.ground && agent.jumpCD <= 0) {
         P.vy = -JUMP; agent.jumpCD = 18;
+        if ((agent.hopN || 0) >= 1) P.vx = (Math.random() < 0.5 ? -1 : 1) * MOVE * 0.6;   // wiggle sideways so repeated hops shift position
         agent.wantUp = dy < -1.8;                              // deep ascent: pillar a dirt block at the apex
         agent.hopN = (agent.hopN || 0) + 1;
         if (agent.hopN > 6) { agent.hopN = 0; banTarget(); agent.exdir = -agent.exdir; }   // truly unreachable: blacklist & re-target
