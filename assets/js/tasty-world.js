@@ -515,7 +515,21 @@
     if (P.dead) return;
     if (agent.jumpCD > 0) agent.jumpCD -= dtf;
     var ne = nearestEnemy();
-    if (ne && ne.d < TS * 2.4) { P.face = ne.e.x > P.x ? 1 : -1; attack(); }
+    if (ne && ne.d < TS * 2.6) { P.face = ne.e.x > P.x ? 1 : -1; attack(); }
+    if (ne && ne.d < TS * 7.5 && P.hp / P.maxhp >= 0.35) {   // FIGHT: ground approach + attack; never dig-chase into the sky
+      var fmid = ((P.x + P.w / 2) / TS) | 0, ffoot = ((P.y + P.h - 3) / TS) | 0, fhead = ((P.y + 3) / TS) | 0, edx = ne.e.x - P.x;
+      if (Math.abs(edx) > TS * 0.6) {
+        P.face = edx > 0 ? 1 : -1; P.vx = P.face * MOVE;
+        var ffx = fmid + P.face;
+        if (isSolid(ffx, ffoot) || isSolid(ffx, fhead)) {
+          if (P.ground && agent.jumpCD <= 0 && !isSolid(ffx, ffoot - 1) && !isSolid(fmid, fhead - 1)) { P.vy = -JUMP; agent.jumpCD = 16; }
+          else tryMine(ffx, isSolid(ffx, fhead) ? fhead : ffoot);
+        }
+      } else P.vx *= 0.6;
+      if (ne.e.y + ne.e.h < P.y + 2 && P.ground && agent.jumpCD <= 0) { P.vy = -JUMP; agent.jumpCD = 16; }  // hop to reach bats
+      agent.stuck = 0; agent.lx = P.x;
+      return;
+    }
     var wp = nextWaypoint();
     var tx = wp ? wp.x : (agent.tgt ? agent.tgt.x : null), ty = wp ? wp.y : (agent.tgt ? agent.tgt.y : null);
     if (tx !== null) moveToward(tx, ty); else P.vx *= 0.6;
@@ -537,7 +551,7 @@
   /* ---------------- optional LLM brain (via YOUR serverless proxy; no key here) ---------------- */
   function askLLM() {
     if (!llmActive() || P.dead || document.hidden) return;
-    var now = Date.now(); if (now - llmLast < 9000 || now < llmFail) return; llmLast = now;
+    var now = Date.now(); if (now - llmLast < 6000 || now < llmFail) return; llmLast = now;
     var ne = nearestEnemy(), pcx = Math.max(0, Math.min(WW - 1, (P.x / TS) | 0));
     var body = { hp: Math.round(P.hp), gems: gear.gems, pick: gear.pick, sword: gear.sword, armor: gear.armor,
       state: agent.state, depth: Math.round(P.y / TS - (surf[pcx] || 40)), enemyNear: !!(ne && ne.d < TS * 10),
