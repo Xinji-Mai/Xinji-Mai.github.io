@@ -225,12 +225,7 @@
   function die() {
     if (P.dead) return;
     P.dead = 110;
-    if (gear.pick > 1 || gear.sword > 1 || gear.armor > 0) {
-      drops.push({ x: P.x, y: Math.min(P.y, (WH - 4) * TS), w: 10, h: 10, vx: rnd(-1, 1), vy: -3,
-                   bag: { pick: gear.pick, sword: gear.sword, armor: gear.armor } });
-      msg("💀 Died — dropped ALL equipment!");
-    } else msg("💀 Died!");
-    gear.pick = 1; gear.sword = 1; gear.armor = 0;
+    msg("💀 Died — gear is safe, respawning…");
     say("Ouch. Respawning…");
     burst(P.x + P.w / 2, P.y + P.h / 2, "#e05555", 14);
   }
