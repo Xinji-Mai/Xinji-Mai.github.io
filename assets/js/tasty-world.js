@@ -228,6 +228,7 @@
   var cam = { x: 0, y: 0 }, keys = {}, wins = 0, deaths = 0, frame = 0, regenT = 0, showMap = false;
   var evt = { name: "", label: "", t: 0, timer: 1900 };
   var lastHitF = -9999;                                       // last frame we took or dealt damage (for out-of-combat regen)
+  var gateFails = 0;                                          // deaths while challenging the gate boss raise the power bar
   var llmEP = "", llmOn = false, llmModel = "", llmLast = 0, llmFail = 0;
   try { llmEP = (window.AGENT_LLM_ENDPOINT || "").trim() || localStorage.getItem("agent_llm_endpoint") || ""; } catch (e) {}
   var llmLog = [];   // recent LLM decisions, shown on the right while in LLM mode
@@ -240,6 +241,8 @@
   function die() {
     if (P.dead) return;
     P.dead = 110; deaths++;
+    var nb = nearestEnemy();
+    if (agent.state === "SEEK_GOAL" || (nb && nb.e.boss && nb.d < TS * 12)) { gateFails++; msg("📉 That boss is beyond me — develop more first (bar +" + gateFails + ")."); }
     msg("💀 Died (" + deaths + ") — gear is safe, respawning…");
     say("Ouch. Respawning…");
     burst(P.x + P.w / 2, P.y + P.h / 2, "#e05555", 14);
@@ -695,8 +698,7 @@
     else if (h === "dig_deep" || h === "dig_down") st = "DIG";
     else if (h === "surface" && hpr < 0.9) st = "SURFACE";
     else if (h === "seek_goal" && goalKnown) st = "SEEK_GOAL";
-    else if (goalKnown && agentPower() >= 9 + wins) st = "SEEK_GOAL";        // gate known & strong enough for its boss
-    else if (agentPower() >= 10 + wins && hpr > 0.5) st = "SEEK_GOAL";        // clearly outgunning the gate boss: march right
+    else if (agentPower() >= 10 + wins + gateFails && hpr > 0.5) st = "SEEK_GOAL";   // power >= gate boss level (+1 per failed attempt): march right
     else if (chest && chest.d < (lat === "rush" ? 8 : 40)) st = "CHEST";
     else if (lat === "loot" && oreNear) st = "MINE";
     else st = "EXPLORE";
@@ -867,7 +869,7 @@
     var lavaNear = false, gasNear = false;
     for (var lx3 = pcx - 4; lx3 <= pcx + 4; lx3++) for (var ly3 = pcy - 3; ly3 <= pcy + 4; ly3++) { var tt3 = get(lx3, ly3); if (tt3 === LAVA) lavaNear = true; else if (tt3 === MIASMA) gasNear = true; }
     var body = { hp: Math.round(P.hp), maxhp: P.maxhp, gems: gear.gems, pick: gear.pick, sword: gear.sword, armor: gear.armor, dirt: gear.dirt,
-      power: Math.round(agentPower() * 10) / 10, depth: Math.round(pcy - (surf[pcx] || 40)), state: agent.state, wins: wins, deaths: deaths,
+      power: Math.round(agentPower() * 10) / 10, depth: Math.round(pcy - (surf[pcx] || 40)), state: agent.state, wins: wins, deaths: deaths, gateReq: 10 + wins + gateFails,
       enemyNear: !!(ne && ne.d < TS * 10), enemy: eInfo, chestKnown: !!chest, chestDist: chest ? chest.d : null,
       chest: chestInfo, ore: oreInfo, lavaNear: lavaNear, gasNear: gasNear,
       stuckSec: Math.round(agent.stuck / 6) / 10, bannedTargets: agent.badTs.length, loiterSec: Math.round(agent.campT / 6) / 10,
@@ -958,8 +960,9 @@
     enemies.length = 0; drops.length = 0; parts.length = 0;
     generate(); spawnBosses();
     if (!keepGear) { gear.pick = 1; gear.sword = 1; gear.armor = 0; gear.gems = 0; gear.pts = 0; gear.dirt = 5;
-      gear.swordMul = 1; gear.pickMul = 1; gear.armorMul = 1; gear.potAtk = 0; gear.potArm = 0; P.maxhp = 100;
-      if (!keepWins) { wins = 0; deaths = 0; } }
+      gear.swordMul = 1; gear.pickMul = 1; gear.armorMul = 1;
+      if (!keepWins) { wins = 0; deaths = 0; gear.potAtk = 0; gear.potArm = 0; P.maxhp = 100; } }   // potions persist across cleared worlds
+    gateFails = 0;
     resetPlayer(); agent.state = "EXPLORE"; agent.path = null; agent.stuck = 0; agent.planQ.length = 0; agent.snap = null; regenT = 0; showMap = false;
     evt.name = ""; evt.label = ""; evt.t = 0; evt.timer = 1900;
     buffs.speed = 0; buffs.power = 0; buffs.shield = 0; buffs.regen = 0;
