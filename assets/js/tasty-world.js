@@ -973,11 +973,18 @@
   function manual() {
     var L = keys.ArrowLeft || keys.a, R = keys.ArrowRight || keys.d;
     if (L) { P.vx = -MOVE; P.face = -1; } else if (R) { P.vx = MOVE; P.face = 1; } else P.vx *= 0.7;
-    if ((keys.ArrowUp || keys.w || keys[" "]) && P.ground) P.vy = -JUMP;
+    if ((keys.ArrowUp || keys.w || keys[" "]) && P.ground && !(keys.k || keys.z)) P.vy = -JUMP;   // while mining, up-keys aim instead of jump
     if (keys.x || keys.j) attack();
-    if (keys.z || keys.k || keys.ArrowDown) {
-      var fx = (((P.x + P.w / 2) / TS) + P.face) | 0, fy = ((P.y + P.h - 5) / TS) | 0;
-      if (keys.ArrowDown || !isSolid(fx, fy)) tryMine(((P.x + P.w / 2) / TS) | 0, ((P.y + P.h + 2) / TS) | 0); else tryMine(fx, fy);
+    if (keys.z || keys.k) {                                    // K = mine; hold a direction key to aim (up/down/left/right)
+      var mid2 = ((P.x + P.w / 2) / TS) | 0, mtx, mty;
+      if (keys.ArrowUp || keys.w) { mtx = mid2; mty = ((P.y - 3) / TS) | 0; }
+      else if (keys.ArrowDown || keys.s) { mtx = mid2; mty = ((P.y + P.h + 2) / TS) | 0; }
+      else {
+        mtx = (keys.ArrowLeft || keys.a) ? mid2 - 1 : ((keys.ArrowRight || keys.d) ? mid2 + 1 : mid2 + P.face);
+        var hy2 = ((P.y + 3) / TS) | 0;
+        mty = isSolid(mtx, hy2) ? hy2 : ((P.y + P.h - 3) / TS) | 0;
+      }
+      tryMine(mtx, mty);
     }
     if ((keys.c || keys.b) && gear.dirt > 0 && (P.placeCD || 0) <= 0) {   // place a dirt block: under feet mid-air (pillar), else in front
       var bx = ((P.x + P.w / 2) / TS) | 0;
