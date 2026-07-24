@@ -151,11 +151,18 @@
         for (var lx = lx0; lx < Math.min(WW - 2, lx0 + span); lx++)
           if (get(lx, ly2) === AIR && (isSolid(lx, ly2 + 1) || get(lx, ly2 + 1) === LAVA)) setT(lx, ly2, LAVA);
     }
-    for (var mz = 0; mz < 3; mz++) {                            // miasma pockets: poison gas filling cave air
+    for (var mz = 0; mz < 3; mz++) {                            // miasma pockets: poison gas guarding rich veins
       var mcx = rnd(WW * 0.3, WW - 12) | 0, mcy = rnd(WH * 0.45, WH * 0.8) | 0, mr = 4 + (Math.random() * 5 | 0);
       for (var my2 = mcy - mr; my2 <= mcy + mr; my2++) for (var mx2 = mcx - mr; mx2 <= mcx + mr; mx2++) {
         if (!inb(mx2, my2)) continue;
         if ((mx2 - mcx) * (mx2 - mcx) + (my2 - mcy) * (my2 - mcy) <= mr * mr && get(mx2, my2) === AIR) setT(mx2, my2, MIASMA);
+      }
+      for (var my3 = mcy - mr - 2; my3 <= mcy + mr + 2; my3++) for (var mx3 = mcx - mr - 2; mx3 <= mcx + mr + 2; mx3++) {   // poison vault: rich ore in the gas walls
+        if (!inb(mx3, my3) || get(mx3, my3) !== STONE) continue;
+        if ((mx3 - mcx) * (mx3 - mcx) + (my3 - mcy) * (my3 - mcy) <= (mr + 2) * (mr + 2) && Math.random() < 0.22) {
+          var rr2 = Math.random();
+          setT(mx3, my3, rr2 < 0.45 ? GOLD : (rr2 < 0.8 ? DIAMOND : GEM));
+        }
       }
     }
     items.length = 0;
