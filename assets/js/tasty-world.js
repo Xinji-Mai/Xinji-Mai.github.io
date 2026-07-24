@@ -210,7 +210,7 @@
 
   /* ---------------- state ---------------- */
   var P = { x: 0, y: 0, w: 10, h: 20, vx: 0, vy: 0, ground: false, face: 1, hp: 100, maxhp: 100, inv: 0, dead: 0 };
-  var gear = { pick: 1, sword: 1, armor: 0, gems: 0, pts: 0, dirt: 5 };
+  var gear = { pick: 1, sword: 1, armor: 0, gems: 0, pts: 0, dirt: 5, swordMul: 1, pickMul: 1, armorMul: 1, potAtk: 0, potArm: 0 };
   var enemies = [], drops = [], parts = [], msgs = [];
   var stat = { ore: 0, gem: 0, chest: 0, kill: 0 };
   var items = [], buffs = { speed: 0, power: 0, shield: 0, regen: 0 };
@@ -292,7 +292,7 @@
     var d = Math.hypot((tx + 0.5) * TS - (P.x + P.w / 2), (ty + 0.5) * TS - (P.y + P.h / 2));
     if (d > TS * 3) return false;
     if (!agent.digT || agent.digT.x !== tx || agent.digT.y !== ty) { agent.digT = { x: tx, y: ty }; agent.digP = 0; }
-    agent.digP += 1 + gear.pick * 0.8; agent.mineF = frame; agent.stuck = Math.max(0, agent.stuck - 6);
+    agent.digP += (1 + gear.pick * 0.8) * gear.pickMul; agent.mineF = frame; agent.stuck = Math.max(0, agent.stuck - 6);
     if (frame % 5 === 0) burst((tx + 0.5) * TS, (ty + 0.5) * TS, BASECOL[t] || "#999", 1);
     if (agent.digP >= HARD[t]) {
       agent.digT = null; agent.digP = 0; agent.stuck = 0;
@@ -313,15 +313,28 @@
     for (var i = 0; i < chests.length; i++) if (chests[i].x === tx && chests[i].y === ty) { chests.splice(i, 1); break; }
     stat.chest++;
     burst((tx + 0.5) * TS, (ty + 0.5) * TS, "#ffd24a", 18);
+    var eqC = Math.min(0.25, 0.10 + wins * 0.03), potC = Math.min(0.15, 0.05 + wins * 0.02);
     var roll = Math.random();
-    if (roll < 0.26 && gear.pick < gearCap()) { gear.pick++; msg("🧰 Chest: shiny pickaxe! ⛏️Lv." + gear.pick); }
-    else if (roll < 0.48 && gear.sword < gearCap()) { gear.sword++; msg("🧰 Chest: sharp sword! 🗡️Lv." + gear.sword); }
-    else if (roll < 0.66 && gear.armor < gearCap()) { gear.armor++; msg("🧰 Chest: armor plate! 🛡️Lv." + gear.armor); }
-    else if (roll < 0.8) {
+    if (roll < eqC) {                                            // rare gear: multiplier equipment, replaced only if stronger
+      var slot = ["sword", "pick", "armor"][(Math.random() * 3) | 0], mkey = slot + "Mul";
+      var mul = Math.round((1.1 + Math.random() * (0.3 + wins * 0.1)) * 10) / 10;
+      if (mul > gear[mkey]) { gear[mkey] = mul; msg("🧰⚡ " + (slot === "sword" ? "Blade" : (slot === "pick" ? "Pickaxe" : "Plate")) + " of Power ×" + mul.toFixed(1) + " equipped!"); say("Legendary loot!"); }
+      else msg("🧰 A weaker " + slot + " (×" + mul.toFixed(1) + ") — kept mine.");
+    }
+    else if (roll < eqC + potC) {                                // magic potion: PERMANENT stat boost
+      var pr = Math.random();
+      if (pr < 0.34) { gear.potAtk += 2; msg("🧪 Potion of Strength! +2 attack (permanent)"); }
+      else if (pr < 0.67) { P.maxhp += 15; P.hp = Math.min(P.maxhp, P.hp + 15); msg("🧪 Potion of Vitality! +15 max ❤️"); }
+      else { gear.potArm += 1; msg("🧪 Potion of Iron Skin! +1 armor (permanent)"); }
+    }
+    else if (roll < eqC + potC + 0.18 && gear.pick < gearCap()) { gear.pick++; msg("🧰 Chest: shiny pickaxe! ⛏️Lv." + gear.pick); }
+    else if (roll < eqC + potC + 0.34 && gear.sword < gearCap()) { gear.sword++; msg("🧰 Chest: sharp sword! 🗡️Lv." + gear.sword); }
+    else if (roll < eqC + potC + 0.47 && gear.armor < gearCap()) { gear.armor++; msg("🧰 Chest: armor plate! 🛡️Lv." + gear.armor); }
+    else if (roll < eqC + potC + 0.58) {
       if (Math.random() < 0.6) { buffs.power = 1200; msg("🧰 Chest: ⚔️ DOUBLE DAMAGE (20s)!"); }
       else { buffs.shield = 900; msg("🧰 Chest: ⭐ SHIELD (15s)!"); }
     }
-    else if (roll < 0.92) { gear.gems += 3; msg("🧰 Chest: 3 gems! 💎" + gear.gems); }
+    else if (roll < eqC + potC + 0.7) { gear.gems += 3; msg("🧰 Chest: 3 gems! 💎" + gear.gems); }
     else { P.hp = Math.min(P.maxhp, P.hp + 40); msg("🧰 Chest: heart! +40 ❤️"); }
     say("Treasure chest! Lucky me.");
   }
@@ -399,7 +412,7 @@
       if (!P.dead && P.inv <= 0 &&
           Math.abs((s.x + s.w / 2) - (P.x + P.w / 2)) < (s.w + P.w) / 2 &&
           Math.abs((s.y + s.h / 2) - (P.y + P.h / 2)) < (s.h + P.h) / 2) {
-        var dmg = Math.max(2, Math.round(k.dmg * (1 + 0.55 * ((s.lv || 1) - 1)) + wins - gear.armor * 2));
+        var dmg = Math.max(2, Math.round(k.dmg * (1 + 0.55 * ((s.lv || 1) - 1)) + wins - gear.armor * 2 * gear.armorMul - gear.potArm * 2));
         if (s.boss) dmg = Math.round(dmg * 0.8);
         if (buffs.shield > 0) dmg = 0;
         P.hp -= dmg; P.inv = 45; P.vx = (dx > 0 ? -1 : 1) * 3; P.vy = -3; lastHitF = frame;
@@ -428,7 +441,7 @@
     for (var i = 0; i < enemies.length; i++) {
       var s = enemies[i];
       if (s.x + s.w > rx && s.x < rx + 24 && s.y + s.h > P.y - 6 && s.y < P.y + P.h + 6) {
-        s.hp -= (5 + gear.sword * 4) * (buffs.power > 0 ? 2 : 1); s.vx = P.face * 4; s.vy = -3; agent.stuck = 0; lastHitF = frame;
+        s.hp -= ((5 + gear.sword * 4) * gear.swordMul + gear.potAtk) * (buffs.power > 0 ? 2 : 1); s.vx = P.face * 4; s.vy = -3; agent.stuck = 0; lastHitF = frame;
         burst(s.x + s.w / 2, s.y + s.h / 2, "#ffe9a3", 5);
       }
     }
@@ -499,7 +512,7 @@
     if (agent.tgt) { agent.badTs.push({ x: agent.tgt.x, y: agent.tgt.y, life: 900 }); if (agent.badTs.length > 4) agent.badTs.shift(); }
     agent.path = null; agent.tgt = null;
   }
-  function agentPower() { return 1 + gear.sword + gear.armor * 0.6 + gear.pick * 0.2; }
+  function agentPower() { return 1 + gear.sword * gear.swordMul + gear.armor * 0.6 * gear.armorMul + gear.pick * 0.2 * gear.pickMul + gear.potAtk * 0.3 + gear.potArm * 0.5 + (P.maxhp - 100) / 50; }
   function beatable(e) { return !e || (e.lv || 1) <= agentPower() + 0.6; }
   function nearestBeatableEnemy() {
     var b = null, bd = 1e9;
@@ -682,8 +695,8 @@
     else if (h === "dig_deep" || h === "dig_down") st = "DIG";
     else if (h === "surface" && hpr < 0.9) st = "SURFACE";
     else if (h === "seek_goal" && goalKnown) st = "SEEK_GOAL";
-    else if (goalKnown && gear.sword >= 4) st = "SEEK_GOAL";                // chase the Grand Gem only once decently geared
-    else if (agentPower() >= 8 && hpr > 0.5) st = "SEEK_GOAL";              // strong enough: march right to the victory gate
+    else if (goalKnown && agentPower() >= 9 + wins) st = "SEEK_GOAL";        // gate known & strong enough for its boss
+    else if (agentPower() >= 10 + wins && hpr > 0.5) st = "SEEK_GOAL";        // clearly outgunning the gate boss: march right
     else if (chest && chest.d < (lat === "rush" ? 8 : 40)) st = "CHEST";
     else if (lat === "loot" && oreNear) st = "MINE";
     else st = "EXPLORE";
@@ -944,7 +957,9 @@
   function newWorld(keepGear, keepWins) {
     enemies.length = 0; drops.length = 0; parts.length = 0;
     generate(); spawnBosses();
-    if (!keepGear) { gear.pick = 1; gear.sword = 1; gear.armor = 0; gear.gems = 0; gear.pts = 0; gear.dirt = 5; if (!keepWins) { wins = 0; deaths = 0; } }
+    if (!keepGear) { gear.pick = 1; gear.sword = 1; gear.armor = 0; gear.gems = 0; gear.pts = 0; gear.dirt = 5;
+      gear.swordMul = 1; gear.pickMul = 1; gear.armorMul = 1; gear.potAtk = 0; gear.potArm = 0; P.maxhp = 100;
+      if (!keepWins) { wins = 0; deaths = 0; } }
     resetPlayer(); agent.state = "EXPLORE"; agent.path = null; agent.stuck = 0; agent.planQ.length = 0; agent.snap = null; regenT = 0; showMap = false;
     evt.name = ""; evt.label = ""; evt.t = 0; evt.timer = 1900;
     buffs.speed = 0; buffs.power = 0; buffs.shield = 0; buffs.regen = 0;
@@ -966,7 +981,7 @@
   /* ---------------- HUD (DOM) ---------------- */
   function hud() {
     var hb = document.getElementById("tw-hpbar"); if (hb) hb.style.width = Math.max(0, P.hp / P.maxhp * 100) + "%";
-    var ge = document.getElementById("tw-gear"); if (ge) ge.textContent = "⛏️Lv" + gear.pick + " 🗡️Lv" + gear.sword + " 🛡️Lv" + gear.armor + " 💎" + gear.gems + " 🧱" + gear.dirt + " 🏆" + wins + " 💀" + deaths + (buffs.speed > 0 ? " 🏃" : "") + (buffs.power > 0 ? " ⚔️↑" : "") + (buffs.shield > 0 ? " 🛡️↑" : "") + (buffs.regen > 0 ? " 💗" : "");
+    var ge = document.getElementById("tw-gear"); if (ge) ge.textContent = "⛏️Lv" + gear.pick + (gear.pickMul > 1 ? "×" + gear.pickMul.toFixed(1) : "") + " 🗡️Lv" + gear.sword + (gear.swordMul > 1 ? "×" + gear.swordMul.toFixed(1) : "") + " 🛡️Lv" + gear.armor + (gear.armorMul > 1 ? "×" + gear.armorMul.toFixed(1) : "") + " 💎" + gear.gems + " 🧱" + gear.dirt + " 🏆" + wins + " 💀" + deaths + ((gear.potAtk || gear.potArm || P.maxhp > 100) ? " 🧪" : "") + (buffs.speed > 0 ? " 🏃" : "") + (buffs.power > 0 ? " ⚔️↑" : "") + (buffs.shield > 0 ? " 🛡️↑" : "") + (buffs.regen > 0 ? " 💗" : "");
     var stt = document.getElementById("tw-state");
     if (stt) stt.textContent = !agent.on ? "MANUAL" : (llmActive() ? ("🧠 " + (llmModel || (Date.now() < llmFail ? "offline" : "…")) + " · " + agent.state) : ("BFS+Frontier+FSM · " + agent.state));
     var lb = document.getElementById("tw-llm"); if (lb) { lb.textContent = llmActive() ? "🧠 LLM: ON" : "🧠 LLM: OFF"; lb.className = llmActive() ? "on" : ""; }
