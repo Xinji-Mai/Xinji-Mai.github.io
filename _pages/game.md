@@ -9,7 +9,7 @@ author_profile: false
 <p id="tw-keys"><b>Controls</b> — <kbd>M</kbd> toggle world map · the <b>Mode</b> button cycles
 <b>AUTO</b> (local BFS+FSM brain) → <b>LLM</b> (a model picks the goals) → <b>MANUAL</b>.
 In MANUAL: <kbd>←</kbd><kbd>→</kbd>/<kbd>A</kbd><kbd>D</kbd> move · <kbd>↑</kbd>/<kbd>W</kbd>/<kbd>Space</kbd> jump ·
-<kbd>X</kbd>/<kbd>J</kbd> attack · <kbd>Z</kbd>/<kbd>K</kbd>/<kbd>↓</kbd> mine.</p>
+<kbd>X</kbd>/<kbd>J</kbd> attack · <kbd>Z</kbd>/<kbd>K</kbd>/<kbd>↓</kbd> mine · <kbd>C</kbd> place a 🧱 block.</p>
 
 <div id="tw-wrap">
   <div id="tw-top">

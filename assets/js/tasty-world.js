@@ -979,6 +979,20 @@
       var fx = (((P.x + P.w / 2) / TS) + P.face) | 0, fy = ((P.y + P.h - 5) / TS) | 0;
       if (keys.ArrowDown || !isSolid(fx, fy)) tryMine(((P.x + P.w / 2) / TS) | 0, ((P.y + P.h + 2) / TS) | 0); else tryMine(fx, fy);
     }
+    if ((keys.c || keys.b) && gear.dirt > 0 && (P.placeCD || 0) <= 0) {   // place a dirt block: under feet mid-air (pillar), else in front
+      var bx = ((P.x + P.w / 2) / TS) | 0;
+      var cand = [[bx, (((P.y + P.h) / TS) | 0) + 1], [bx + P.face, ((P.y + P.h - 5) / TS) | 0], [bx + P.face, ((P.y + P.h + 2) / TS) | 0]];
+      for (var ci2 = 0; ci2 < cand.length; ci2++) {
+        var cx2 = cand[ci2][0], cy2 = cand[ci2][1];
+        if (get(cx2, cy2) !== AIR) continue;
+        if (cx2 * TS < P.x + P.w && cx2 * TS + TS > P.x && cy2 * TS < P.y + P.h && cy2 * TS + TS > P.y) continue;   // never entomb yourself
+        setT(cx2, cy2, DIRT); gear.dirt--; P.placeCD = 12;
+        burst((cx2 + 0.5) * TS, (cy2 + 0.5) * TS, "#6e4a28", 4);
+        if (gear.dirt === 0) msg("🧱 Out of dirt blocks!");
+        break;
+      }
+    }
+    if ((P.placeCD || 0) > 0) P.placeCD--;
   }
 
   /* ---------------- HUD (DOM) ---------------- */
