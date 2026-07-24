@@ -74,7 +74,7 @@ http.createServer(function (req, res) {
     var c2 = s.chest, chestStr = c2 ? (c2.dist + " tiles " + c2.dir + (c2.above ? " (up on a ledge)" : "")) : "none";
     var o2 = s.ore, oreStr = o2 ? (o2.dist + " tiles " + o2.dir + (o2.above ? " (above)" : "")) : "none";
     var usr = "hp=" + s.hp + "/" + s.maxhp + ", power=" + s.power + ", gear pick/sword/armor=" + s.pick + "/" + s.sword + "/" + s.armor + ", gems=" + s.gems + ", dirtBlocks=" + s.dirt +
-      ", depth=" + s.depth + ", exploredPct=" + s.exploredPct + ", goalKnown=" + s.goalKnown + ", event=" + (s.event || "none") + ", latent=" + (s.latent || "loot") +
+      ", depth=" + s.depth + ", exploredPct=" + s.exploredPct + ", goalKnown=" + s.goalKnown + ", deaths=" + (s.deaths || 0) + ", event=" + (s.event || "none") + ", latent=" + (s.latent || "loot") +
       ", stuckSec=" + (s.stuckSec || 0) + ", bannedTargets=" + (s.bannedTargets || 0) + ", loiterSec=" + (s.loiterSec || 0) + ", lavaNear=" + !!s.lavaNear +
       ", nearestChest=[" + chestStr + "], nearestOre=[" + oreStr + "], nearestEnemy=[" + enemyStr + "]" +
       ", lastPlan=" + JSON.stringify(s.lastPlan || []) + ", recentActions=" + JSON.stringify(s.recentActions || []) + ", currentState=" + s.state + ". Compose the next plan.";

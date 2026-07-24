@@ -211,8 +211,9 @@
   var BUFF_NAME = { speed: "Speed", power: "Power", shield: "Shield", regen: "Regen" };
   var agent = { on: true, state: "EXPLORE", think: "Waking up…", hint: null, hintT: 0, tgt: null,
                 path: null, pi: 0, pathT: 0, digT: null, digP: 0, atk: 0, stuck: 0, lx: 0, decideT: 0, jumpCD: 0, hist: [], exdir: 1, since: 0, planQ: [], planT: 0, anchor: null, avoidT: 0, badTs: [], camp: null, campT: 0, escapeT: 0, progSig: "", progT: 0 };
-  var cam = { x: 0, y: 0 }, keys = {}, wins = 0, frame = 0, regenT = 0, showMap = false;
+  var cam = { x: 0, y: 0 }, keys = {}, wins = 0, deaths = 0, frame = 0, regenT = 0, showMap = false;
   var evt = { name: "", label: "", t: 0, timer: 1900 };
+  var lastHitF = -9999;                                       // last frame we took or dealt damage (for out-of-combat regen)
   var llmEP = "", llmOn = false, llmModel = "", llmLast = 0, llmFail = 0;
   try { llmEP = (window.AGENT_LLM_ENDPOINT || "").trim() || localStorage.getItem("agent_llm_endpoint") || ""; } catch (e) {}
   var llmLog = [];   // recent LLM decisions, shown on the right while in LLM mode
@@ -224,8 +225,8 @@
   function resetPlayer() { P.x = spawn.x; P.y = spawn.y; P.vx = P.vy = 0; P.hp = P.maxhp; P.dead = 0; P.inv = 60; agent.path = null; agent.tgt = null; }
   function die() {
     if (P.dead) return;
-    P.dead = 110;
-    msg("💀 Died — gear is safe, respawning…");
+    P.dead = 110; deaths++;
+    msg("💀 Died (" + deaths + ") — gear is safe, respawning…");
     say("Ouch. Respawning…");
     burst(P.x + P.w / 2, P.y + P.h / 2, "#e05555", 14);
   }
@@ -381,7 +382,7 @@
           Math.abs((s.y + s.h / 2) - (P.y + P.h / 2)) < (s.h + P.h) / 2) {
         var dmg = Math.max(2, Math.round(k.dmg * (1 + 0.55 * ((s.lv || 1) - 1)) + wins - gear.armor * 2));
         if (buffs.shield > 0) dmg = 0;
-        P.hp -= dmg; P.inv = 45; P.vx = (dx > 0 ? -1 : 1) * 3; P.vy = -3;
+        P.hp -= dmg; P.inv = 45; P.vx = (dx > 0 ? -1 : 1) * 3; P.vy = -3; lastHitF = frame;
         burst(P.x + P.w / 2, P.y + P.h / 2, "#e05555", 6);
         if (P.hp <= 0) die();
       }
@@ -407,7 +408,7 @@
     for (var i = 0; i < enemies.length; i++) {
       var s = enemies[i];
       if (s.x + s.w > rx && s.x < rx + 24 && s.y + s.h > P.y - 6 && s.y < P.y + P.h + 6) {
-        s.hp -= (5 + gear.sword * 4) * (buffs.power > 0 ? 1.6 : 1); s.vx = P.face * 4; s.vy = -3; agent.stuck = 0;
+        s.hp -= (5 + gear.sword * 4) * (buffs.power > 0 ? 1.6 : 1); s.vx = P.face * 4; s.vy = -3; agent.stuck = 0; lastHitF = frame;
         burst(s.x + s.w / 2, s.y + s.h / 2, "#ffe9a3", 5);
       }
     }
@@ -833,7 +834,7 @@
     var lavaNear = false;
     for (var lx3 = pcx - 4; lx3 <= pcx + 4 && !lavaNear; lx3++) for (var ly3 = pcy - 3; ly3 <= pcy + 4; ly3++) if (get(lx3, ly3) === LAVA) { lavaNear = true; break; }
     var body = { hp: Math.round(P.hp), maxhp: P.maxhp, gems: gear.gems, pick: gear.pick, sword: gear.sword, armor: gear.armor, dirt: gear.dirt,
-      power: Math.round(agentPower() * 10) / 10, depth: Math.round(pcy - (surf[pcx] || 40)), state: agent.state, wins: wins,
+      power: Math.round(agentPower() * 10) / 10, depth: Math.round(pcy - (surf[pcx] || 40)), state: agent.state, wins: wins, deaths: deaths,
       enemyNear: !!(ne && ne.d < TS * 10), enemy: eInfo, chestKnown: !!chest, chestDist: chest ? chest.d : null,
       chest: chestInfo, ore: oreInfo, lavaNear: lavaNear,
       stuckSec: Math.round(agent.stuck / 6) / 10, bannedTargets: agent.badTs.length, loiterSec: Math.round(agent.campT / 6) / 10,
@@ -923,7 +924,7 @@
   function newWorld(keepGear, keepWins) {
     enemies.length = 0; drops.length = 0; parts.length = 0;
     generate(); spawnBosses();
-    if (!keepGear) { gear.pick = 1; gear.sword = 1; gear.armor = 0; gear.gems = 0; gear.pts = 0; gear.dirt = 5; if (!keepWins) wins = 0; }
+    if (!keepGear) { gear.pick = 1; gear.sword = 1; gear.armor = 0; gear.gems = 0; gear.pts = 0; gear.dirt = 5; if (!keepWins) { wins = 0; deaths = 0; } }
     resetPlayer(); agent.state = "EXPLORE"; agent.path = null; agent.stuck = 0; agent.planQ.length = 0; agent.snap = null; regenT = 0; showMap = false;
     evt.name = ""; evt.label = ""; evt.t = 0; evt.timer = 1900;
     buffs.speed = 0; buffs.power = 0; buffs.shield = 0; buffs.regen = 0;
@@ -945,7 +946,7 @@
   /* ---------------- HUD (DOM) ---------------- */
   function hud() {
     var hb = document.getElementById("tw-hpbar"); if (hb) hb.style.width = Math.max(0, P.hp / P.maxhp * 100) + "%";
-    var ge = document.getElementById("tw-gear"); if (ge) ge.textContent = "⛏️Lv" + gear.pick + " 🗡️Lv" + gear.sword + " 🛡️Lv" + gear.armor + " 💎" + gear.gems + " 🧱" + gear.dirt + " 🏆" + wins + (buffs.speed > 0 ? " 🏃" : "") + (buffs.power > 0 ? " ⚔️↑" : "") + (buffs.shield > 0 ? " 🛡️↑" : "") + (buffs.regen > 0 ? " 💗" : "");
+    var ge = document.getElementById("tw-gear"); if (ge) ge.textContent = "⛏️Lv" + gear.pick + " 🗡️Lv" + gear.sword + " 🛡️Lv" + gear.armor + " 💎" + gear.gems + " 🧱" + gear.dirt + " 🏆" + wins + " 💀" + deaths + (buffs.speed > 0 ? " 🏃" : "") + (buffs.power > 0 ? " ⚔️↑" : "") + (buffs.shield > 0 ? " 🛡️↑" : "") + (buffs.regen > 0 ? " 💗" : "");
     var stt = document.getElementById("tw-state");
     if (stt) stt.textContent = !agent.on ? "MANUAL" : (llmActive() ? ("🧠 " + (llmModel || (Date.now() < llmFail ? "offline" : "…")) + " · " + agent.state) : ("BFS+Frontier+FSM · " + agent.state));
     var lb = document.getElementById("tw-llm"); if (lb) { lb.textContent = llmActive() ? "🧠 LLM: ON" : "🧠 LLM: OFF"; lb.className = llmActive() ? "on" : ""; }
@@ -1126,8 +1127,12 @@
       if (buffs.speed > 0) P.vx *= 1.35;
       step(P, dtf);
       if (buffs.regen > 0) P.hp = Math.min(P.maxhp, P.hp + 0.05 * dtf);
+      if (P.hp < P.maxhp && frame - lastHitF > 480) {          // out-of-combat regen: 8s untouched => slow heal
+        P.hp = Math.min(P.maxhp, P.hp + 0.07 * dtf);
+        if (frame % 30 === 0) burst(P.x + P.w / 2, P.y + 2, "#8fe388", 1);
+      }
       if (get(((P.x + P.w / 2) / TS) | 0, ((P.y + P.h - 4) / TS) | 0) === LAVA) {
-        P.hp -= (buffs.shield > 0 ? 0.6 : 1.6) * dtf;
+        P.hp -= (buffs.shield > 0 ? 0.6 : 1.6) * dtf; lastHitF = frame;
         if (frame % 7 === 0) burst(P.x + P.w / 2, P.y + 2, "#ff9c40", 2);
         if (P.hp <= 0) die();
       }
