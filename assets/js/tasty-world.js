@@ -14,16 +14,16 @@
   var TS = 16, WW = 240, WH = 100;
   var GRAV = 0.55, MAXFALL = 11, MOVE = 1.8, JUMP = 8.9;
   var AIR = 0, DIRT = 1, GRASS = 2, STONE = 3, COPPER = 4, IRON = 5, GOLD = 6, DIAMOND = 7,
-      GEM = 8, WOOD = 9, LEAF = 10, BEDROCK = 11, GOAL = 12, CHEST = 13, LAVA = 14;
+      GEM = 8, WOOD = 9, LEAF = 10, BEDROCK = 11, GOAL = 12, CHEST = 13, LAVA = 14, MIASMA = 15;
   var SOLID = { 1: 1, 2: 1, 3: 1, 4: 1, 5: 1, 6: 1, 7: 1, 8: 1, 9: 1, 11: 1 };
   var HARD = { 1: 10, 2: 10, 3: 24, 4: 28, 5: 34, 6: 40, 7: 55, 8: 45, 9: 16, 10: 4 };
   var ORE_PTS = { 4: 1, 5: 2, 6: 3, 7: 5 };
   var ORE_NAME = { 4: "Copper", 5: "Iron", 6: "Gold", 7: "Diamond" };
   var BASECOL = { 1: "#6e4a28", 2: "#6e4a28", 3: "#6b6f76", 4: "#6b6f76", 5: "#6b6f76", 6: "#6b6f76",
-                  7: "#5d6166", 8: "#5d6166", 9: "#5b3b22", 10: "#2f7d2a", 11: "#23252b", 12: "#ffd54a", 13: "#7a4a1e", 14: "#e2581f" };
+                  7: "#5d6166", 8: "#5d6166", 9: "#5b3b22", 10: "#2f7d2a", 11: "#23252b", 12: "#ffd54a", 13: "#7a4a1e", 14: "#e2581f", 15: "#5d7a3a" };
   var NUG = { 4: "#c47a3a", 5: "#d8cfc0", 6: "#ffd24a", 7: "#6ee6f2", 8: "#b06ef2" };
   var MAPCOL = { 0: "#181c24", 1: "#6e4a28", 2: "#3e9e3a", 3: "#6b6f76", 4: "#c47a3a", 5: "#d8cfc0",
-                 6: "#ffd24a", 7: "#6ee6f2", 8: "#b06ef2", 9: "#5b3b22", 10: "#2f7d2a", 11: "#0c0d10", 12: "#ffd54a", 13: "#e8a33d", 14: "#ff6a2a" };
+                 6: "#ffd24a", 7: "#6ee6f2", 8: "#b06ef2", 9: "#5b3b22", 10: "#2f7d2a", 11: "#0c0d10", 12: "#ffd54a", 13: "#e8a33d", 14: "#ff6a2a", 15: "#79a83f" };
 
   var world = new Uint8Array(WW * WH), explored = new Uint8Array(WW * WH), exploredCount = 0;
   function idx(x, y) { return y * WW + x; }
@@ -150,6 +150,13 @@
       for (var ly2 = ly0 + 1; ly2 >= ly0; ly2--)
         for (var lx = lx0; lx < Math.min(WW - 2, lx0 + span); lx++)
           if (get(lx, ly2) === AIR && (isSolid(lx, ly2 + 1) || get(lx, ly2 + 1) === LAVA)) setT(lx, ly2, LAVA);
+    }
+    for (var mz = 0; mz < 3; mz++) {                            // miasma pockets: poison gas filling cave air
+      var mcx = rnd(WW * 0.3, WW - 12) | 0, mcy = rnd(WH * 0.45, WH * 0.8) | 0, mr = 4 + (Math.random() * 5 | 0);
+      for (var my2 = mcy - mr; my2 <= mcy + mr; my2++) for (var mx2 = mcx - mr; mx2 <= mcx + mr; mx2++) {
+        if (!inb(mx2, my2)) continue;
+        if ((mx2 - mcx) * (mx2 - mcx) + (my2 - mcy) * (my2 - mcy) <= mr * mr && get(mx2, my2) === AIR) setT(mx2, my2, MIASMA);
+      }
     }
     items.length = 0;
     for (var fi = 0; fi < 9; fi++) {                            // surface snacks
@@ -525,7 +532,7 @@
   }
 
   /* ---- Dijkstra path over tiles (AIR cheap, diggable costs ~hardness, bedrock blocked) ---- */
-  function passCost(t) { if (t === AIR || t === GOAL || t === CHEST) return 1; if (t === LAVA) return 90; if (t === BEDROCK) return Infinity; if (HARD[t]) return 4 + HARD[t] * 0.5; return Infinity; }
+  function passCost(t) { if (t === AIR || t === GOAL || t === CHEST) return 1; if (t === MIASMA) return 30; if (t === LAVA) return 90; if (t === BEDROCK) return Infinity; if (HARD[t]) return 4 + HARD[t] * 0.5; return Infinity; }
   function bfsPath(sx, sy, gx, gy) {
     if (!inb(sx, sy) || !inb(gx, gy)) return null;
     var N = WW * WH, dist = new Float32Array(N), prev = new Int32Array(N);
@@ -831,12 +838,12 @@
     var chestInfo = chest ? { dist: chest.d, dir: (chest.x < pcx ? "left" : "right"), above: chest.y < pcy - 2 } : null;
     var o3 = nearestKnownOre();
     var oreInfo = o3 ? { dist: Math.abs(o3.x - pcx) + Math.abs(o3.y - pcy), dir: (o3.x < pcx ? "left" : "right"), above: o3.y < pcy - 2 } : null;
-    var lavaNear = false;
-    for (var lx3 = pcx - 4; lx3 <= pcx + 4 && !lavaNear; lx3++) for (var ly3 = pcy - 3; ly3 <= pcy + 4; ly3++) if (get(lx3, ly3) === LAVA) { lavaNear = true; break; }
+    var lavaNear = false, gasNear = false;
+    for (var lx3 = pcx - 4; lx3 <= pcx + 4; lx3++) for (var ly3 = pcy - 3; ly3 <= pcy + 4; ly3++) { var tt3 = get(lx3, ly3); if (tt3 === LAVA) lavaNear = true; else if (tt3 === MIASMA) gasNear = true; }
     var body = { hp: Math.round(P.hp), maxhp: P.maxhp, gems: gear.gems, pick: gear.pick, sword: gear.sword, armor: gear.armor, dirt: gear.dirt,
       power: Math.round(agentPower() * 10) / 10, depth: Math.round(pcy - (surf[pcx] || 40)), state: agent.state, wins: wins, deaths: deaths,
       enemyNear: !!(ne && ne.d < TS * 10), enemy: eInfo, chestKnown: !!chest, chestDist: chest ? chest.d : null,
-      chest: chestInfo, ore: oreInfo, lavaNear: lavaNear,
+      chest: chestInfo, ore: oreInfo, lavaNear: lavaNear, gasNear: gasNear,
       stuckSec: Math.round(agent.stuck / 6) / 10, bannedTargets: agent.badTs.length, loiterSec: Math.round(agent.campT / 6) / 10,
       goalKnown: !!(explored[idx(goal.x, goal.y)] && get(goal.x, goal.y) === GOAL),
       exploredPct: Math.round(100 * exploredCount / (WW * WH)),
@@ -1044,6 +1051,11 @@
       var px = tx * TS - cam.x, py = ty * TS - cam.y, t = world[idx(tx, ty)];
       if (!explored[idx(tx, ty)]) { ctx.fillStyle = "#0a0c10"; ctx.fillRect(px, py, TS, TS); continue; }
       if (t === AIR) { var wc = wallColor(tx, ty); if (wc) { ctx.fillStyle = wc; ctx.fillRect(px, py, TS, TS); } }
+      else if (t === MIASMA) {                                  // drifting poison haze
+        var wc2 = wallColor(tx, ty); if (wc2) { ctx.fillStyle = wc2; ctx.fillRect(px, py, TS, TS); }
+        ctx.fillStyle = "rgba(122,180,60," + (0.20 + 0.10 * Math.sin(frame * 0.05 + tx * 0.7 + ty)).toFixed(2) + ")";
+        ctx.fillRect(px, py, TS, TS);
+      }
       else if (t === GOAL) {
         var pu = 0.5 + 0.5 * Math.sin(frame * 0.12);
         ctx.fillStyle = "rgba(255,213,74," + (0.15 + 0.25 * pu).toFixed(2) + ")"; ctx.fillRect(px - 6, py - 6, TS + 12, TS + 12);
@@ -1131,9 +1143,14 @@
         P.hp = Math.min(P.maxhp, P.hp + 0.07 * dtf);
         if (frame % 30 === 0) burst(P.x + P.w / 2, P.y + 2, "#8fe388", 1);
       }
-      if (get(((P.x + P.w / 2) / TS) | 0, ((P.y + P.h - 4) / TS) | 0) === LAVA) {
+      var footT = get(((P.x + P.w / 2) / TS) | 0, ((P.y + P.h - 4) / TS) | 0);
+      if (footT === LAVA) {
         P.hp -= (buffs.shield > 0 ? 0.6 : 1.6) * dtf; lastHitF = frame;
         if (frame % 7 === 0) burst(P.x + P.w / 2, P.y + 2, "#ff9c40", 2);
+        if (P.hp <= 0) die();
+      } else if (footT === MIASMA) {                           // poison gas: steady drain
+        P.hp -= (buffs.shield > 0 ? 0.06 : 0.16) * dtf; lastHitF = frame;
+        if (frame % 12 === 0) burst(P.x + P.w / 2, P.y + 2, "#a5d16b", 1);
         if (P.hp <= 0) die();
       }
       if (P.y > WH * TS + 40) { P.hp = 0; die(); }
