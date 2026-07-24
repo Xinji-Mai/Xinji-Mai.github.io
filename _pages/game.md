@@ -4,12 +4,12 @@ permalink: /game/
 author_profile: false
 ---
 
-<p><strong>Terramai</strong> is a tiny 2D pixel sandbox game played entirely by an AI agent on its own — it explores the world, mines ore, fights leveled monsters, loots chests, eats food for HP &amp; buffs, dodges lava, upgrades its gear, and pushes right toward the boss-guarded Victory Gate. Every map is procedurally generated. When the agent dies it keeps its gear and auto-respawns.</p>
+<p><strong>Terramai</strong> is a tiny 2D pixel sandbox game played entirely by an AI agent on its own — it explores a procedurally generated world, mines ore (richer at depth), loots chests for legendary gear &amp; permanent potions, eats food for HP &amp; buffs, dodges lava and poison miasma, farms leveled monsters, defeats three bosses and pushes right toward the Victory Gate — clearing it starts a harder new world. When the agent dies it keeps its gear and auto-respawns.</p>
 
 <p id="tw-keys"><b>Controls</b> — <kbd>M</kbd> toggle world map · the <b>Mode</b> button cycles
 <b>AUTO</b> (local BFS+FSM brain) → <b>LLM</b> (a model picks the goals) → <b>MANUAL</b>.
 In MANUAL: <kbd>←</kbd><kbd>→</kbd>/<kbd>A</kbd><kbd>D</kbd> move · <kbd>↑</kbd>/<kbd>W</kbd>/<kbd>Space</kbd> jump ·
-<kbd>X</kbd>/<kbd>J</kbd> attack · <kbd>K</kbd>+direction mine (↑↓←→ to aim) · <kbd>C</kbd> place a 🧱 block.</p>
+<kbd>X</kbd>/<kbd>J</kbd> attack · <kbd>K</kbd>/<kbd>Z</kbd> mine + <kbd>↑</kbd><kbd>↓</kbd><kbd>←</kbd><kbd>→</kbd> to aim (Space still jumps while mining) · <kbd>C</kbd> place a 🧱 block.</p>
 
 <div id="tw-wrap">
   <div id="tw-top">

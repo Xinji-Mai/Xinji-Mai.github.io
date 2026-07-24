@@ -892,7 +892,8 @@
           if (j && j.latent && LAT.indexOf(String(j.latent)) >= 0) agent.latent = String(j.latent);
           if (plan.length) { agent.planQ = plan.slice(); agent.lastPlan = plan.slice(); agent.planT = 50; agent.hint = plan[0]; agent.hintT = 999; agent.path = null;
             agent.snap = { ore: stat.ore, gem: stat.gem, chest: stat.chest, kill: stat.kill, py: P.y / TS, exp: exploredCount }; }
-          llmLog.unshift({ hint: (plan.length ? plan.join(" → ") : ((j && j.hint) || "?")) + " ⋄" + (agent.latent || "loot").toUpperCase(), thought: (j && j.thought) || "", life: 600 });
+          var disp = (plan.length ? plan : [String((j && j.hint) || "?")]).map(function (g) { return String(g).replace("seek_goal", "seek"); }).join(" → ");
+          llmLog.unshift({ hint: disp + " ⋄" + (agent.latent || "loot").toUpperCase(), thought: (j && j.thought) || "", life: 600 });
           if (llmLog.length > 5) llmLog.pop();
         })
         .catch(function () { llmFail = Date.now() + 60000; });
@@ -1006,8 +1007,8 @@
   function hud() {
     var hb = document.getElementById("tw-hpbar"); if (hb) hb.style.width = Math.max(0, P.hp / P.maxhp * 100) + "%";
     var ge = document.getElementById("tw-gear"); if (ge) ge.textContent = "⛏️Lv" + gear.pick + (gear.pickMul > 1 ? "×" + gear.pickMul.toFixed(1) : "") + " 🗡️Lv" + gear.sword + (gear.swordMul > 1 ? "×" + gear.swordMul.toFixed(1) : "") + " 🛡️Lv" + gear.armor + (gear.armorMul > 1 ? "×" + gear.armorMul.toFixed(1) : "") + " 💎" + gear.gems + " 🧱" + gear.dirt + " 🏆" + wins + " 💀" + deaths + ((gear.potAtk || gear.potArm || P.maxhp > 100) ? " 🧪" : "") + (buffs.speed > 0 ? " 🏃" : "") + (buffs.power > 0 ? " ⚔️↑" : "") + (buffs.shield > 0 ? " 🛡️↑" : "") + (buffs.regen > 0 ? " 💗" : "");
-    var stt = document.getElementById("tw-state");
-    if (stt) stt.textContent = !agent.on ? "MANUAL" : (llmActive() ? ("🧠 " + (llmModel || (Date.now() < llmFail ? "offline" : "…")) + " · " + agent.state) : ("BFS+Frontier+FSM · " + agent.state));
+    var stt = document.getElementById("tw-state"), stDisp = String(agent.state).replace("SEEK_GOAL", "SEEK");
+    if (stt) stt.textContent = !agent.on ? "MANUAL" : (llmActive() ? ("🧠 " + (llmModel || (Date.now() < llmFail ? "offline" : "…")) + " · " + stDisp) : ("BFS+Frontier+FSM · " + stDisp));
     var lb = document.getElementById("tw-llm"); if (lb) { lb.textContent = llmActive() ? "🧠 LLM: ON" : "🧠 LLM: OFF"; lb.className = llmActive() ? "on" : ""; }
   }
 
