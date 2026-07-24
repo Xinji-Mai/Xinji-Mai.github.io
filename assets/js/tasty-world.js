@@ -265,14 +265,15 @@
   }
 
   /* ---------------- mining ---------------- */
-  function upCost(lv) { return 3 + lv; }                       // upgrades get pricier: L1->2 costs 4 ... L9->10 costs 12
-  function tryArmorUp() { while (gear.armor < 10 && gear.gems >= (gear.armor + 1) * 2) { gear.armor++; msg("🛡️ Armor Lv." + gear.armor); } }
+  function upCost(lv) { return 3 + lv; }                       // upgrades get pricier the higher the level
+  function gearCap() { return 2 * (10 + wins); }               // gear cap = twice the gate boss level (bosses grow each world)
+  function tryArmorUp() { while (gear.armor < gearCap() && gear.gems >= (gear.armor + 1) * 2) { gear.armor++; msg("🛡️ Armor Lv." + gear.armor); } }
   function levelUp() {
     for (; ;) {
       var t = null;
-      if (gear.pick <= gear.sword && gear.pick < 10) t = "pick";
-      else if (gear.sword < 10) t = "sword";
-      else if (gear.armor < 10) t = "armor";
+      if (gear.pick <= gear.sword && gear.pick < gearCap()) t = "pick";
+      else if (gear.sword < gearCap()) t = "sword";
+      else if (gear.armor < gearCap()) t = "armor";
       else break;
       var c = upCost(gear[t]);
       if (gear.pts < c) break;
@@ -313,10 +314,14 @@
     stat.chest++;
     burst((tx + 0.5) * TS, (ty + 0.5) * TS, "#ffd24a", 18);
     var roll = Math.random();
-    if (roll < 0.3 && gear.pick < 10) { gear.pick++; msg("🧰 Chest: shiny pickaxe! ⛏️Lv." + gear.pick); }
-    else if (roll < 0.55 && gear.sword < 10) { gear.sword++; msg("🧰 Chest: sharp sword! 🗡️Lv." + gear.sword); }
-    else if (roll < 0.75 && gear.armor < 10) { gear.armor++; msg("🧰 Chest: armor plate! 🛡️Lv." + gear.armor); }
-    else if (roll < 0.9) { gear.gems += 3; msg("🧰 Chest: 3 gems! 💎" + gear.gems); }
+    if (roll < 0.26 && gear.pick < gearCap()) { gear.pick++; msg("🧰 Chest: shiny pickaxe! ⛏️Lv." + gear.pick); }
+    else if (roll < 0.48 && gear.sword < gearCap()) { gear.sword++; msg("🧰 Chest: sharp sword! 🗡️Lv." + gear.sword); }
+    else if (roll < 0.66 && gear.armor < gearCap()) { gear.armor++; msg("🧰 Chest: armor plate! 🛡️Lv." + gear.armor); }
+    else if (roll < 0.8) {
+      if (Math.random() < 0.6) { buffs.power = 1200; msg("🧰 Chest: ⚔️ DOUBLE DAMAGE (20s)!"); }
+      else { buffs.shield = 900; msg("🧰 Chest: ⭐ SHIELD (15s)!"); }
+    }
+    else if (roll < 0.92) { gear.gems += 3; msg("🧰 Chest: 3 gems! 💎" + gear.gems); }
     else { P.hp = Math.min(P.maxhp, P.hp + 40); msg("🧰 Chest: heart! +40 ❤️"); }
     say("Treasure chest! Lucky me.");
   }
@@ -354,17 +359,17 @@
   }
   function spawnBossAt(tx, groundY, kind, lv) {
     var k = EK[kind], sc = 2.1, w = k.w * sc, h = k.h * sc;
-    var ehp = Math.round((k.hp + 30) * (1 + 0.7 * (lv - 1)) * 3);
+    var ehp = Math.round((k.hp + 30) * (1 + 0.7 * (lv - 1)) * 2.4);
     enemies.push({ kind: kind, boss: true, x: tx * TS + 1, y: groundY * TS - h - 1, w: w, h: h, lv: lv,
                    vx: 0, vy: 0, ground: false, hp: ehp, maxhp: ehp, hop: rnd(20, 60), face: -1, t: rnd(0, 6.28) });
   }
   function spawnBosses() {
     for (var tr = 0; tr < 300; tr++) {                          // deep boss guarding the diamond depths
       var bx = rnd(WW * 0.35, WW * 0.65) | 0, by = rnd(WH * 0.7, WH - 4) | 0;
-      if (get(bx, by) === AIR && get(bx, by - 1) === AIR && isSolid(bx, by + 1)) { spawnBossAt(bx, by + 1, "slime", 7); break; }
+      if (get(bx, by) === AIR && get(bx, by - 1) === AIR && isSolid(bx, by + 1)) { spawnBossAt(bx, by + 1, "slime", 7 + wins); break; }
     }
-    var rx2 = (WW * 0.72) | 0; spawnBossAt(rx2, surf[rx2] || 40, "zombie", 8);   // mid-right surface boss
-    var gx2 = WW - 10; spawnBossAt(gx2, surf[gx2] || 40, "zombie", 10);          // gate boss
+    var rx2 = (WW * 0.72) | 0; spawnBossAt(rx2, surf[rx2] || 40, "zombie", 8 + wins);   // mid-right surface boss
+    var gx2 = WW - 10; spawnBossAt(gx2, surf[gx2] || 40, "zombie", 10 + wins);          // gate boss (grows each world)
   }
   function updEnemies(dtf) {
     for (var i = enemies.length - 1; i >= 0; i--) {
@@ -395,6 +400,7 @@
           Math.abs((s.x + s.w / 2) - (P.x + P.w / 2)) < (s.w + P.w) / 2 &&
           Math.abs((s.y + s.h / 2) - (P.y + P.h / 2)) < (s.h + P.h) / 2) {
         var dmg = Math.max(2, Math.round(k.dmg * (1 + 0.55 * ((s.lv || 1) - 1)) + wins - gear.armor * 2));
+        if (s.boss) dmg = Math.round(dmg * 0.8);
         if (buffs.shield > 0) dmg = 0;
         P.hp -= dmg; P.inv = 45; P.vx = (dx > 0 ? -1 : 1) * 3; P.vy = -3; lastHitF = frame;
         burst(P.x + P.w / 2, P.y + P.h / 2, "#e05555", 6);
@@ -422,7 +428,7 @@
     for (var i = 0; i < enemies.length; i++) {
       var s = enemies[i];
       if (s.x + s.w > rx && s.x < rx + 24 && s.y + s.h > P.y - 6 && s.y < P.y + P.h + 6) {
-        s.hp -= (5 + gear.sword * 4) * (buffs.power > 0 ? 1.6 : 1); s.vx = P.face * 4; s.vy = -3; agent.stuck = 0; lastHitF = frame;
+        s.hp -= (5 + gear.sword * 4) * (buffs.power > 0 ? 2 : 1); s.vx = P.face * 4; s.vy = -3; agent.stuck = 0; lastHitF = frame;
         burst(s.x + s.w / 2, s.y + s.h / 2, "#ffe9a3", 5);
       }
     }
