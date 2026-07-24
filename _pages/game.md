@@ -16,7 +16,7 @@ In MANUAL: <kbd>←</kbd><kbd>→</kbd>/<kbd>A</kbd><kbd>D</kbd> move · <kbd>�
     <div id="tw-hp"><div id="tw-hpbar"></div></div>
     <span id="tw-gear">⛏️Lv1 🗡️Lv1 🛡️Lv0 💎0 🏆0</span>
     <button id="tw-mode" type="button">🤖 Mode: AUTO</button>
-    <button id="tw-new" type="button">🔄 New World</button>
+    <button id="tw-new" type="button">🔄 New</button>
     <span id="tw-state">AUTO</span>
   </div>
   <canvas id="tw-canvas" width="880" height="480"></canvas>
