@@ -20,4 +20,5 @@ en.theme.listeners.click();assert.equal(en.store['site-theme'],'dark');assert.eq
 assert.equal(boot(en.store,'en').root.dataset.theme,'dark');
 en.theme.listeners.click();assert.equal(en.root.dataset.theme,'light');
 const privateWindow=boot({},'en',true);privateWindow.buttons[1].listeners.click();privateWindow.theme.listeners.click();assert.equal(privateWindow.root.lang,'zh-CN');
+assert.equal(boot({},'zh-CN',true).root.lang,'zh-CN');
 console.log('PASS: language detection, switching, persistence, aria states, theme switching, and blocked storage');

@@ -1,5 +1,5 @@
 {% assign p = include.project %}
 <article class="project-card">
   {% if p.figure %}<a class="project-image" href="{{ p.link }}"><img src="{{ p.figure | relative_url }}" alt="{{ p.figure_alt | default: p.title | escape }}" width="600" height="260" loading="lazy" decoding="async"></a>{% endif %}
-  <div class="project-body"><p class="project-type">{{ p.topic }}</p><h3>{{ p.title }}</h3><p><span class="i18n-en">{{ p.summary_en }}</span><span class="i18n-zh">{{ p.summary_zh }}</span></p><div class="resource-links"><a class="resource-link" href="{{ p.link }}">GitHub ↗</a>{% if p.paperurl %}<a class="resource-link" href="{{ p.paperurl }}">Paper ↗</a>{% endif %}</div></div>
+  <div class="project-body"><p class="project-type"><span class="i18n-en">{{ p.topic }}</span><span class="i18n-zh">{{ p.topic_zh }}</span></p><h3>{{ p.title }}</h3><p><span class="i18n-en">{{ p.summary_en }}</span><span class="i18n-zh">{{ p.summary_zh }}</span></p><div class="resource-links"><a class="resource-link" href="{{ p.link }}">GitHub ↗</a>{% if p.paperurl %}<a class="resource-link" href="{{ p.paperurl }}"><span class="i18n-en">Paper</span><span class="i18n-zh">论文</span> ↗</a>{% endif %}</div></div>
 </article>

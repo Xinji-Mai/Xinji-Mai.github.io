@@ -10,6 +10,7 @@ figure: /assets/images/research/cues.png
 figure_alt: CuES framework overview
 link: https://github.com/modelscope/AgentEvolver/tree/main/research/CuES
 paperurl: https://arxiv.org/abs/2512.01311
+topic_zh: 智能体强化学习
 ---
 
 <p class="i18n-en">Curiosity-guided exploration grounds synthetic tasks in executable environments for agentic reinforcement learning.</p>

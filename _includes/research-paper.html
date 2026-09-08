@@ -7,8 +7,8 @@
     <p class="paper-authors">{{ p.authors | replace: 'Xinji Mai', '<strong>Xinji Mai</strong>' }}</p>
     <p class="paper-summary"><span class="i18n-en">{{ p.summary_en | default: p.excerpt }}</span><span class="i18n-zh">{{ p.summary_zh | default: p.excerpt }}</span></p>
     <div class="resource-links">
-      {% if p.paperurl %}<a class="resource-link" href="{{ p.paperurl }}"><span aria-hidden="true">↗</span> Paper</a>{% endif %}
-      {% if p.codeurl %}<a class="resource-link" href="{{ p.codeurl }}"><span aria-hidden="true">⌘</span> Code</a>{% endif %}
+      {% if p.paperurl %}<a class="resource-link" href="{{ p.paperurl }}"><span aria-hidden="true">↗</span><span class="i18n-en">Paper</span><span class="i18n-zh">论文</span></a>{% endif %}
+      {% if p.codeurl %}<a class="resource-link" href="{{ p.codeurl }}"><span aria-hidden="true">⌘</span><span class="i18n-en">Code</span><span class="i18n-zh">代码</span></a>{% endif %}
       <a class="resource-link" href="{{ p.url | relative_url }}"><span class="i18n-en">Details</span><span class="i18n-zh">详情</span></a>
     </div>
   </div>

@@ -10,7 +10,10 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;650;700&family=Newsreader:opsz,wght@6..72,500;6..72,600&display=swap" rel="stylesheet">
   <script>
-    try { var lang = localStorage.getItem('site-language'); if (lang !== 'en' && lang !== 'zh') lang = /^zh/i.test(navigator.language) ? 'zh' : 'en'; document.documentElement.dataset.lang = lang; document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en'; var theme = localStorage.getItem('site-theme'); if (theme === 'dark') document.documentElement.dataset.theme = 'dark'; } catch (e) {}
+    var lang = /^zh/i.test(navigator.language) ? 'zh' : 'en';
+    try { var savedLanguage = localStorage.getItem('site-language'); if (savedLanguage === 'en' || savedLanguage === 'zh') lang = savedLanguage; if (localStorage.getItem('site-theme') === 'dark') document.documentElement.dataset.theme = 'dark'; } catch (e) {}
+    document.documentElement.dataset.lang = lang;
+    document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
   </script>
   <link rel="stylesheet" href="{{ '/assets/css/research.css' | relative_url }}">
   <script defer src="{{ '/assets/js/research.js' | relative_url }}"></script>

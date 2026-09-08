@@ -10,6 +10,7 @@ figure: /assets/images/research/hi-ef.png
 figure_alt: Hi-EF framework overview
 link: https://github.com/Xinji-Mai/Hi-EF
 paperurl: https://ojs.aaai.org/index.php/AAAI/article/view/37193
+topic_zh: 情绪预测
 ---
 
 <p class="i18n-en">Introduces a benchmark and multimodal framework for forecasting emotions in human interactions.</p>
