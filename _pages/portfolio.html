@@ -1,14 +1,11 @@
 ---
-layout: archive
-title: "Portfolio"
+layout: research
+title: "Projects"
+title_zh: "项目"
+kicker: "OPEN SOURCE"
+kicker_zh: "开源工作"
 permalink: /portfolio/
-author_profile: true
+intro: "Systems, models, and benchmarks I have contributed to. Explore the code and the corresponding papers."
+intro_zh: "我参与的系统、模型与评测基准，以及对应的代码仓库和论文。"
 ---
-
-{% include base_path %}
-
-
-{% for post in site.portfolio %}
-  {% include archive-single.html %}
-{% endfor %}
-
+<div class="project-grid">{% for project in site.portfolio %}{% include research-project.html project=project %}{% endfor %}</div>

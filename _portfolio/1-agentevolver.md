@@ -1,9 +1,16 @@
 ---
-title: "AgentEvolver"
-excerpt: '<span class="i18n-en">Towards an efficient self-evolving agent system. Open-sourced, 1.5k+ GitHub stars.</span><span class="i18n-zh">面向高效自进化智能体系统，开源项目，1.5k+ GitHub stars。</span><br/>'
+title: AgentEvolver
 collection: portfolio
-link: "https://github.com/modelscope/AgentEvolver"
+layout: project
+topic: SELF-EVOLVING AGENTS
+summary_en: Combines self-questioning, self-navigating, and self-attributing to help agents learn from their own experience.
+summary_zh: 结合自主提问、自主探索与自主归因，让智能体从自身经验中持续学习。
+excerpt: Combines self-questioning, self-navigating, and self-attributing to help agents learn from their own experience.
+figure: /assets/images/research/agentevolver.png
+figure_alt: AgentEvolver framework overview
+link: https://github.com/modelscope/AgentEvolver
+paperurl: https://arxiv.org/abs/2511.10395
 ---
 
-<p class="i18n-en">An efficient self-evolving agent system. Repository: <a href="https://github.com/modelscope/AgentEvolver">modelscope/AgentEvolver</a>.</p>
-<p class="i18n-zh">一个高效的自进化智能体系统。仓库：<a href="https://github.com/modelscope/AgentEvolver">modelscope/AgentEvolver</a>。</p>
+<p class="i18n-en">Combines self-questioning, self-navigating, and self-attributing to help agents learn from their own experience.</p>
+<p class="i18n-zh">结合自主提问、自主探索与自主归因，让智能体从自身经验中持续学习。</p>

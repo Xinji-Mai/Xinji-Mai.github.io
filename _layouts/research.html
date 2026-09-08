@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en" data-lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  {% include seo.html %}
+  <meta name="theme-color" content="#ffffff">
+  <link rel="icon" type="image/svg+xml" href="{{ '/images/favicon.svg' | relative_url }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;650;700&family=Newsreader:opsz,wght@6..72,500;6..72,600&display=swap" rel="stylesheet">
+  <script>
+    try { var lang = localStorage.getItem('site-language'); if (lang !== 'en' && lang !== 'zh') lang = /^zh/i.test(navigator.language) ? 'zh' : 'en'; document.documentElement.dataset.lang = lang; document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en'; var theme = localStorage.getItem('site-theme'); if (theme === 'dark') document.documentElement.dataset.theme = 'dark'; } catch (e) {}
+  </script>
+  <link rel="stylesheet" href="{{ '/assets/css/research.css' | relative_url }}">
+  <script defer src="{{ '/assets/js/research.js' | relative_url }}"></script>
+</head>
+<body>
+<a class="skip-link" href="#main-content"><span class="i18n-en">Skip to content</span><span class="i18n-zh">跳转到正文</span></a>
+<header class="site-header">
+  <div class="header-inner">
+    <a class="wordmark" href="{{ '/' | relative_url }}">Xinji Mai<span class="wordmark-dot">.</span></a>
+    <nav class="main-nav" aria-label="Main navigation">
+      <a href="{{ '/' | relative_url }}" {% if page.url == '/' %}aria-current="page"{% endif %}><span class="i18n-en">About</span><span class="i18n-zh">关于</span></a>
+      <a href="{{ '/publications/' | relative_url }}" {% if page.url == '/publications/' %}aria-current="page"{% endif %}><span class="i18n-en">Publications</span><span class="i18n-zh">论文</span></a>
+      <a href="{{ '/portfolio/' | relative_url }}" {% if page.url == '/portfolio/' %}aria-current="page"{% endif %}><span class="i18n-en">Projects</span><span class="i18n-zh">项目</span></a>
+      <a href="{{ '/cv/' | relative_url }}" {% if page.url == '/cv/' %}aria-current="page"{% endif %}><span class="i18n-en">CV</span><span class="i18n-zh">简历</span></a>
+      <a class="game-nav" href="{{ '/game/' | relative_url }}" {% if page.url == '/game/' %}aria-current="page"{% endif %}><span class="i18n-en">Game</span><span class="i18n-zh">小游戏</span><span aria-hidden="true"> ↗</span></a>
+    </nav>
+    <div class="preferences">
+      <div class="language-switch" role="group" aria-label="Language / 语言">
+        <button type="button" data-language="en" lang="en" aria-pressed="true">EN</button><button type="button" data-language="zh" lang="zh-CN" aria-pressed="false">中</button>
+      </div>
+      <button class="theme-switch" type="button" aria-label="Switch color theme / 切换明暗主题" aria-pressed="false"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M20.8 13.2A9 9 0 0 1 10.8 3.2 9 9 0 1 0 20.8 13.2Z"/></svg></button>
+    </div>
+  </div>
+</header>
+<main id="main-content" class="site-main {% if page.url == '/' %}homepage{% endif %}">
+  {% if page.url != '/' and page.show_title != false %}
+  <header class="page-heading"><p class="eyebrow">XINJI MAI / <span class="i18n-en">{{ page.kicker | default: 'RESEARCH' }}</span><span class="i18n-zh">{{ page.kicker_zh | default: '研究' }}</span></p><h1><span class="i18n-en">{{ page.title }}</span><span class="i18n-zh">{{ page.title_zh | default: page.title }}</span></h1>{% if page.intro %}<p class="page-intro"><span class="i18n-en">{{ page.intro }}</span><span class="i18n-zh">{{ page.intro_zh | default: page.intro }}</span></p>{% endif %}</header>
+  {% endif %}
+  {{ content }}
+</main>
+<footer class="site-footer"><div><a class="wordmark" href="{{ '/' | relative_url }}">Xinji Mai<span class="wordmark-dot">.</span></a><p><span class="i18n-en">Agentic Reinforcement Learning · Shanghai</span><span class="i18n-zh">智能体强化学习 · 上海</span></p></div><div class="footer-right"><a href="mailto:{{ site.author.email }}">Email ↗</a><a href="https://github.com/Xinji-Mai">GitHub ↗</a><span>© {{ site.time | date: '%Y' }} Xinji Mai</span></div></footer>
+</body>
+</html>

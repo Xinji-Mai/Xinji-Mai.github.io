@@ -1,0 +1,8 @@
+---
+layout: research
+---
+<article class="prose">
+  <div class="resource-links"><a class="resource-link" href="{{ page.link }}">GitHub ↗</a>{% if page.paperurl %}<a class="resource-link" href="{{ page.paperurl }}">Paper ↗</a>{% endif %}<a class="resource-link" href="{{ '/portfolio/' | relative_url }}"><span class="i18n-en">All projects</span><span class="i18n-zh">全部项目</span></a></div>
+  {% if page.figure %}<figure class="detail-image"><img src="{{ page.figure | relative_url }}" alt="{{ page.figure_alt | escape }}"></figure>{% endif %}
+  {{ content }}
+</article>

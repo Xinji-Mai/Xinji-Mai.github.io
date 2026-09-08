@@ -1,0 +1,123 @@
+[
+  {
+    "id": "cues",
+    "title": "CuES: A Curiosity-driven and Environment-grounded Synthesis Framework for Agentic RL",
+    "file": "cues.png",
+    "figure": "Figure 2: CuES pipeline",
+    "paper_url": "https://arxiv.org/abs/2512.01311",
+    "code_url": "https://github.com/modelscope/AgentEvolver/tree/main/research/CuES",
+    "image_source_url": "https://arxiv.org/html/2512.01311v1/AgentFlowPipeline_v8.png",
+    "source_page": "https://arxiv.org/html/2512.01311v1",
+    "venue": "arXiv preprint (2025)",
+    "dimensions": [
+      1600,
+      804
+    ]
+  },
+  {
+    "id": "agentevolver",
+    "title": "AgentEvolver: Towards Efficient Self-Evolving Agent System",
+    "file": "agentevolver.png",
+    "figure": "Figure 2: Framework overview",
+    "paper_url": "https://arxiv.org/abs/2511.10395",
+    "code_url": "https://github.com/modelscope/AgentEvolver",
+    "image_source_url": "https://arxiv.org/html/2511.10395v1/flowchart1103.png",
+    "source_page": "https://arxiv.org/html/2511.10395v1",
+    "venue": "arXiv preprint (2025)",
+    "dimensions": [
+      1499,
+      900
+    ]
+  },
+  {
+    "id": "agentic-rl-scaling",
+    "title": "Agentic RL Scaling Law: Spontaneous Code Execution for Mathematical Problem Solving",
+    "file": "agentic-rl-scaling.png",
+    "figure": "Figure 3: Interactive rollout process",
+    "paper_url": "https://arxiv.org/abs/2505.07773",
+    "publisher_url": "https://proceedings.neurips.cc/paper_files/paper/2025/hash/0adea62f2f98c5035aded00d4b2064e6-Abstract-Conference.html",
+    "code_url": "https://github.com/yyht/openrlhf_async_pipline",
+    "image_source_url": "https://arxiv.org/html/2505.07773v4/agentrl_2.png",
+    "source_page": "https://arxiv.org/html/2505.07773v4",
+    "venue": "NeurIPS 2025",
+    "dimensions": [
+      1465,
+      709
+    ]
+  },
+  {
+    "id": "small-models",
+    "title": "When Small Models Team Up: A Weak-Expert Ensemble Surpassing LLMs for Automated Intellectual-Property Audits",
+    "file": null,
+    "figure": null,
+    "paper_url": "https://openreview.net/forum?id=YGZdVl454O",
+    "pdf_url": "https://openreview.net/pdf?id=YGZdVl454O",
+    "code_url": null,
+    "image_source_url": null,
+    "source_page": "https://openreview.net/pdf/de4b123f00ab97c2dc75514eb266f4cfb2051145.pdf",
+    "venue": "Preprint (2025)"
+  },
+  {
+    "id": "hi-ef",
+    "title": "Hi-EF: Benchmarking Emotion Forecasting in Human-interaction",
+    "file": "hi-ef.png",
+    "figure": "Figure 4: Model architecture",
+    "paper_url": "https://ojs.aaai.org/index.php/AAAI/article/view/37193",
+    "arxiv_url": "https://arxiv.org/abs/2407.16406",
+    "code_url": "https://github.com/Xinji-Mai/Hi-EF",
+    "image_source_url": "https://arxiv.org/html/2407.16406v2/baseline_v4.png",
+    "source_page": "https://arxiv.org/html/2407.16406v2",
+    "venue": "AAAI 2026",
+    "dimensions": [
+      709,
+      945
+    ]
+  },
+  {
+    "id": "ous",
+    "title": "OUS: Bridging Scene Context and Facial Features to Overcome the Rigid Cognitive Problem",
+    "file": "ous.png",
+    "figure": "Figure 3: OUS Overall Architecture Diagram",
+    "paper_url": "https://ojs.aaai.org/index.php/AAAI/article/view/32647",
+    "pdf_url": "https://ojs.aaai.org/index.php/AAAI/article/download/32647/34802",
+    "code_url": "https://github.com/Xinji-Mai/OUS",
+    "image_source_url": "https://ojs.aaai.org/index.php/AAAI/article/download/32647/34802",
+    "source_page": "https://ojs.aaai.org/index.php/AAAI/article/view/32647",
+    "venue": "AAAI 2025",
+    "dimensions": [
+      1900,
+      1190
+    ]
+  },
+  {
+    "id": "umbenet",
+    "title": "All Rivers Run into the Sea: Unified Modality Brain-Inspired Emotional Central Mechanism",
+    "file": "umbenet.png",
+    "figure": "Figure 2: Overall architecture of UMBEnet",
+    "paper_url": "https://arxiv.org/abs/2407.15590",
+    "publisher_url": "https://doi.org/10.1145/3664647.3681228",
+    "code_url": "https://github.com/Xinji-Mai/UMBEnet",
+    "image_source_url": "https://arxiv.org/html/2407.15590v1/pipeline.png",
+    "source_page": "https://arxiv.org/html/2407.15590v1",
+    "venue": "ACM MM 2024",
+    "dimensions": [
+      1937,
+      1111
+    ]
+  },
+  {
+    "id": "world-models-survey",
+    "title": "From Efficient Multimodal Models to World Models: A Survey",
+    "file": "world-models-survey.png",
+    "figure": "Figure 7: Multimodal training strategies",
+    "paper_url": "https://arxiv.org/abs/2407.00118",
+    "code_url": null,
+    "image_source_url": "https://arxiv.org/html/2407.00118v1/trainLLM.png",
+    "source_page": "https://arxiv.org/html/2407.00118v1",
+    "venue": "arXiv preprint (2024)",
+    "dimensions": [
+      2032,
+      1524
+    ]
+  }
+]
