@@ -48,14 +48,21 @@
   {
     "id": "small-models",
     "title": "When Small Models Team Up: A Weak-Expert Ensemble Surpassing LLMs for Automated Intellectual-Property Audits",
-    "file": null,
-    "figure": null,
+    "file": "small-models.png",
+    "figure": "IPR-GPT multi-agent auditing framework",
     "paper_url": "https://openreview.net/forum?id=YGZdVl454O",
     "pdf_url": "https://openreview.net/pdf?id=YGZdVl454O",
     "code_url": null,
     "image_source_url": null,
     "source_page": "https://openreview.net/pdf/de4b123f00ab97c2dc75514eb266f4cfb2051145.pdf",
-    "venue": "Preprint (2025)"
+    "venue": "Preprint (2025)",
+    "source_type": "User-provided image",
+    "dimensions": [
+      1526,
+      864
+    ],
+    "sha256": "fd1c7b06697bc6e7b92de1ffe27e466c957f84dd9a3220d8c9cda14227a2f5aa",
+    "notes": "User selected and supplied this image on 2026-09-08; original pixels preserved."
   },
   {
     "id": "hi-ef",

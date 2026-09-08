@@ -18,6 +18,11 @@ year: '2025'
 excerpt: A multi-agent audit framework combines specialized small models for automated intellectual-property audits.
 redirect_from:
 - /publication/2025-when-small-models-team-up.html
+figure: /assets/images/research/small-models.png
+figure_alt: IPR-GPT multi-agent auditing framework with image intention, information, law, exemption, and comprehensive experts
+figure_source: https://openreview.net/forum?id=YGZdVl454O
+figure_width: 1526
+figure_height: 864
 ---
 
 <p class="i18n-en">A multi-agent audit framework combines specialized small models for automated intellectual-property audits.</p>
