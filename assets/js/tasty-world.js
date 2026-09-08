@@ -1,8 +1,6 @@
 /* ============================================================================
    TERRAMAI — a Terraria-like 2D pixel sandbox that an AI agent auto-plays.
    Client-side engine + agent brain: BFS pathfinding + frontier exploration + FSM.
-   Optional LLM "brain" via your serverless proxy (see /agent-proxy/):
-   the API key NEVER appears in this file or anywhere in the frontend.
    ============================================================================ */
 (function () {
   "use strict";
@@ -223,19 +221,14 @@
     star:   { icon: "⭐", heal: 0,  buff: "shield" }
   };
   var BUFF_NAME = { speed: "Speed", power: "Power", shield: "Shield", regen: "Regen" };
-  var agent = { on: true, state: "EXPLORE", think: "Waking up…", hint: null, hintT: 0, tgt: null,
-                path: null, pi: 0, pathT: 0, digT: null, digP: 0, atk: 0, stuck: 0, lx: 0, decideT: 0, jumpCD: 0, hist: [], exdir: 1, since: 0, planQ: [], planT: 0, anchor: null, avoidT: 0, badTs: [], camp: null, campT: 0, escapeT: 0, progSig: "", progT: 0 };
+  var agent = { on: true, state: "EXPLORE", think: "Waking up…", tgt: null,
+                path: null, pi: 0, pathT: 0, digT: null, digP: 0, atk: 0, stuck: 0, lx: 0, decideT: 0, jumpCD: 0, exdir: 1, since: 0, anchor: null, avoidT: 0, badTs: [], camp: null, campT: 0, escapeT: 0, progSig: "", progT: 0 };
   var cam = { x: 0, y: 0 }, keys = {}, wins = 0, deaths = 0, frame = 0, regenT = 0, showMap = false;
   var evt = { name: "", label: "", t: 0, timer: 1900 };
   var lastHitF = -9999;                                       // last frame we took or dealt damage (for out-of-combat regen)
   var gateFails = 0;                                          // deaths while challenging the gate boss raise the power bar
-  var llmEP = "", llmOn = false, llmModel = "", llmLast = 0, llmFail = 0;
-  try { llmEP = (window.AGENT_LLM_ENDPOINT || "").trim() || localStorage.getItem("agent_llm_endpoint") || ""; } catch (e) {}
-  var llmLog = [];   // recent LLM decisions, shown on the right while in LLM mode
-
   function say(t) { agent.think = t; }
   function msg(t) { msgs.push({ t: t, life: 220 }); if (msgs.length > 4) msgs.shift(); }
-  function llmActive() { return llmOn && !!llmEP; }
 
   function resetPlayer() { P.x = spawn.x; P.y = spawn.y; P.vx = P.vy = 0; P.hp = P.maxhp; P.dead = 0; P.inv = 60; agent.path = null; agent.tgt = null; }
   function die() {
@@ -506,7 +499,6 @@
     WIN: ["Grand Gem secured! 🎉", "Loot acquired!"]
   };
   function pickThink(st) { var p = THINKS[st] || THINKS.EXPLORE; return p[(Math.random() * p.length) | 0]; }
-  function pushHist(s) { if (agent.hist[0] !== s) { agent.hist.unshift(s); if (agent.hist.length > 8) agent.hist.pop(); } }
   function badTarget(x, y) {
     for (var i = 0; i < agent.badTs.length; i++) { var b = agent.badTs[i]; if (Math.abs(b.x - x) <= 3 && Math.abs(b.y - y) <= 3) return true; }
     return false;
@@ -641,25 +633,6 @@
   }
   function decide() {
     if (P.dead) return;
-    if (llmActive() && agent.planQ.length) {                        // advance the plan on real accomplishment (or generous timeout)
-      agent.planT--;
-      var curG = agent.planQ[0], sn = agent.snap || {}, gdone = false;
-      if (curG === "mine_ore") gdone = (stat.ore - (sn.ore || 0) >= 2) || !nearestKnownOre();
-      else if (curG === "collect_gems") gdone = (stat.gem - (sn.gem || 0) >= 1) || !nearestKnownGem();
-      else if (curG === "open_chest") gdone = (stat.chest - (sn.chest || 0) >= 1) || !nearestKnownChest();
-      else if (curG === "fight" || curG === "hunt") gdone = (stat.kill - (sn.kill || 0) >= 1) || !nearestBeatableEnemy();
-      else if (curG === "dig_deep") gdone = (P.y / TS - (sn.py || 0)) >= 6;
-      else if (curG === "pillar_up") gdone = ((sn.py || 0) - P.y / TS) >= 6 || gear.dirt <= 0;
-      else if (curG === "eat_food") gdone = (P.hp / P.maxhp) > 0.8 || !nearestFood();
-      else if (curG === "explore" || curG === "explore_left" || curG === "explore_right") gdone = (exploredCount - (sn.exp || 0)) >= 140;
-      else if (curG === "surface") gdone = (P.y / TS) <= ((surf[(P.x / TS) | 0] || 40) + 1);
-      if (gdone || agent.planT <= 0) {
-        agent.planQ.shift(); agent.planT = 50;
-        agent.snap = { ore: stat.ore, gem: stat.gem, chest: stat.chest, kill: stat.kill, py: P.y / TS, exp: exploredCount };
-        if (agent.planQ.length) { agent.hint = agent.planQ[0]; agent.hintT = 999; agent.path = null; pushHist("»" + agent.planQ[0]); }
-        else { agent.hintT = 0; agent.path = null; }               // plan done: hand control back to auto until next reply
-      }
-    }
     if (agent.escapeT > 0) {                                    // breakout mode: tunnel down & away, ignore fear and food
       agent.state = "EXPLORE";
       if (!agent.tgt || !agent.path || agent.pi >= agent.path.length) {
@@ -669,43 +642,27 @@
         agent.tgt = { x: ex2, y: ey2 };
         agent.path = bfsPath(((P.x + P.w / 2) / TS) | 0, ((P.y + P.h - 2) / TS) | 0, ex2, ey2); agent.pi = 0;
       }
-      if (agent.hintT > 0) agent.hintT -= 15;
       return;
     }
     var ne = nearestEnemy(), hpr = P.hp / P.maxhp;
-    var goalKnown = explored[idx(goal.x, goal.y)] && get(goal.x, goal.y) === GOAL;
     var chest = nearestKnownChest();
     var strong = ne && !beatable(ne.e);
-    var h = agent.hintT > 0 ? agent.hint : null;
-    var lat = llmActive() ? (agent.latent || "loot") : "loot";              // latent policy: how AUTO handles surprises
-    if (h === "explore_left") agent.exdir = -1; else if (h === "explore_right") agent.exdir = 1;
-    else if (agentPower() >= 6) agent.exdir = 1;                        // well geared: default push to the right
-    var busy = (h === "mine_ore" || h === "collect_gems" || h === "open_chest" || h === "dig_deep" || h === "dig_down" || h === "surface" || h === "seek_goal" || h === "pillar_up" || h === "eat_food");
-    var fightR = lat === "aggressive" ? 10 : (lat === "rush" ? 3 : 7);
+    if (agentPower() >= 6) agent.exdir = 1;   // well geared: default push to the right
     var o2 = nearestKnownOre(), pcx2 = (P.x / TS) | 0, pcy2 = (P.y / TS) | 0;
     var oreNear = o2 && (Math.abs(o2.x - pcx2) + Math.abs(o2.y - pcy2)) < 14;
     if (hpr < 0.35) agent.lowHP = true; else if (hpr > 0.65) agent.lowHP = false;   // hysteresis: stay in recovery mode until truly healed
     var st;
-    if (ne && ne.d < TS * 6 && (agent.lowHP || strong || (lat === "cautious" && hpr < 0.6))) st = "FLEE";
-    else if (agent.lowHP || (h === "eat_food" && hpr < 0.9)) st = "HEAL";           // weak: food or safety, no combat, no gate march
-    else if ((h === "avoid" || lat === "cautious") && ne && ne.d < TS * 8) st = "FLEE";
-    else if (ne && ne.d < TS * fightR && !strong && (!busy || lat === "aggressive") && agent.avoidT <= 0) st = "FIGHT";
-    else if (h === "open_chest" && chest) st = "CHEST";
-    else if (h === "mine_ore") st = "MINE";
-    else if (h === "collect_gems") st = "GEMS";
-    else if (h === "hunt") st = "HUNT";
-    else if (h === "pillar_up" && gear.dirt > 0) st = "PILLAR";
-    else if (h === "dig_deep" || h === "dig_down") st = "DIG";
-    else if (h === "surface" && hpr < 0.9) st = "SURFACE";
-    else if (h === "seek_goal" && goalKnown) st = "SEEK_GOAL";
-    else if (agentPower() >= 10 + wins + gateFails && hpr > 0.5) st = "SEEK_GOAL";   // power >= gate boss level (+1 per failed attempt): march right
-    else if (chest && chest.d < (lat === "rush" ? 8 : 40)) st = "CHEST";
-    else if (lat === "loot" && oreNear) st = "MINE";
+    if (ne && ne.d < TS * 6 && (agent.lowHP || strong)) st = "FLEE";
+    else if (agent.lowHP) st = "HEAL";
+    else if (ne && ne.d < TS * 7 && !strong && agent.avoidT <= 0) st = "FIGHT";
+    else if (agentPower() >= 10 + wins + gateFails && hpr > 0.5) st = "SEEK_GOAL";
+    else if (chest && chest.d < 40) st = "CHEST";
+    else if (oreNear) st = "MINE";
     else st = "EXPLORE";
     var wl = agent.campT > 720 && st !== "FLEE" && st !== "FIGHT";      // loitered ~12s in one area: force a long-range move
     if (wl) st = "EXPLORE";
     var changed = st !== agent.state; agent.state = st;
-    if (changed) { agent.path = null; agent.since = 0; if (!llmActive()) say(pickThink(st)); pushHist(st); }
+    if (changed) { agent.path = null; agent.since = 0; say(pickThink(st)); }
     else agent.since++;
     if (st === "EXPLORE" && agent.since > 26) { agent.exdir = -agent.exdir; agent.since = 0; agent.tgt = null; agent.path = null; }   // break explore loops
     if (agent.replanT === undefined) agent.replanT = 0;
@@ -722,10 +679,9 @@
       var fyq = Math.max(3, Math.min(WH - 3, ((P.y / TS) | 0) - 5 + ((Math.random() * 18) | 0)));
       agent.tgt = { x: fxq, y: fyq };
       agent.path = bfsPath(((P.x + P.w / 2) / TS) | 0, ((P.y + P.h - 2) / TS) | 0, fxq, fyq); agent.pi = 0;
-      agent.replanT = 60; agent.campT = 0; agent.camp = { x: P.x, y: P.y }; pushHist("wanderlust");
-      if (!llmActive()) say("Been here too long — moving on!");
+      agent.replanT = 60; agent.campT = 0; agent.camp = { x: P.x, y: P.y };
+      say("Been here too long — moving on!");
     }
-    if (agent.hintT > 0) agent.hintT -= 15;
   }
   function followPath() {}
   function moveToward(txp, typ) {
@@ -783,7 +739,7 @@
     if (sig !== agent.progSig) { agent.progSig = sig; agent.progT = 0; }
     else if ((agent.progT += dtf) > 3600) {                    // 60s with ZERO progress (hp/gear/loot/map/position): deadlock
       agent.progT = 0; agent.escapeT = 600;
-      agent.planQ.length = 0; agent.hintT = 0; agent.path = null; agent.tgt = null;
+      agent.path = null; agent.tgt = null;
       agent.badTs.push({ x: (P.x / TS) | 0, y: (P.y / TS) | 0, life: 1800 }); if (agent.badTs.length > 4) agent.badTs.shift();
       msg("⛏️ Deadlock detected — breakout expedition!"); say("Enough! Digging my way out of here.");
     }
@@ -851,55 +807,6 @@
     if (agent.stuck > 170) { banTarget(); agent.exdir = -agent.exdir; agent.stuck = 0; agent.anchor = { x: P.x, y: P.y }; agent.wanderT = 0; }
   }
 
-  /* ---------------- optional LLM brain (via YOUR serverless proxy; no key here) ---------------- */
-  function askLLM() {
-    if (!llmActive() || P.dead || document.hidden) return;
-    var now = Date.now(); if (now - llmLast < 8000 || now < llmFail) return; llmLast = now;
-    var ne = nearestEnemy(), pcx = Math.max(0, Math.min(WW - 1, (P.x / TS) | 0)), pcy = (P.y / TS) | 0;
-    var eInfo = null;
-    if (ne) {
-      var et = enemyStandTile(ne.e);
-      eInfo = { kind: ne.e.kind, boss: !!ne.e.boss, lv: ne.e.lv || 1, distTiles: Math.round(ne.d / TS), dir: (ne.e.x < P.x ? "left" : "right"),
-        above: (ne.e.y + ne.e.h < P.y), reachable: !!bfsPath(pcx, ((P.y + P.h - 2) / TS) | 0, et.x, et.y), beatable: beatable(ne.e) };
-    }
-    var chest = nearestKnownChest();
-    var chestInfo = chest ? { dist: chest.d, dir: (chest.x < pcx ? "left" : "right"), above: chest.y < pcy - 2 } : null;
-    var o3 = nearestKnownOre();
-    var oreInfo = o3 ? { dist: Math.abs(o3.x - pcx) + Math.abs(o3.y - pcy), dir: (o3.x < pcx ? "left" : "right"), above: o3.y < pcy - 2 } : null;
-    var lavaNear = false, gasNear = false;
-    for (var lx3 = pcx - 4; lx3 <= pcx + 4; lx3++) for (var ly3 = pcy - 3; ly3 <= pcy + 4; ly3++) { var tt3 = get(lx3, ly3); if (tt3 === LAVA) lavaNear = true; else if (tt3 === MIASMA) gasNear = true; }
-    var body = { hp: Math.round(P.hp), maxhp: P.maxhp, gems: gear.gems, pick: gear.pick, sword: gear.sword, armor: gear.armor, dirt: gear.dirt,
-      power: Math.round(agentPower() * 10) / 10, depth: Math.round(pcy - (surf[pcx] || 40)), state: agent.state, wins: wins, deaths: deaths, gateReq: 10 + wins + gateFails,
-      enemyNear: !!(ne && ne.d < TS * 10), enemy: eInfo, chestKnown: !!chest, chestDist: chest ? chest.d : null,
-      chest: chestInfo, ore: oreInfo, lavaNear: lavaNear, gasNear: gasNear,
-      stuckSec: Math.round(agent.stuck / 6) / 10, bannedTargets: agent.badTs.length, loiterSec: Math.round(agent.campT / 6) / 10,
-      goalKnown: !!(explored[idx(goal.x, goal.y)] && get(goal.x, goal.y) === GOAL),
-      exploredPct: Math.round(100 * exploredCount / (WW * WH)),
-      surroundings: { solidBelow: isSolid(pcx, pcy + 1), solidLeft: isSolid(pcx - 1, pcy), solidRight: isSolid(pcx + 1, pcy) },
-      recentActions: agent.hist.slice(0, 6), lastPlan: agent.lastPlan || [], planLeft: agent.planQ.length, latent: agent.latent || "loot", event: evt.name || "none" };
-    try {
-      fetch(llmEP, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
-        .then(function (r) { return r.json(); })
-        .then(function (j) {
-          llmFail = 0;
-          if (j && j.model) llmModel = String(j.model).slice(0, 24);
-          if (j && j.thought) say(String(j.thought).slice(0, 64));
-          var HL = ["explore", "explore_left", "explore_right", "mine_ore", "collect_gems", "dig_deep", "open_chest", "fight", "hunt", "avoid", "seek_goal", "surface", "pillar_up", "eat_food"];
-          var plan = [];
-          if (j && j.plan && j.plan.length) for (var q = 0; q < j.plan.length && plan.length < 4; q++) { if (HL.indexOf(String(j.plan[q])) >= 0) plan.push(String(j.plan[q])); }
-          if (!plan.length && j && j.hint && HL.indexOf(String(j.hint)) >= 0) plan = [String(j.hint)];
-          var LAT = ["loot", "aggressive", "cautious", "rush"];
-          if (j && j.latent && LAT.indexOf(String(j.latent)) >= 0) agent.latent = String(j.latent);
-          if (plan.length) { agent.planQ = plan.slice(); agent.lastPlan = plan.slice(); agent.planT = 50; agent.hint = plan[0]; agent.hintT = 999; agent.path = null;
-            agent.snap = { ore: stat.ore, gem: stat.gem, chest: stat.chest, kill: stat.kill, py: P.y / TS, exp: exploredCount }; }
-          var disp = (plan.length ? plan : [String((j && j.hint) || "?")]).map(function (g) { return String(g).replace("seek_goal", "seek"); }).join(" → ");
-          llmLog.unshift({ hint: disp + " ⋄" + (agent.latent || "loot").toUpperCase(), thought: (j && j.thought) || "", life: 600 });
-          if (llmLog.length > 5) llmLog.pop();
-        })
-        .catch(function () { llmFail = Date.now() + 60000; });
-    } catch (e) { llmFail = Date.now() + 60000; }
-  }
-
   /* ---------------- fog / goal / world reset ---------------- */
   function reveal() {
     var cx = (P.x / TS) | 0, cy = (P.y / TS) | 0, R = 9;
@@ -964,7 +871,7 @@
       gear.swordMul = 1; gear.pickMul = 1; gear.armorMul = 1;
       if (!keepWins) { wins = 0; deaths = 0; gear.potAtk = 0; gear.potArm = 0; P.maxhp = 100; } }   // potions persist across cleared worlds
     gateFails = 0;
-    resetPlayer(); agent.state = "EXPLORE"; agent.path = null; agent.stuck = 0; agent.planQ.length = 0; agent.snap = null; regenT = 0; showMap = false;
+    resetPlayer(); agent.state = "EXPLORE"; agent.path = null; agent.stuck = 0; regenT = 0; showMap = false;
     evt.name = ""; evt.label = ""; evt.t = 0; evt.timer = 1900;
     buffs.speed = 0; buffs.power = 0; buffs.shield = 0; buffs.regen = 0;
     msg("🌍 New world (procedurally generated, solvable ✔)"); say("A fresh world to conquer!");
@@ -974,7 +881,7 @@
   function manual() {
     var L = keys.ArrowLeft || keys.a, R = keys.ArrowRight || keys.d;
     if (L) { P.vx = -MOVE; P.face = -1; } else if (R) { P.vx = MOVE; P.face = 1; } else P.vx *= 0.7;
-    if ((keys.ArrowUp || keys.w || keys[" "]) && P.ground && !(keys.k || keys.z)) P.vy = -JUMP;   // while mining, up-keys aim instead of jump
+    if (P.ground && (keys[" "] || ((keys.ArrowUp || keys.w) && !(keys.k || keys.z)))) P.vy = -JUMP;   // while mining, up-keys aim instead of jump
     if (keys.x || keys.j) attack();
     if (keys.z || keys.k) {                                    // K = mine; hold a direction key to aim (up/down/left/right)
       var mid2 = ((P.x + P.w / 2) / TS) | 0, mtx, mty;
@@ -1008,8 +915,7 @@
     var hb = document.getElementById("tw-hpbar"); if (hb) hb.style.width = Math.max(0, P.hp / P.maxhp * 100) + "%";
     var ge = document.getElementById("tw-gear"); if (ge) ge.textContent = "⛏️Lv" + gear.pick + (gear.pickMul > 1 ? "×" + gear.pickMul.toFixed(1) : "") + " 🗡️Lv" + gear.sword + (gear.swordMul > 1 ? "×" + gear.swordMul.toFixed(1) : "") + " 🛡️Lv" + gear.armor + (gear.armorMul > 1 ? "×" + gear.armorMul.toFixed(1) : "") + " 💎" + gear.gems + " 🧱" + gear.dirt + " 🏆" + wins + " 💀" + deaths + ((gear.potAtk || gear.potArm || P.maxhp > 100) ? " 🧪" : "") + (buffs.speed > 0 ? " 🏃" : "") + (buffs.power > 0 ? " ⚔️↑" : "") + (buffs.shield > 0 ? " 🛡️↑" : "") + (buffs.regen > 0 ? " 💗" : "");
     var stt = document.getElementById("tw-state"), stDisp = String(agent.state).replace("SEEK_GOAL", "SEEK");
-    if (stt) stt.textContent = !agent.on ? "MANUAL" : (llmActive() ? ("🧠 " + (llmModel || (Date.now() < llmFail ? "offline" : "…")) + " · " + stDisp) : ("BFS+Frontier+FSM · " + stDisp));
-    var lb = document.getElementById("tw-llm"); if (lb) { lb.textContent = llmActive() ? "🧠 LLM: ON" : "🧠 LLM: OFF"; lb.className = llmActive() ? "on" : ""; }
+    if (stt) stt.textContent = !agent.on ? "MANUAL" : ("BFS+Frontier+FSM · " + stDisp);
   }
 
   /* ---------------- render ---------------- */
@@ -1130,20 +1036,11 @@
     }
     for (i = 0; i < parts.length; i++) { ctx.fillStyle = parts[i].c; ctx.fillRect(parts[i].x - cam.x, parts[i].y - cam.y, 2.5, 2.5); }
     if (!P.dead && agent.think) {                                    // thought bubble
-      var label = (llmActive() ? "🧠 " : "") + agent.think;
+      var label = agent.think;
       ctx.font = "11px 'Source Sans 3',sans-serif"; var tw = ctx.measureText(label).width + 12;
       var bx = Math.max(4, Math.min(W - tw - 4, P.x - cam.x + P.w / 2 - tw / 2)), by = Math.max(26, P.y - cam.y - 30);
       ctx.fillStyle = "rgba(255,255,255,0.94)"; ctx.fillRect(bx, by, tw, 18);
-      ctx.fillStyle = llmActive() ? "#7b3fe4" : "#20242a"; ctx.fillText(label, bx + 6, by + 13);
-    }
-    if (llmActive()) {                                              // LLM status banner
-      var t2, col;
-      if (llmModel) { t2 = "🧠 " + llmModel + " in control"; col = "rgba(123,63,228,0.92)"; }
-      else if (Date.now() < llmFail) { t2 = "🧠 LLM offline — using local brain"; col = "rgba(180,60,60,0.9)"; }
-      else { t2 = "🧠 LLM connecting…"; col = "rgba(123,63,228,0.7)"; }
-      ctx.font = "bold 12px 'Source Sans 3',sans-serif"; var bw = ctx.measureText(t2).width + 18;
-      ctx.fillStyle = col; ctx.fillRect(W / 2 - bw / 2, 6, bw, 20);
-      ctx.fillStyle = "#fff"; ctx.textAlign = "center"; ctx.fillText(t2, W / 2, 20); ctx.textAlign = "left";
+      ctx.fillStyle = "#20242a"; ctx.fillText(label, bx + 6, by + 13);
     }
     if (evt.t > 0 && evt.label) {                                    // world-event banner
       var eb = "⚡ " + evt.label, ea = Math.min(1, evt.t / 120);
@@ -1162,24 +1059,8 @@
     if (explored[idx(goal.x, goal.y)] && get(goal.x, goal.y) === GOAL) { ctx.fillStyle = "#ffd54a"; ctx.fillRect(mx + goal.x * ms - 1, my + goal.y * ms - 1, 3, 3); }
     ctx.fillStyle = "#4da3ff"; ctx.fillRect(mx + (P.x / TS) * ms - 1, my + (P.y / TS) * ms - 1, 3, 3);
     ctx.fillStyle = "rgba(255,255,255,0.6)"; ctx.font = "9px 'Source Sans 3',sans-serif"; ctx.fillText("M = map", mx, my + mh + 9);
-    if (llmActive() && llmLog.length) {                              // LLM decision feed (right side)
-      var pw = 212, plx = W - pw - 8, ply = 70, li2;
-      ctx.textAlign = "left"; ctx.font = "11px 'Source Sans 3', sans-serif";
-      for (li2 = 0; li2 < llmLog.length; li2++) {
-        var le = llmLog[li2], la = Math.max(0, Math.min(1, le.life / 120));
-        var lth = le.thought.length > 34 ? le.thought.slice(0, 33) + "…" : le.thought;
-        ctx.globalAlpha = la;
-        ctx.fillStyle = "rgba(58,30,88,0.85)"; ctx.fillRect(plx, ply, pw, 34);
-        ctx.fillStyle = "#ffd54a"; ctx.fillRect(plx, ply, 3, 34);
-        var lh = String(le.hint).toUpperCase(); if (lh.length > 33) lh = lh.slice(0, 32) + "…";
-        ctx.fillText("🧠 " + lh, plx + 9, ply + 14);
-        ctx.fillStyle = "#e9e3f6"; ctx.fillText("“" + lth + "”", plx + 9, ply + 28);
-        ctx.globalAlpha = 1;
-        ply += 40; if (ply > H - 30) break;
-      }
-    }
     if (showMap) drawMapOverlay(W, H);
-    if (P.dead) { ctx.fillStyle = "rgba(0,0,0,0.45)"; ctx.fillRect(0, 0, W, H); ctx.fillStyle = "#fff"; ctx.font = "bold 20px 'Source Sans 3',sans-serif"; ctx.textAlign = "center"; ctx.fillText("💀 Respawning… (dropped all equipment)", W / 2, H / 2); ctx.textAlign = "left"; }
+    if (P.dead) { ctx.fillStyle = "rgba(0,0,0,0.45)"; ctx.fillRect(0, 0, W, H); ctx.fillStyle = "#fff"; ctx.font = "bold 20px 'Source Sans 3',sans-serif"; ctx.textAlign = "center"; ctx.fillText("💀 Respawning… (gear is safe)", W / 2, H / 2); ctx.textAlign = "left"; }
   }
 
   /* ---------------- main loop ---------------- */
@@ -1187,7 +1068,7 @@
     frame++;
     if (P.dead > 0) { P.dead -= dtf; if (P.dead <= 0) resetPlayer(); }
     else {
-      if (agent.on) { if (agent.decideT === undefined) agent.decideT = 0; agent.decideT -= dtf; if (agent.decideT <= 0) { decide(); agent.decideT = 12; } act(dtf); askLLM(); }
+      if (agent.on) { if (agent.decideT === undefined) agent.decideT = 0; agent.decideT -= dtf; if (agent.decideT <= 0) { decide(); agent.decideT = 12; } act(dtf); }
       else manual();
       if (buffs.speed > 0) P.vx *= 1.35;
       step(P, dtf);
@@ -1214,7 +1095,6 @@
     if (frame % 140 === 0) spawnEnemy();
     updEnemies(dtf); updDrops(dtf); updItems(dtf); updParts(dtf); updEvents(dtf);
     for (var i = msgs.length - 1; i >= 0; i--) { msgs[i].life -= dtf; if (msgs[i].life <= 0) msgs.splice(i, 1); }
-    for (var li = llmLog.length - 1; li >= 0; li--) { llmLog[li].life -= dtf; if (llmLog[li].life <= 0) llmLog.splice(li, 1); }
     if (regenT > 0) { regenT -= dtf; if (regenT <= 0) newWorld(false, true); }
     if (frame % 10 === 0) hud();
   }
@@ -1226,32 +1106,82 @@
   }
 
   /* ---------------- input & boot ---------------- */
-  document.addEventListener("keydown", function (e) {
-    var k = e.key; keys[k] = 1; if (k && k.length === 1) keys[k.toLowerCase()] = 1;
-    if (k === "m" || k === "M") showMap = !showMap;
-    if (!agent.on && ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", " "].indexOf(k) >= 0) e.preventDefault();
-  });
-  document.addEventListener("keyup", function (e) { var k = e.key; keys[k] = 0; if (k && k.length === 1) keys[k.toLowerCase()] = 0; });
-  var bMode = document.getElementById("tw-mode"), bNew = document.getElementById("tw-new");
-  var MODES = ["auto", "llm", "manual"];
-  function applyMode(m) {
-    if (m === "llm" && !llmEP) {
-      var u = window.prompt("Serverless proxy URL (deploy /agent-proxy/). Your API key stays on the backend.", "https://your-worker.workers.dev");
-      if (u && /^https?:\/\//.test(u.trim())) { llmEP = u.trim(); try { localStorage.setItem("agent_llm_endpoint", llmEP); } catch (e) {} } else m = "auto";
-    }
-    agent.mode = m; agent.on = (m !== "manual"); llmOn = (m === "llm");
-    if (!llmOn) { llmModel = ""; llmLog.length = 0; agent.planQ.length = 0; }
-    if (bMode) { bMode.textContent = m === "manual" ? "🕹️ Mode: MANUAL" : (m === "llm" ? "🧠 Mode: LLM" : "🤖 Mode: AUTO"); bMode.className = (m === "llm") ? "on" : ""; }
-    say(m === "manual" ? "Human takes the wheel!" : (m === "llm" ? "Handing high-level goals to the LLM…" : "I've got this — exploring."));
-    hud();
+  var wrap = document.getElementById("tw-wrap"), bMode = document.getElementById("tw-mode"),
+      bNew = document.getElementById("tw-new"), bMap = document.getElementById("tw-map"),
+      touchControls = document.getElementById("tw-touch");
+  var keyboardKeys = {}, pointerKeys = {};
+  var CONTROL_KEYS = ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", " ", "a", "d", "w", "s", "x", "j", "k", "z", "c", "b"];
+  function normalizeKey(k) { return k && k.length === 1 ? k.toLowerCase() : k; }
+  function editable(el) { return !!(el && (el.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName))); }
+  function focusedGame() { return !!(wrap && wrap.contains(document.activeElement) && !editable(document.activeElement)); }
+  function syncKeys() {
+    keys = {};
+    Object.keys(keyboardKeys).forEach(function (k) { if (keyboardKeys[k]) keys[k] = 1; });
+    Object.keys(pointerKeys).forEach(function (id) { keys[pointerKeys[id].key] = 1; });
   }
-  if (bMode) bMode.addEventListener("click", function () { applyMode(MODES[(MODES.indexOf(agent.mode || "auto") + 1) % MODES.length]); });
-  if (bNew) bNew.addEventListener("click", function () { newWorld(false); });
-  applyMode("auto");
+  function clearKeys() {
+    keyboardKeys = {}; pointerKeys = {}; keys = {};
+    if (wrap) wrap.querySelectorAll("[data-tw-key]").forEach(function (button) { button.classList.remove("is-pressed"); });
+  }
+  function focusGame() { canvas.focus({ preventScroll: true }); }
+  function updateMapButton() { if (bMap) bMap.setAttribute("aria-pressed", String(showMap)); }
+  function toggleMap() { showMap = !showMap; updateMapButton(); }
+  canvas.addEventListener("pointerdown", focusGame);
+  document.addEventListener("keydown", function (e) {
+    if (!focusedGame() || editable(e.target) || e.ctrlKey || e.metaKey || e.altKey) return;
+    var k = normalizeKey(e.key);
+    if (k === "m") { if (!e.repeat) toggleMap(); e.preventDefault(); return; }
+    if (agent.on || CONTROL_KEYS.indexOf(k) < 0) return;
+    // Keep Space/Enter activation available on toolbar buttons.
+    if (k === " " && e.target && e.target.tagName === "BUTTON" && !e.target.hasAttribute("data-tw-key")) return;
+    keyboardKeys[k] = 1; syncKeys(); e.preventDefault();
+  });
+  document.addEventListener("keyup", function (e) {
+    var k = normalizeKey(e.key);
+    if (keyboardKeys[k]) { delete keyboardKeys[k]; syncKeys(); }
+  });
+  window.addEventListener("blur", clearKeys);
+  document.addEventListener("visibilitychange", function () { if (document.hidden) clearKeys(); });
+  if (wrap) wrap.addEventListener("focusout", function (e) { if (!e.relatedTarget || !wrap.contains(e.relatedTarget)) clearKeys(); });
+  function applyMode(m) {
+    clearKeys(); agent.mode = m === "manual" ? "manual" : "auto"; agent.on = agent.mode === "auto";
+    if (bMode) { bMode.textContent = agent.on ? "🤖 Mode: AUTO" : "🕹️ Mode: MANUAL"; bMode.className = ""; }
+    if (touchControls) touchControls.hidden = agent.on;
+    say(agent.on ? "I've got this — exploring." : "Human takes the wheel!"); hud();
+  }
+  if (bMode) bMode.addEventListener("click", function () { applyMode(agent.on ? "manual" : "auto"); focusGame(); });
+  if (bNew) bNew.addEventListener("click", function () { clearKeys(); newWorld(false); updateMapButton(); focusGame(); });
+  if (bMap) bMap.addEventListener("click", function () { toggleMap(); focusGame(); });
+  if (wrap) wrap.querySelectorAll("[data-tw-key]").forEach(function (button) {
+    var k = button.getAttribute("data-tw-key");
+    if (CONTROL_KEYS.indexOf(k) < 0) return;
+    button.addEventListener("pointerdown", function (e) {
+      if (agent.on || (e.button !== undefined && e.button !== 0)) return;
+      e.preventDefault(); focusGame();
+      pointerKeys[e.pointerId] = { key: k, button: button }; syncKeys(); button.classList.add("is-pressed");
+      if (button.setPointerCapture) button.setPointerCapture(e.pointerId);
+    });
+    function release(e) {
+      delete pointerKeys[e.pointerId]; syncKeys();
+      var held = Object.keys(pointerKeys).some(function (id) { return pointerKeys[id].button === button; });
+      if (!held) button.classList.remove("is-pressed");
+    }
+    button.addEventListener("pointerup", release);
+    button.addEventListener("pointercancel", release);
+    button.addEventListener("lostpointercapture", release);
+    // Keyboard and assistive-tech clicks get a brief, usable control press.
+    button.addEventListener("click", function (e) {
+      if (agent.on || e.detail !== 0) return;
+      focusGame(); var id = "click:" + k;
+      pointerKeys[id] = { key: k, button: button }; syncKeys();
+      window.setTimeout(function () { delete pointerKeys[id]; syncKeys(); }, 180);
+    });
+  });
+  applyMode("auto"); updateMapButton();
   function fit() { var w = Math.min(900, (canvas.parentElement && canvas.parentElement.clientWidth) || 880); canvas.width = Math.max(480, w); canvas.height = 480; ctx.imageSmoothingEnabled = false; }
   window.addEventListener("resize", fit);
   buildTex(); fit(); generate(); spawnBosses(); resetPlayer(); hud();
-  say(llmActive() ? "LLM brain connected." : "Ready — let's explore!");
+  say("Ready — let's explore!");
   msg("🌍 World generated — the agent explores on its own. Press M for the map.");
   requestAnimationFrame(loop);
 })();

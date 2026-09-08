@@ -1,50 +1,29 @@
 ---
-title: "Terramai 🌍"
+layout: research
 permalink: /game/
-author_profile: false
+title: "Terramai"
+title_zh: "Terramai 像素世界"
+kicker: "A LITTLE PLAYGROUND"
+kicker_zh: "小游戏"
+intro: "Watch a curious agent explore, or take the controls yourself."
+intro_zh: "看一位好奇的智能体自由探索，或亲自接管这个世界。"
 ---
-
-<p><strong>Terramai</strong> is a tiny 2D pixel sandbox game played entirely by an AI agent on its own — it explores a procedurally generated world, mines ore (richer at depth), loots chests for legendary gear &amp; permanent potions, eats food for HP &amp; buffs, dodges lava and poison miasma, farms leveled monsters, defeats three bosses and pushes right toward the Victory Gate — clearing it starts a harder new world. When the agent dies it keeps its gear and auto-respawns.</p>
-
-<p id="tw-keys"><b>Controls</b> — <kbd>M</kbd> toggle world map · the <b>Mode</b> button cycles
-<b>AUTO</b> (local BFS+FSM brain) → <b>LLM</b> (a model picks the goals) → <b>MANUAL</b>.
-In MANUAL: <kbd>←</kbd><kbd>→</kbd>/<kbd>A</kbd><kbd>D</kbd> move · <kbd>↑</kbd>/<kbd>W</kbd>/<kbd>Space</kbd> jump ·
-<kbd>X</kbd>/<kbd>J</kbd> attack · <kbd>K</kbd>/<kbd>Z</kbd> mine + <kbd>↑</kbd><kbd>↓</kbd><kbd>←</kbd><kbd>→</kbd> to aim (Space still jumps while mining) · <kbd>C</kbd> place a 🧱 block.</p>
-
 <div id="tw-wrap">
   <div id="tw-top">
-    <div id="tw-hp"><div id="tw-hpbar"></div></div>
+    <div id="tw-hp" aria-label="Health / 生命值"><div id="tw-hpbar"></div></div>
     <span id="tw-gear">⛏️Lv1 🗡️Lv1 🛡️Lv0 💎0 🏆0</span>
-    <button id="tw-mode" type="button">🤖 Mode: AUTO</button>
-    <button id="tw-new" type="button">🔄 New</button>
-    <span id="tw-state">AUTO</span>
+    <div class="tw-buttons"><button id="tw-mode" type="button">🤖 Mode: AUTO</button><button id="tw-map" type="button" aria-pressed="false"><span class="i18n-en">Map</span><span class="i18n-zh">地图</span> M</button><button id="tw-new" type="button"><span class="i18n-en">New world</span><span class="i18n-zh">新世界</span> ↻</button></div>
   </div>
-  <canvas id="tw-canvas" width="880" height="480"></canvas>
-  <p id="tw-brain">Agent brain: <b>BFS pathfinding + frontier exploration + finite-state machine</b>
-  (switching between Explore · Seek-Goal · Fight · Flee · Dig · Surface), all on-device. Switching <b>Mode</b> to
-  <b>🧠 LLM</b> lets a model pick the high-level goal &amp; narrate its thoughts — the banner shows which
-  model is in control.</p>
+  <canvas id="tw-canvas" width="880" height="480" tabindex="0" aria-label="Terramai game. Click to focus, then use the keyboard controls below. / 点击聚焦后可使用下方说明中的键盘操作。"><span class="i18n-en">Your browser needs canvas support to run Terramai.</span><span class="i18n-zh">浏览器需要支持 Canvas 才能运行游戏。</span></canvas>
+  <div class="tw-status"><span id="tw-state">AUTO</span><span><span class="i18n-en">Click the game to use your keyboard.</span><span class="i18n-zh">点击游戏画面后即可使用键盘。</span></span></div>
+  <div id="tw-touch" hidden aria-label="Touch controls / 触屏控制">
+    <div class="tw-direction"><button type="button" data-tw-key="ArrowLeft" aria-label="Left / 向左">←</button><button type="button" data-tw-key="ArrowRight" aria-label="Right / 向右">→</button><button type="button" data-tw-key="ArrowUp" aria-label="Aim up / 向上">↑</button><button type="button" data-tw-key="ArrowDown" aria-label="Aim down / 向下">↓</button></div>
+    <div class="tw-actions"><button type="button" data-tw-key=" "><span class="i18n-en">Jump</span><span class="i18n-zh">跳跃</span></button><button type="button" data-tw-key="x"><span class="i18n-en">Attack</span><span class="i18n-zh">攻击</span></button><button type="button" data-tw-key="k"><span class="i18n-en">Mine</span><span class="i18n-zh">挖掘</span></button><button type="button" data-tw-key="c"><span class="i18n-en">Place</span><span class="i18n-zh">放置</span></button></div>
+  </div>
+  <div class="game-guide">
+    <div><h2><span class="i18n-en">Explore at your own pace.</span><span class="i18n-zh">按自己的节奏探索。</span></h2><p><span class="i18n-en">Mine underground, discover legendary gear, and defeat three bosses to reach the Victory Gate. Each victory opens a harder world. Your equipment stays with you when you respawn.</span><span class="i18n-zh">深入地下挖矿、发现传奇装备、击败三位首领，抵达胜利之门。每次通关都会开启更难的世界；重生时会保留装备。</span></p><p><span class="i18n-en"><strong>AUTO</strong> explores on its own. Switch to <strong>MANUAL</strong> to play with your keyboard or the touch controls.</span><span class="i18n-zh"><strong>AUTO</strong> 模式会自主探索；切换到 <strong>MANUAL</strong> 后，可以用键盘或触屏按钮亲自操作。</span></p></div>
+    <div class="controls-guide"><h3><span class="i18n-en">Controls</span><span class="i18n-zh">操作指南</span></h3><dl><div><dt><kbd>←</kbd><kbd>→</kbd> / <kbd>A</kbd><kbd>D</kbd></dt><dd><span class="i18n-en">Move</span><span class="i18n-zh">移动</span></dd></div><div><dt><kbd>Space</kbd> / <kbd>W</kbd></dt><dd><span class="i18n-en">Jump</span><span class="i18n-zh">跳跃</span></dd></div><div><dt><kbd>X</kbd> / <kbd>J</kbd></dt><dd><span class="i18n-en">Attack</span><span class="i18n-zh">攻击</span></dd></div><div><dt><kbd>K</kbd> + <kbd>↑↓←→</kbd></dt><dd><span class="i18n-en">Mine & aim</span><span class="i18n-zh">定向挖掘</span></dd></div><div><dt><kbd>C</kbd></dt><dd><span class="i18n-en">Place a block</span><span class="i18n-zh">放置方块</span></dd></div><div><dt><kbd>M</kbd></dt><dd><span class="i18n-en">World map</span><span class="i18n-zh">世界地图</span></dd></div></dl></div>
+  </div>
 </div>
-
-<style>
-#tw-wrap{max-width:900px;margin:0 auto}
-#tw-top{display:flex;align-items:center;gap:.55rem;flex-wrap:wrap;margin-bottom:.4rem;font-family:"Source Sans 3",sans-serif;font-size:.85rem}
-#tw-hp{width:120px;height:12px;border:1px solid rgba(128,128,128,.5);border-radius:6px;overflow:hidden;background:rgba(0,0,0,.15)}
-#tw-hpbar{height:100%;width:100%;background:linear-gradient(90deg,#e05555,#7ed957);transition:width .2s}
-#tw-gear{font-weight:600}
-#tw-state{color:#888;font-size:.75rem;margin-left:auto}
-#tw-top button{border:1px solid rgba(128,128,128,.4);border-radius:8px;background:transparent;color:inherit;padding:.25rem .6rem;font-size:.8rem;cursor:pointer}
-#tw-top button:hover{border-color:#2563eb;color:#2563eb}
-#tw-top #tw-mode.on{border-color:#7b3fe4;color:#fff;background:#7b3fe4}
-#tw-canvas{width:100%;height:auto;border:1px solid rgba(128,128,128,.35);border-radius:10px;image-rendering:pixelated;background:#0b0e13;display:block}
-#tw-keys,#tw-brain{font-size:.8rem;color:#8a919b;margin-top:.45rem}
-#tw-keys kbd{border:1px solid rgba(128,128,128,.5);border-radius:4px;padding:0 .3rem;font-size:.72rem;background:rgba(128,128,128,.12)}
-</style>
-
-<script>
-  /* Optional LLM proxy endpoint. Leave "" to use the built-in BFS+FSM brain; the 🧠 LLM
-     button can also set it at runtime. NEVER put an API key here — deploy agent-proxy/
-     and use only the PROXY URL. */
-  window.AGENT_LLM_ENDPOINT = "https://llm-call-uxclormbsa.cn-beijing.fcapp.run";
-</script>
-<script src="/assets/js/tasty-world.js"></script>
+<link rel="stylesheet" href="{{ '/assets/css/game.css' | relative_url }}">
+<script src="{{ '/assets/js/tasty-world.js' | relative_url }}?v=20260908-local"></script>

@@ -17,6 +17,11 @@ jobs:
           bundler-cache: true
       - name: Build with GitHub Pages dependencies
         run: bundle exec jekyll build --trace
+      - name: Check pages, assets, language controls, and game
+        run: |
+          python3 scripts/check-site.py _site
+          node scripts/preferences-smoke.cjs
+          node scripts/game-smoke.cjs assets/js/tasty-world.js _pages/game.md
       - uses: actions/upload-artifact@v4
         with:
           name: homepage-preview
