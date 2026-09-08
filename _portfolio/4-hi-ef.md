@@ -6,8 +6,8 @@ topic: EMOTION FORECASTING
 summary_en: Introduces a benchmark and multimodal framework for forecasting emotions in human interactions.
 summary_zh: 构建人际互动中的情绪预测基准，并提出多模态预测框架。
 excerpt: Introduces a benchmark and multimodal framework for forecasting emotions in human interactions.
-figure: /assets/images/research/hi-ef.png
-figure_alt: Hi-EF framework overview
+figure: /assets/images/research/hi-ef-interaction.png
+figure_alt: Hi-EF multilayered contextual interaction sample with video, audio, text, and emotion annotations
 link: https://github.com/Xinji-Mai/Hi-EF
 paperurl: https://ojs.aaai.org/index.php/AAAI/article/view/37193
 topic_zh: 情绪预测

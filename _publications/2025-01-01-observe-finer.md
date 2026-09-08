@@ -19,6 +19,13 @@ excerpt: KFE-SC selects expressive video frames from coarse to fine by combining
 order: 12
 selected: false
 citation: 'Shaoqi Yan, Yan Wang, Xinji Mai, Zeng Tao, Wei Song, Qing Zhao, Boyang Wang, Haoran Wang, Shuyong Gao, Wenqiang Zhang. "Observe finer to select better: Learning key frame extraction via semantic coherence for dynamic facial expression recognition in the wild." Information Sciences 2025. https://doi.org/10.1016/j.ins.2024.121415'
+figure: /assets/images/research/observe-finer-author-method.png
+figure_alt: KFE-SC method overview with panels (a) KFE-SC, (b) Global-Local Feature Assembling, (c) Temporal Alignment Aggregation
+figure_source: https://wangyanckxx.github.io/
+figure_source_label_en: author’s project page
+figure_source_label_zh: 作者项目页面
+figure_width: 1894
+figure_height: 1116
 ---
 
 <p class="i18n-en">KFE-SC selects expressive video frames from coarse to fine by combining spatial semantic coherence with aligned short- and long-term temporal features.</p>

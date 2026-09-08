@@ -4,8 +4,8 @@ collection: publications
 category: manuscripts
 permalink: /publication/2025-when-small-models-team-up/
 date: 2025-10-01
-venue: arXiv preprint
-citation: 'Xinji Mai, et al. "When Small Models Team Up: A Weak-Expert Ensemble Surpassing LLMs for Automated Intellectual-Property Audits." arXiv preprint (2025).'
+venue: Preprint
+citation: 'Xinji Mai, et al. "When Small Models Team Up: A Weak-Expert Ensemble Surpassing LLMs for Automated Intellectual-Property Audits." Preprint (2025).'
 layout: publication
 authors: Xinji Mai, et al
 summary_en: A multi-agent audit framework combines specialized small models for automated intellectual-property audits.

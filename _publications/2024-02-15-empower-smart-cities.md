@@ -19,6 +19,13 @@ excerpt: SW-FSCL combines dual-stream dynamic sampling, key-frame weighting and 
 order: 13
 selected: false
 citation: Shaoqi Yan, Yan Wang, Xinji Mai, Qing Zhao, Wei Song, Jun Huang, Zeng Tao, Haoran Wang, Shuyong Gao, Wenqiang Zhang. "Empower smart cities with sampling-wise dynamic facial expression recognition via frame-sequence contrastive learning." Computer Communications 2024. https://doi.org/10.1016/j.comcom.2023.12.032
+figure: /assets/images/research/empower-smart-cities-author-method.png
+figure_alt: SW-FSCL method overview, Key Frame Proposal and Temporal Aggregation
+figure_source: https://wangyanckxx.github.io/
+figure_source_label_en: author’s project page
+figure_source_label_zh: 作者项目页面
+figure_width: 1575
+figure_height: 942
 ---
 
 <p class="i18n-en">SW-FSCL combines dual-stream dynamic sampling, key-frame weighting and frame-sequence contrastive learning to reduce neutral and noisy frames in expression recognition.</p>

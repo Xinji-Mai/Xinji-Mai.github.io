@@ -60,18 +60,21 @@
   {
     "id": "hi-ef",
     "title": "Hi-EF: Benchmarking Emotion Forecasting in Human-interaction",
-    "file": "hi-ef.png",
-    "figure": "Figure 4: Model architecture",
+    "file": "hi-ef-interaction.png",
+    "figure": "Multilayered-contextual interaction sample",
     "paper_url": "https://ojs.aaai.org/index.php/AAAI/article/view/37193",
     "arxiv_url": "https://arxiv.org/abs/2407.16406",
     "code_url": "https://github.com/Xinji-Mai/Hi-EF",
-    "image_source_url": "https://arxiv.org/html/2407.16406v2/baseline_v4.png",
+    "image_source_url": null,
     "source_page": "https://arxiv.org/html/2407.16406v2",
     "venue": "AAAI 2026",
     "dimensions": [
-      709,
-      945
-    ]
+      1186,
+      362
+    ],
+    "source_type": "user-provided image",
+    "sha256": "c2c13c797d717a61ba2eb7fb9c5ba6e2404e312375c8ce22d7de47901a0aed8a",
+    "notes": "User selected and supplied this replacement image on 2026-09-08; original pixels preserved."
   },
   {
     "id": "ous",
@@ -185,5 +188,63 @@
     ],
     "title": "Customizing Video Portraits via Identity-ActionDecoupling",
     "sha256": "a4365bc767378b3bbbb59fcdd6f34b0291d7595e2f688570fe1fed6af61146f6"
+  },
+  {
+    "id": "observe-finer",
+    "title": "Observe finer to select better: Learning key frame extraction via semantic coherence for dynamic facial expression recognition in the wild",
+    "file": "observe-finer-author-method.png",
+    "figure": "KFE-SC method overview with panels (a) KFE-SC, (b) Global-Local Feature Assembling, (c) Temporal Alignment Aggregation",
+    "paper_url": "https://doi.org/10.1016/j.ins.2024.121415",
+    "image_source_url": "https://wangyanckxx.github.io/logo/KFE_SC.png",
+    "source_page": "https://wangyanckxx.github.io/",
+    "dimensions": [
+      1894,
+      1116
+    ],
+    "sha256": "4b261ef805bc85b37f8018c453b3d90aabf41505ecfbcabbdead5fc1ae4ba942",
+    "figure_number": null,
+    "extraction": "Original author-hosted image, unchanged."
+  },
+  {
+    "id": "empower-smart-cities",
+    "title": "Empower smart cities with sampling-wise dynamic facial expression recognition via frame-sequence contrastive learning",
+    "file": "empower-smart-cities-author-method.png",
+    "figure": "SW-FSCL method overview, Key Frame Proposal and Temporal Aggregation",
+    "paper_url": "https://doi.org/10.1016/j.comcom.2023.12.032",
+    "image_source_url": "https://wangyanckxx.github.io/logo/SW_FSCL.png",
+    "source_page": "https://wangyanckxx.github.io/",
+    "dimensions": [
+      1575,
+      942
+    ],
+    "sha256": "d65790d10737df43f984684c46cda2e95c16c66d7f688403beca2d771086f560",
+    "figure_number": null,
+    "extraction": "Original author-hosted image, unchanged."
+  },
+  {
+    "id": "coarse-to-fine-keyframes",
+    "title": "Coarse-To-Fine Key Frame Selection for Dynamic Facial Expression Recognition",
+    "venue": "INSAI 2023",
+    "doi": "10.1109/INSAI60116.2023.00043",
+    "paper_url": "https://doi.org/10.1109/INSAI60116.2023.00043",
+    "source_page": "https://ieeexplore.ieee.org/document/10992640/",
+    "source_type": "User-provided copy of official IEEE PDF, supplied in the conversation after normal institutional-access download",
+    "source_pdf_sha256": "9f7db037706c6edbcbdff695b56dcb29577376cd84e7b653ee4a60c25a9d9aff",
+    "figure": "Figure 2: Method overview",
+    "pdf_page": 3,
+    "printed_page": 200,
+    "caption_en": "Method overview with spatial and temporal key-frame selection and local-global facial feature assembly.",
+    "caption_zh": "方法总览：结合局部与全局面部特征，分阶段进行空间和时间关键帧选择。",
+    "file": "coarse-to-fine-keyframes.png",
+    "dimensions": [
+      1605,
+      790
+    ],
+    "bytes": 315394,
+    "sha256": "f98e46b3d872f89bb989044d83264b1ea9da397c9e9cba92ce8adac6225ded95",
+    "extraction": "pdftoppm -f 3 -l 3 -scale-to 3000 -x 280 -y 245 -W 1605 -H 790 -singlefile -png. No generated, replaced, or redrawn diagram content.",
+    "visual_verification": "Complete diagram border, stages, arrows, labels, and lower feature-assembly panel retained; crop visually verified.",
+    "notes": "The printed Fig.2 caption uses C2K-KFS, while the paper abstract and descriptions use C2F-KFS. Preserve the actual diagram and avoid amplifying the caption typo.",
+    "verified_at": "2026-09-08"
   }
 ]

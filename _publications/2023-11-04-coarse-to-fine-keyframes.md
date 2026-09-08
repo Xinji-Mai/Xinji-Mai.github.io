@@ -19,6 +19,11 @@ excerpt: C2F-KFS selects expression peaks through coarse spatial and fine tempor
 order: 14
 selected: false
 citation: Shaoqi Yan, Yan Wang, Xinji Mai, Qing Zhao, Boyang Wang, Wei He, Wenqiang Zhang. "Coarse-To-Fine Key Frame Selection for Dynamic Facial Expression Recognition." INSAI 2023. https://doi.org/10.1109/INSAI60116.2023.00043
+figure: /assets/images/research/coarse-to-fine-keyframes.png
+figure_alt: Method overview with spatial and temporal key-frame selection and local-global facial feature assembly.
+figure_source: https://doi.org/10.1109/INSAI60116.2023.00043
+figure_width: 1605
+figure_height: 790
 ---
 
 <p class="i18n-en">C2F-KFS selects expression peaks through coarse spatial and fine temporal feature extraction to improve dynamic facial expression recognition.</p>

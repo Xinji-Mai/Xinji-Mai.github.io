@@ -5,7 +5,7 @@ layout: research
   <p class="paper-meta"><span class="venue">{{ page.venue_short }}</span><span>{{ page.year }}</span></p>
   <p class="paper-authors">{{ page.authors | replace: 'Xinji Mai', '<strong>Xinji Mai</strong>' }}</p>
   <div class="resource-links">{% if page.paperurl %}<a class="resource-link" href="{{ page.paperurl }}"><span class="i18n-en">Paper</span><span class="i18n-zh">论文</span> ↗</a>{% endif %}{% if page.codeurl %}<a class="resource-link" href="{{ page.codeurl }}"><span class="i18n-en">Code</span><span class="i18n-zh">代码</span> ↗</a>{% endif %}<a class="resource-link" href="{{ '/publications/' | relative_url }}"><span class="i18n-en">All publications</span><span class="i18n-zh">全部论文</span></a></div>
-  {% if page.figure %}<figure class="detail-image"><a href="{{ page.figure | relative_url }}"><img src="{{ page.figure | relative_url }}" alt="{{ page.figure_alt | escape }}"></a></figure><p class="paper-authors"><span class="i18n-en">Figure from the </span><span class="i18n-zh">图片来源：</span><a href="{{ page.figure_source }}"><span class="i18n-en">original paper</span><span class="i18n-zh">原论文</span> ↗</a></p>{% endif %}
+  {% if page.figure %}<figure class="detail-image"><a href="{{ page.figure | relative_url }}"><img src="{{ page.figure | relative_url }}" alt="{{ page.figure_alt | escape }}"></a></figure><p class="paper-authors"><span class="i18n-en">Figure from the </span><span class="i18n-zh">图片来源：</span><a href="{{ page.figure_source }}"><span class="i18n-en">{{ page.figure_source_label_en | default: "original paper" }}</span><span class="i18n-zh">{{ page.figure_source_label_zh | default: "原论文" }}</span> ↗</a></p>{% endif %}
   {{ content }}
   {% if page.citation %}<div class="citation">{{ page.citation }}</div>{% endif %}
 </article>
