@@ -8,13 +8,13 @@ root = Path(sys.argv[1] if len(sys.argv) > 1 else '_site').resolve()
 errors = []
 class Page(HTMLParser):
     def __init__(self):
-        super().__init__(); self.images=[]; self.links=[]; self.ids=[]; self.mains=0
+        super().__init__(); self.images=[]; self.image_classes=[]; self.links=[]; self.ids=[]; self.mains=0
     def handle_starttag(self, tag, attributes):
         a=dict(attributes)
         if 'id' in a: self.ids.append(a['id'])
         if tag=='main': self.mains+=1
         if tag=='img':
-            self.images.append(a.get('src',''))
+            self.images.append(a.get('src','')); self.image_classes.extend(a.get('class','').split())
             if not a.get('alt'): errors.append('Image missing alternate text')
         for name in ['href','src']:
             if a.get(name): self.links.append(a[name])
@@ -32,8 +32,8 @@ for route in ['', 'publications', 'portfolio', 'cv', 'game']:
         if u.scheme or u.netloc or not u.path: continue
         target=(root/unquote(u.path).lstrip('/')) if u.path.startswith('/') else path.parent/unquote(u.path)
         if not target.exists(): errors.append(f'{route}: broken local URL {link}')
-    if route=='publications' and len(page.images)<7: errors.append('Expected seven or more publication figures')
-    if route=='portfolio' and len(page.images)!=6: errors.append('Expected six project figures')
+    if route=='publications' and page.image_classes.count('paper-figure')<7: errors.append('Expected seven or more publication figures')
+    if route=='portfolio' and page.image_classes.count('project-figure')!=6: errors.append('Expected six project figures')
     if route=='game' and any(x in html for x in ['AGENT_LLM_ENDPOINT','agent-proxy','Mode: LLM','fcapp.run']): errors.append('Legacy model integration remains in game')
     if '{{' in html or '{%' in html: errors.append(f'{route}: unrendered Liquid')
     print(f'Checked /{route}: {len(page.images)} images, {len(page.links)} links')

@@ -38,12 +38,15 @@
     </div>
   </div>
 </header>
+<div class="site-shell{% if page.url == '/game/' %} site-shell-wide{% endif %}">
+  {% unless page.url == '/game/' %}{% include research-profile.html %}{% endunless %}
 <main id="main-content" class="site-main {% if page.url == '/' %}homepage{% endif %}">
   {% if page.url != '/' and page.show_title != false %}
   <header class="page-heading"><p class="eyebrow">XINJI MAI / <span class="i18n-en">{{ page.kicker | default: 'RESEARCH' }}</span><span class="i18n-zh">{{ page.kicker_zh | default: '研究' }}</span></p><h1><span class="i18n-en">{{ page.title }}</span><span class="i18n-zh">{{ page.title_zh | default: page.title }}</span></h1>{% if page.intro %}<p class="page-intro"><span class="i18n-en">{{ page.intro }}</span><span class="i18n-zh">{{ page.intro_zh | default: page.intro }}</span></p>{% endif %}</header>
   {% endif %}
   {{ content }}
 </main>
+</div>
 <footer class="site-footer"><div><a class="wordmark" href="{{ '/' | relative_url }}">Xinji Mai<span class="wordmark-dot">.</span></a><p><span class="i18n-en">Agentic Reinforcement Learning · Shanghai</span><span class="i18n-zh">智能体强化学习 · 上海</span></p></div><div class="footer-right"><a href="mailto:{{ site.author.email }}">Email ↗</a><a href="https://github.com/Xinji-Mai">GitHub ↗</a><span>© {{ site.time | date: '%Y' }} Xinji Mai</span></div></footer>
 </body>
 </html>

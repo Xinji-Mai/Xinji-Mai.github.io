@@ -1,6 +1,6 @@
 {% assign p = include.paper %}
 <article class="paper-row{% unless p.figure %} paper-row-text{% endunless %}">
-  {% if p.figure %}<a class="paper-visual" href="{{ p.figure | relative_url }}" target="_blank" rel="noopener" aria-label="{{ p.short_title | default: p.title | escape }} — view method figure / 查看方法图"><img src="{{ p.figure | relative_url }}" alt="{{ p.figure_alt | escape }}" width="600" height="360" loading="lazy" decoding="async"><span class="zoom-hint" aria-hidden="true">↗</span></a>{% endif %}
+  {% if p.figure %}<a class="paper-visual" href="{{ p.figure | relative_url }}" target="_blank" rel="noopener" aria-label="{{ p.short_title | default: p.title | escape }} — view method figure / 查看方法图"><img class="paper-figure" src="{{ p.figure | relative_url }}" alt="{{ p.figure_alt | escape }}" width="600" height="360" loading="lazy" decoding="async"><span class="zoom-hint" aria-hidden="true">↗</span></a>{% endif %}
   <div class="paper-copy">
     <div class="paper-meta"><span class="venue">{{ p.venue_short | default: p.venue }}</span>{% unless p.venue_short contains p.year %}<span>{{ p.year }}</span>{% endunless %}</div>
     <h3><a href="{{ p.paperurl | default: p.url }}">{{ p.title }}</a></h3>
