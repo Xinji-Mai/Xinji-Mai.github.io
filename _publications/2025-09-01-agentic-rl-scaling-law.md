@@ -2,7 +2,7 @@
 title: 'Agentic RL Scaling Law: Spontaneous Code Execution for Mathematical Problem Solving'
 collection: publications
 category: books
-permalink: /publication/2025-agentic-rl-scaling-law
+permalink: /publication/2025-agentic-rl-scaling-law/
 date: 2025-09-01
 venue: Advances in Neural Information Processing Systems (NeurIPS)
 paperurl: https://arxiv.org/abs/2505.07773
@@ -20,6 +20,8 @@ figure: /assets/images/research/agentic-rl-scaling.png
 figure_alt: 'Figure 3: Interactive rollout process'
 figure_source: https://arxiv.org/html/2505.07773v4
 excerpt: Studies how reinforcement learning teaches models to use code for mathematical reasoning, and how this ability scales.
+redirect_from:
+- /publication/2025-agentic-rl-scaling-law.html
 ---
 
 <p class="i18n-en">Studies how reinforcement learning teaches models to use code for mathematical reasoning, and how this ability scales.</p>

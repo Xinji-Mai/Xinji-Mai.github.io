@@ -2,7 +2,7 @@
 title: 'AgentEvolver: Towards Efficient Self-Evolving Agent System'
 collection: publications
 category: manuscripts
-permalink: /publication/2025-agentevolver
+permalink: /publication/2025-agentevolver/
 date: 2025-11-01
 venue: arXiv preprint arXiv:2511.10395
 paperurl: https://arxiv.org/abs/2511.10395
@@ -20,6 +20,8 @@ figure: /assets/images/research/agentevolver.png
 figure_alt: 'Figure 2: Framework overview'
 figure_source: https://arxiv.org/html/2511.10395v1
 excerpt: Combines self-questioning, self-navigating, and self-attributing to help agents learn from their own experience.
+redirect_from:
+- /publication/2025-agentevolver.html
 ---
 
 <p class="i18n-en">Combines self-questioning, self-navigating, and self-attributing to help agents learn from their own experience.</p>

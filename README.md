@@ -1,53 +1,37 @@
-# Xinji-Mai.github.io
+# Xinji Mai — academic homepage
 
-Personal academic homepage of **Xinji Mai** — Researcher in
-Agentic Reinforcement Learning. Built on the [Academic Pages](https://github.com/academicpages/academicpages.github.io)
-Jekyll template (a fork of [Minimal Mistakes](https://github.com/mmistakes/minimal-mistakes)),
-hosted on **GitHub Pages**.
+Bilingual academic website at **https://xinji-mai.github.io/**, built with Jekyll and hosted on GitHub Pages. The English and Chinese versions share the same content structure, with a persistent language switch and light/dark theme.
 
-**Live site:** https://xinji-mai.github.io
+## Content and layout
 
-## Features added on top of the template
+- `_pages/about.md`: introduction, news, selected papers, projects, education.
+- `_publications/*.md`: one paper per file. Set `selected`, `order`, `summary_en`, `summary_zh`, `authors`, `venue_short`, `year`, `figure`, `figure_alt`, `figure_source`, `paperurl`, and optional `codeurl`.
+- `_portfolio/*.md`: one project per file, with its repository, associated paper, real figure, and bilingual summary.
+- `_layouts/research.html`: shared page shell and navigation.
+- `assets/css/research.css` and `assets/js/research.js`: responsive styling and language/theme preferences.
+- `assets/images/research/SOURCES.json`: provenance for the paper figures. These are original published figures, not generated illustrations.
+- `_pages/game.md`, `assets/js/tasty-world.js`, and `assets/css/game.css`: Terramai. It runs entirely in the browser, using local AUTO or MANUAL controls. Keyboard and multi-touch input are supported; no model endpoint, model API key, proxy, or server is needed.
 
-- 🌐 **One-click 中 / EN language toggle** (top-right). Content is bilingual; the active
-  language is remembered via `localStorage`.
-- 📰 **News** and ⭐ **Highlights** sections on the homepage.
-- Sidebar links for Google Scholar, ORCID, DBLP, OpenReview and GitHub.
+Use matching `i18n-en` and `i18n-zh` elements for translated text. Paper titles remain in their original language. Do not substitute repository URLs for paper URLs, invent publication status, or add stale star counts.
 
-## How it works / how to edit
+The public figure for **When Small Models Team Up** could not be retrieved from OpenReview at the time of the redesign; its text and paper link remain available. Add its verified figure when available. The CMLM-ZhongJing paper is an associated project paper, not an additional personal publication.
 
-| What | Where |
-| --- | --- |
-| Name, bio, avatar, sidebar links | `_config.yml` (the `author:` block) |
-| Homepage (About / News / Highlights) | `_pages/about.md` |
-| Publications (one file per paper) | `_publications/*.md` |
-| Projects | `_portfolio/*.md` |
-| News archive posts | `_posts/*.md` |
-| CV | `_pages/cv.md` |
-| Top navigation (bilingual labels) | `_data/navigation.yml` |
-| Language-toggle logic (CSS + JS) | `_includes/head/custom.html` |
-| Language-toggle button | `_includes/masthead.html` |
+## Preview and checks
 
-**Bilingual convention:** wrap English text in `class="i18n-en"` and Chinese in
-`class="i18n-zh"` (e.g. `<span class="i18n-en">Hello</span><span class="i18n-zh">你好</span>`).
-The toggle shows one at a time.
-
-**To personalise:** replace `your-email@example.com` in `_config.yml`, and optionally set a
-profile photo by pointing `author.avatar` to an image in `images/`.
-
-## Local preview
-
-```bash
+```sh
 bundle install
 bundle exec jekyll serve
-# open http://localhost:4000
+# http://localhost:4000
+
+bundle exec jekyll build
+python3 scripts/check-site.py _site
+npm test
 ```
 
-Requires Ruby + Bundler. If you cannot build locally, just push to GitHub — Pages builds
-the Jekyll site automatically.
+The CI workflow builds with the repository's GitHub Pages dependencies and checks generated routes, local links, images, bilingual controls, and the game runtime. The game checks use a deterministic Node VM and Canvas stub; they do not claim to be browser visual or physical-device tests.
 
-## Deploy
+## Publishing
 
-Push to the default branch of `Xinji-Mai/Xinji-Mai.github.io`; GitHub Pages builds and
-publishes it at `https://xinji-mai.github.io`. In **Settings → Pages**, set the source to
-*Deploy from a branch* → your default branch → `/ (root)`.
+GitHub Pages builds the `master` branch at the repository root. Development changes should pass `Check academic homepage` before updating `master`. Publication detail pages use directory URLs; the previous `.html` URLs redirect to them.
+
+The original Academic Pages / Minimal Mistakes template and license are retained. The redesign takes layout ideas from several academic websites without copying their source or text.

@@ -2,7 +2,7 @@
 title: 'All Rivers Run into the Sea: Unified Modality Brain-Inspired Emotional Central Mechanism'
 collection: publications
 category: books
-permalink: /publication/2024-umbenet-all-rivers
+permalink: /publication/2024-umbenet-all-rivers/
 date: 2024-10-01
 venue: ACM International Conference on Multimedia (ACM MM)
 paperurl: https://arxiv.org/abs/2407.15590
@@ -20,6 +20,8 @@ figure: /assets/images/research/umbenet.png
 figure_alt: 'Figure 2: Overall architecture of UMBEnet'
 figure_source: https://arxiv.org/html/2407.15590v1
 excerpt: Unifies multimodal emotion signals through a brain-inspired emotional central mechanism.
+redirect_from:
+- /publication/2024-umbenet-all-rivers.html
 ---
 
 <p class="i18n-en">Unifies multimodal emotion signals through a brain-inspired emotional central mechanism.</p>

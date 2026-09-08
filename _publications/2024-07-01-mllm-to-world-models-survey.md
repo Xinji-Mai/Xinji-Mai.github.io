@@ -2,7 +2,7 @@
 title: 'From Efficient Multimodal Models to World Models: A Survey'
 collection: publications
 category: manuscripts
-permalink: /publication/2024-mllm-to-world-models-survey
+permalink: /publication/2024-mllm-to-world-models-survey/
 date: 2024-07-01
 venue: arXiv preprint arXiv:2407.00118
 paperurl: https://arxiv.org/abs/2407.00118
@@ -19,6 +19,8 @@ figure: /assets/images/research/world-models-survey.png
 figure_alt: 'Figure 7: Multimodal training strategies'
 figure_source: https://arxiv.org/html/2407.00118v1
 excerpt: Surveys efficient multimodal models, their training strategies, and the path toward world models.
+redirect_from:
+- /publication/2024-mllm-to-world-models-survey.html
 ---
 
 <p class="i18n-en">Surveys efficient multimodal models, their training strategies, and the path toward world models.</p>

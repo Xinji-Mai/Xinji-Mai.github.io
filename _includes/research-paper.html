@@ -2,7 +2,7 @@
 <article class="paper-row{% unless p.figure %} paper-row-text{% endunless %}">
   {% if p.figure %}<a class="paper-visual" href="{{ p.figure | relative_url }}" target="_blank" rel="noopener" aria-label="{{ p.short_title | default: p.title | escape }} — view method figure / 查看方法图"><img src="{{ p.figure | relative_url }}" alt="{{ p.figure_alt | escape }}" width="600" height="360" loading="lazy" decoding="async"><span class="zoom-hint" aria-hidden="true">↗</span></a>{% endif %}
   <div class="paper-copy">
-    <div class="paper-meta"><span class="venue">{{ p.venue_short | default: p.venue }}</span><span>{{ p.year }}</span></div>
+    <div class="paper-meta"><span class="venue">{{ p.venue_short | default: p.venue }}</span>{% unless p.venue_short contains p.year %}<span>{{ p.year }}</span>{% endunless %}</div>
     <h3><a href="{{ p.paperurl | default: p.url }}">{{ p.title }}</a></h3>
     <p class="paper-authors">{{ p.authors | replace: 'Xinji Mai', '<strong>Xinji Mai</strong>' }}</p>
     <p class="paper-summary"><span class="i18n-en">{{ p.summary_en | default: p.excerpt }}</span><span class="i18n-zh">{{ p.summary_zh | default: p.excerpt }}</span></p>

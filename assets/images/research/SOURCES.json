@@ -119,5 +119,13 @@
       2032,
       1524
     ]
+  },
+  {
+    "id": "zhongjing",
+    "file": "zhongjing.jpeg",
+    "paper_url": "https://doi.org/10.26599/TST.2025.9010046",
+    "image_source_url": "https://raw.githubusercontent.com/pariskang/CMLM-ZhongJing/main/logo_image/Strategy.jpeg",
+    "source_page": "https://github.com/pariskang/CMLM-ZhongJing",
+    "figure": "Training strategy from the official repository"
   }
 ]
