@@ -11,6 +11,8 @@ figure_alt: OUS framework overview
 link: https://github.com/Xinji-Mai/OUS
 paperurl: https://ojs.aaai.org/index.php/AAAI/article/view/32647
 topic_zh: 情境感知情绪识别
+figure_width: 1900
+figure_height: 1190
 ---
 
 <p class="i18n-en">Connects scene context with facial features to support more context-aware emotion recognition.</p>

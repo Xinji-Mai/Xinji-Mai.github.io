@@ -11,6 +11,8 @@ figure_alt: Hi-EF multilayered contextual interaction sample with video, audio, 
 link: https://github.com/Xinji-Mai/Hi-EF
 paperurl: https://ojs.aaai.org/index.php/AAAI/article/view/37193
 topic_zh: 情绪预测
+figure_width: 1186
+figure_height: 362
 ---
 
 <p class="i18n-en">Introduces a benchmark and multimodal framework for forecasting emotions in human interactions.</p>

@@ -11,6 +11,8 @@ figure: /assets/images/research/agentic-rl-scaling.png
 figure_alt: Interactive rollout with spontaneous Python execution
 link: https://github.com/yyht/openrlhf_async_pipline
 paperurl: https://arxiv.org/abs/2505.07773
+figure_width: 1465
+figure_height: 709
 ---
 
 <p class="i18n-en">Asynchronous reinforcement learning and tool interaction for spontaneous Python execution and mathematical reasoning.</p>

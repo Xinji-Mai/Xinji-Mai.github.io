@@ -11,6 +11,8 @@ figure_alt: UMBEnet framework overview
 link: https://github.com/Xinji-Mai/UMBEnet
 paperurl: https://arxiv.org/abs/2407.15590
 topic_zh: 多模态情绪识别
+figure_width: 1937
+figure_height: 1111
 ---
 
 <p class="i18n-en">Unifies multimodal emotion signals through a brain-inspired emotional central mechanism.</p>

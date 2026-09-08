@@ -11,6 +11,8 @@ figure_alt: AgentEvolver framework overview
 link: https://github.com/modelscope/AgentEvolver
 paperurl: https://arxiv.org/abs/2511.10395
 topic_zh: 自进化智能体
+figure_width: 1499
+figure_height: 900
 ---
 
 <p class="i18n-en">Combines self-questioning, self-navigating, and self-attributing to help agents learn from their own experience.</p>
