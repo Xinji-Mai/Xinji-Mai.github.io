@@ -114,7 +114,7 @@ html[data-lang=zh] body { line-height: 1.8; }
 .resource-links { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 9px; }
 .resource-link { display: inline-flex; gap: 5px; align-items: center; min-height: 30px; padding: 2px 9px; font-size: .875rem; font-weight: 500; border: 1px solid var(--line); border-radius: 4px; color: var(--ink); }
 .resource-link:hover { color: var(--accent); border-color: var(--accent); background: var(--tag); }
-.paper-row-text { grid-template-columns: 1fr; }
+.paper-row.paper-row-text { grid-template-columns: 1fr; }
 
 /* Projects share the same image treatment and restrained resource buttons. */
 .project-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
