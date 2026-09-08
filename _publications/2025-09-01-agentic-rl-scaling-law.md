@@ -22,6 +22,8 @@ figure_source: https://arxiv.org/html/2505.07773v4
 excerpt: Studies how reinforcement learning teaches models to use code for mathematical reasoning, and how this ability scales.
 redirect_from:
 - /publication/2025-agentic-rl-scaling-law.html
+figure_width: 1465
+figure_height: 709
 ---
 
 <p class="i18n-en">Studies how reinforcement learning teaches models to use code for mathematical reasoning, and how this ability scales.</p>

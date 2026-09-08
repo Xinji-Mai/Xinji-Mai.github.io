@@ -2,15 +2,22 @@
 from html.parser import HTMLParser
 from pathlib import Path
 from urllib.parse import urlsplit, unquote
-import sys
+import sys, re
 
 root = Path(sys.argv[1] if len(sys.argv) > 1 else '_site').resolve()
 errors = []
+source_papers=list(Path('_publications').glob('*.md'))
+expected_papers=len(source_papers)
+expected_figures=sum(bool(re.search(r'^figure:\s*\S+', p.read_text(), re.M)) for p in source_papers)
+expected_projects=len(list(Path('_portfolio').glob('*.md')))
 class Page(HTMLParser):
     def __init__(self):
-        super().__init__(); self.images=[]; self.image_classes=[]; self.links=[]; self.ids=[]; self.mains=0
+        super().__init__(); self.images=[]; self.image_classes=[]; self.links=[]; self.ids=[]; self.mains=0; self.paper_rows=0; self.project_cards=0
     def handle_starttag(self, tag, attributes):
         a=dict(attributes)
+        classes=a.get('class','').split()
+        if 'paper-row' in classes: self.paper_rows+=1
+        if 'project-card' in classes: self.project_cards+=1
         if 'id' in a: self.ids.append(a['id'])
         if tag=='main': self.mains+=1
         if tag=='img':
@@ -32,8 +39,10 @@ for route in ['', 'publications', 'portfolio', 'cv', 'game']:
         if u.scheme or u.netloc or not u.path: continue
         target=(root/unquote(u.path).lstrip('/')) if u.path.startswith('/') else path.parent/unquote(u.path)
         if not target.exists(): errors.append(f'{route}: broken local URL {link}')
-    if route=='publications' and page.image_classes.count('paper-figure')<7: errors.append('Expected seven or more publication figures')
-    if route=='portfolio' and page.image_classes.count('project-figure')!=6: errors.append('Expected six project figures')
+    if route=='publications':
+        if page.paper_rows!=expected_papers: errors.append(f'Expected {expected_papers} publications, got {page.paper_rows}')
+        if page.image_classes.count('paper-figure')!=expected_figures: errors.append(f'Expected {expected_figures} publication figures')
+    if route=='portfolio' and (page.project_cards!=expected_projects or page.image_classes.count('project-figure')!=expected_projects): errors.append(f'Expected {expected_projects} illustrated projects')
     if route=='game' and any(x in html for x in ['AGENT_LLM_ENDPOINT','agent-proxy','Mode: LLM','fcapp.run']): errors.append('Legacy model integration remains in game')
     if '{{' in html or '{%' in html: errors.append(f'{route}: unrendered Liquid')
     print(f'Checked /{route}: {len(page.images)} images, {len(page.links)} links')

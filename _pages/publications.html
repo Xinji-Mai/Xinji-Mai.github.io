@@ -9,4 +9,4 @@ intro: "Agentic reinforcement learning, self-evolving agents, and multimodal int
 intro_zh: "智能体强化学习、自进化智能体与多模态智能。"
 ---
 <div class="bibliography-links"><a href="{{ site.author.googlescholar }}">Google Scholar ↗</a><a href="{{ site.author.dblp }}">DBLP ↗</a><a href="{{ site.author.openreview }}">OpenReview ↗</a></div>
-<div class="paper-list">{% assign papers = site.publications | sort: 'order' %}{% for paper in papers %}{% include research-paper.html paper=paper %}{% endfor %}</div>
+<div class="paper-list">{% assign papers = site.publications | sort: 'date' | reverse %}{% for paper in papers %}{% include research-paper.html paper=paper %}{% endfor %}</div>

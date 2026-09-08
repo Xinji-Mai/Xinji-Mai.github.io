@@ -21,6 +21,8 @@ figure_source: https://arxiv.org/html/2407.00118v1
 excerpt: Surveys efficient multimodal models, their training strategies, and the path toward world models.
 redirect_from:
 - /publication/2024-mllm-to-world-models-survey.html
+figure_width: 2032
+figure_height: 1524
 ---
 
 <p class="i18n-en">Surveys efficient multimodal models, their training strategies, and the path toward world models.</p>

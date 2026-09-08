@@ -15,14 +15,14 @@
     document.documentElement.dataset.lang = lang;
     document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
   </script>
-  <link rel="stylesheet" href="{{ '/assets/css/research.css' | relative_url }}">
+  <link rel="stylesheet" href="{{ '/assets/css/research.css' | relative_url }}?v=20260908-papers">
   <script defer src="{{ '/assets/js/research.js' | relative_url }}"></script>
 </head>
 <body>
 <a class="skip-link" href="#main-content"><span class="i18n-en">Skip to content</span><span class="i18n-zh">跳转到正文</span></a>
 <header class="site-header">
   <div class="header-inner">
-    <a class="wordmark" href="{{ '/' | relative_url }}">Xinji Mai<span class="wordmark-dot">.</span></a>
+    <a class="wordmark" href="{{ '/' | relative_url }}"><span class="i18n-en">Xinji Mai</span><span class="i18n-zh">麦新纪</span><span class="wordmark-dot">.</span></a>
     <nav class="main-nav" aria-label="Main navigation">
       <a href="{{ '/' | relative_url }}" {% if page.url == '/' %}aria-current="page"{% endif %}><span class="i18n-en">About</span><span class="i18n-zh">关于</span></a>
       <a href="{{ '/publications/' | relative_url }}" {% if page.url == '/publications/' %}aria-current="page"{% endif %}><span class="i18n-en">Publications</span><span class="i18n-zh">论文</span></a>
@@ -38,15 +38,15 @@
     </div>
   </div>
 </header>
-<div class="site-shell{% if page.url == '/game/' %} site-shell-wide{% endif %}">
+<div class="site-shell{% if page.url == '/game/' %} site-shell-wide{% elsif page.url == '/publications/' %} site-shell-publications{% endif %}">
   {% unless page.url == '/game/' %}{% include research-profile.html %}{% endunless %}
-<main id="main-content" class="site-main {% if page.url == '/' %}homepage{% endif %}">
+<main id="main-content" class="site-main {% if page.url == '/' %}homepage{% elsif page.url == '/publications/' %}publication-index{% endif %}">
   {% if page.url != '/' and page.show_title != false %}
   <header class="page-heading"><p class="eyebrow">XINJI MAI / <span class="i18n-en">{{ page.kicker | default: 'RESEARCH' }}</span><span class="i18n-zh">{{ page.kicker_zh | default: '研究' }}</span></p><h1><span class="i18n-en">{{ page.title }}</span><span class="i18n-zh">{{ page.title_zh | default: page.title }}</span></h1>{% if page.intro %}<p class="page-intro"><span class="i18n-en">{{ page.intro }}</span><span class="i18n-zh">{{ page.intro_zh | default: page.intro }}</span></p>{% endif %}</header>
   {% endif %}
   {{ content }}
 </main>
 </div>
-<footer class="site-footer"><div><a class="wordmark" href="{{ '/' | relative_url }}">Xinji Mai<span class="wordmark-dot">.</span></a><p><span class="i18n-en">Agentic Reinforcement Learning · Shanghai</span><span class="i18n-zh">智能体强化学习 · 上海</span></p></div><div class="footer-right"><a href="mailto:{{ site.author.email }}">Email ↗</a><a href="https://github.com/Xinji-Mai">GitHub ↗</a><span>© {{ site.time | date: '%Y' }} Xinji Mai</span></div></footer>
+<footer class="site-footer"><div><a class="wordmark" href="{{ '/' | relative_url }}"><span class="i18n-en">Xinji Mai</span><span class="i18n-zh">麦新纪</span><span class="wordmark-dot">.</span></a><p><span class="i18n-en">Agentic Reinforcement Learning · Shanghai</span><span class="i18n-zh">智能体强化学习 · 上海</span></p></div><div class="footer-right"><a href="mailto:{{ site.author.email }}">Email ↗</a><a href="https://github.com/Xinji-Mai">GitHub ↗</a><span>© {{ site.time | date: '%Y' }} Xinji Mai</span></div></footer>
 </body>
 </html>

@@ -22,6 +22,8 @@ figure_source: https://arxiv.org/html/2407.15590v1
 excerpt: Unifies multimodal emotion signals through a brain-inspired emotional central mechanism.
 redirect_from:
 - /publication/2024-umbenet-all-rivers.html
+figure_width: 1937
+figure_height: 1111
 ---
 
 <p class="i18n-en">Unifies multimodal emotion signals through a brain-inspired emotional central mechanism.</p>

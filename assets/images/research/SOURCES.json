@@ -127,5 +127,63 @@
     "image_source_url": "https://raw.githubusercontent.com/pariskang/CMLM-ZhongJing/main/logo_image/Strategy.jpeg",
     "source_page": "https://github.com/pariskang/CMLM-ZhongJing",
     "figure": "Training strategy from the official repository"
+  },
+  {
+    "id": "d2sp",
+    "title": "D2SP: Dynamic Dual-Stage Purification Framework for Dual Noise Mitigation in Vision-based Affective Recognition",
+    "file": "d2sp.png",
+    "figure_number": 2,
+    "caption_en": "Overview of D2SP: coarse-grained pruning, fine-grained correction, and dynamic purification.",
+    "caption_zh": "D2SP 方法总览：粗粒度剪枝、细粒度纠错与动态数据净化。",
+    "paper_url": "https://openaccess.thecvf.com/content/CVPR2025/papers/Wang_D2SP_Dynamic_Dual-Stage_Purification_Framework_for_Dual_Noise_Mitigation_in_CVPR_2025_paper.pdf",
+    "source_page": "https://openaccess.thecvf.com/content/CVPR2025/papers/Wang_D2SP_Dynamic_Dual-Stage_Purification_Framework_for_Dual_Noise_Mitigation_in_CVPR_2025_paper.pdf",
+    "pdf_page": 4,
+    "printed_page": 19221,
+    "venue": "CVPR 2025",
+    "extraction": "Rendered official PDF page 4 using pdftoppm -scale-to 3000. Cropped x=400 y=270 width=1520 height=690. Diagram content unchanged.",
+    "notes": "Prefer final CVPR diagram. arXiv v2 HTML pipeline_v4.png still labels the framework SCIU and lacks the final dynamic-purification treatment.",
+    "dimensions": [
+      1520,
+      690
+    ],
+    "sha256": "fc36e4da141126f210b1481adb50763cd533275fd85c57f8c7d63f3d0122ef15",
+    "verified_at": "2026-09-08"
+  },
+  {
+    "id": "interest-entanglement",
+    "title": "Interest Entanglement: The Hidden Barrier to Blind Super-Resolution Optimization",
+    "file": "interest-entanglement.png",
+    "figure_number": 2,
+    "caption_en": "SFR architecture with regression, perception, and shared-feature branches connected through InfoSqueeze.",
+    "caption_zh": "SFR 方法总览：通过 InfoSqueeze 连接回归分支、感知分支与共享特征分支。",
+    "paper_url": "https://arxiv.org/abs/2606.22353",
+    "source_page": "https://arxiv.org/html/2606.22353v1#Sx3.F2",
+    "image_source_url": "https://arxiv.org/html/2606.22353v1/Framework.png",
+    "pdf_url": "https://arxiv.org/pdf/2606.22353v1",
+    "pdf_page": 4,
+    "venue": "arXiv preprint (2026)",
+    "extraction": "Downloaded the original PNG linked by the official arXiv HTML; no image modifications.",
+    "notes": "Visually matched to Figure 2 and cross-checked against the official PDF page 4.",
+    "dimensions": [
+      1678,
+      685
+    ],
+    "sha256": "5bb5aac1cab257565e45bd776a4395fd2180dbc4a00f21aba45c0cf791d684f4",
+    "verified_at": "2026-09-08"
+  },
+  {
+    "id": "identity-action-decoupling",
+    "file": "iad.png",
+    "figure_number": 2,
+    "caption_en": "IaD framework: decoupling identity and facial actions for controllable video generation.",
+    "source_page": "https://arxiv.org/html/2606.22347v1",
+    "image_source_url": "https://arxiv.org/html/2606.22347v1/pipeline.png",
+    "paper_url": "https://arxiv.org/abs/2606.22347",
+    "dimensions": [
+      1370,
+      934
+    ],
+    "title": "Customizing Video Portraits via Identity-ActionDecoupling",
+    "sha256": "a4365bc767378b3bbbb59fcdd6f34b0291d7595e2f688570fe1fed6af61146f6"
   }
 ]

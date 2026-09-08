@@ -1,0 +1,169 @@
+- title: 'Interest Entanglement: The Hidden Barrier to Blind Super-Resolution Optimization'
+  authors:
+  - Junxiong Lin
+  - Xinji Mai
+  - Qianyu Guo
+  - Haoran Wang
+  - Zeng Tao
+  - Xuan Tong
+  - Ivy Pan
+  - Wenqiang Zhang
+  author_position: 2
+  date: '2026-06-21'
+  year: 2026
+  venue_short: arXiv
+  venue: arXiv preprint arXiv:2606.22353
+  paperurl: https://arxiv.org/abs/2606.22353
+  summary_en: SFR decouples fidelity and perceptual objectives through shared representations, with InfoSqueeze filtering redundant features for blind super-resolution.
+  summary_zh: SFR 通过共享表征解耦保真度与感知质量优化目标，并以 InfoSqueeze 过滤冗余特征，改善盲超分辨率的目标平衡。
+  verification_urls:
+  - https://arxiv.org/abs/2606.22353
+  - https://scholar.google.com/citations?view_op=view_citation&hl=en&user=6yh67YwAAAAJ&pagesize=100&citation_for_view=6yh67YwAAAAJ:5MTHONV0fEkC
+  codeurl: null
+  code_verification: No official repository verified; omit Code button.
+  scholarurl: https://scholar.google.com/citations?view_op=view_citation&hl=en&user=6yh67YwAAAAJ&pagesize=100&citation_for_view=6yh67YwAAAAJ:5MTHONV0fEkC
+  scholar_verified: true
+  date_precision: day
+- title: Customizing Video Portraits via Identity-ActionDecoupling
+  authors:
+  - Junxiong Lin
+  - Haoran Wang
+  - Xinji Mai
+  - Zeng Tao
+  - Xuan Tong
+  - Ivy Pan
+  - Wenqiang Zhang
+  author_position: 3
+  date: '2026-06-21'
+  year: 2026
+  venue_short: arXiv
+  venue: arXiv preprint arXiv:2606.22347
+  paperurl: https://arxiv.org/abs/2606.22347
+  summary_en: IaD separates identity and facial action features to generate identity-consistent videos with text-controlled expressions, without subject-specific fine-tuning.
+  summary_zh: IaD 分离身份与面部动作特征，在无需针对特定人物微调的情况下，生成身份一致且表情受文本控制的人像视频。
+  verification_urls:
+  - https://arxiv.org/abs/2606.22347
+  - https://scholar.google.com/citations?view_op=view_citation&hl=en&user=6yh67YwAAAAJ&pagesize=100&citation_for_view=6yh67YwAAAAJ:fbc8zXXH2BUC
+  codeurl: null
+  code_verification: No official repository verified; omit Code button.
+  scholarurl: https://scholar.google.com/citations?view_op=view_citation&hl=en&user=6yh67YwAAAAJ&pagesize=100&citation_for_view=6yh67YwAAAAJ:fbc8zXXH2BUC
+  scholar_verified: true
+  date_precision: day
+- title: 'D2SP: Dynamic Dual-Stage Purification Framework for Dual Noise Mitigation in Vision-based Affective Recognition'
+  authors:
+  - Haoran Wang
+  - Xinji Mai
+  - Zeng Tao
+  - Xuan Tong
+  - Junxiong Lin
+  - Yan Wang
+  - Jiawen Yu
+  - Shaoqi Yan
+  - Ziheng Zhou
+  - Wenqiang Zhang
+  author_position: 2
+  date: '2025-06-01'
+  date_precision: month
+  year: 2025
+  venue_short: CVPR 2025
+  venue: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR), 19218–19229
+  paperurl: https://openaccess.thecvf.com/content/CVPR2025/html/Wang_D2SP_Dynamic_Dual-Stage_Purification_Framework_for_Dual_Noise_Mitigation_in_CVPR_2025_paper.html
+  arxivurl: https://arxiv.org/abs/2406.16473
+  summary_en: D2SP combines coarse sample pruning with fine label correction to mitigate low-quality inputs and annotation noise in dynamic facial expression recognition.
+  summary_zh: D2SP 结合粗粒度样本剪枝与细粒度标签修正，缓解动态表情识别中的低质量输入和标注噪声。
+  verification_urls:
+  - https://openaccess.thecvf.com/content/CVPR2025/html/Wang_D2SP_Dynamic_Dual-Stage_Purification_Framework_for_Dual_Noise_Mitigation_in_CVPR_2025_paper.html
+  - https://openaccess.thecvf.com/content/CVPR2025/papers/Wang_D2SP_Dynamic_Dual-Stage_Purification_Framework_for_Dual_Noise_Mitigation_in_CVPR_2025_paper.pdf
+  - https://arxiv.org/abs/2406.16473
+  - https://scholar.google.com/citations?view_op=view_citation&hl=en&user=6yh67YwAAAAJ&pagesize=100&citation_for_view=6yh67YwAAAAJ:4vMrXwiscB8C
+  verification_notes: Use the 10-author final CVPR version. arXiv v2 has 13 authors. Scholar also lists the old title Seeking certainty in uncertainty under the same arXiv ID; do not add it separately.
+  codeurl: null
+  code_verification: No official repository verified; omit Code button.
+  scholarurl: https://scholar.google.com/citations?view_op=view_citation&hl=en&user=6yh67YwAAAAJ&pagesize=100&citation_for_view=6yh67YwAAAAJ:4vMrXwiscB8C
+  scholar_verified: true
+- title: 'Observe finer to select better: Learning key frame extraction via semantic coherence for dynamic facial expression recognition in the wild'
+  authors:
+  - Shaoqi Yan
+  - Yan Wang
+  - Xinji Mai
+  - Zeng Tao
+  - Wei Song
+  - Qing Zhao
+  - Boyang Wang
+  - Haoran Wang
+  - Shuyong Gao
+  - Wenqiang Zhang
+  author_position: 3
+  date: '2025-01-01'
+  date_precision: month
+  year: 2025
+  venue_short: Information Sciences 2025
+  venue: Information Sciences, Volume 689, 121415
+  paperurl: https://doi.org/10.1016/j.ins.2024.121415
+  summary_en: KFE-SC selects expressive video frames from coarse to fine by combining spatial semantic coherence with aligned short- and long-term temporal features.
+  summary_zh: KFE-SC 结合空间语义一致性与长短期时序特征对齐，以由粗到细的方式筛选表情关键帧。
+  verification_urls:
+  - https://www.sciencedirect.com/science/article/abs/pii/S002002552401329X
+  - https://api.crossref.org/works/10.1016/j.ins.2024.121415
+  - https://orcid.org/0009-0003-4596-5391
+  - https://scholar.google.com/citations?view_op=view_citation&hl=en&user=6yh67YwAAAAJ&pagesize=100&citation_for_view=6yh67YwAAAAJ:XvxMoLDsR5gC
+  codeurl: null
+  code_verification: No official repository verified; omit Code button.
+  scholarurl: https://scholar.google.com/citations?view_op=view_citation&hl=en&user=6yh67YwAAAAJ&pagesize=100&citation_for_view=6yh67YwAAAAJ:XvxMoLDsR5gC
+  scholar_verified: true
+- title: Empower smart cities with sampling-wise dynamic facial expression recognition via frame-sequence contrastive learning
+  authors:
+  - Shaoqi Yan
+  - Yan Wang
+  - Xinji Mai
+  - Qing Zhao
+  - Wei Song
+  - Jun Huang
+  - Zeng Tao
+  - Haoran Wang
+  - Shuyong Gao
+  - Wenqiang Zhang
+  author_position: 3
+  date: '2024-02-15'
+  year: 2024
+  venue_short: Computer Communications 2024
+  venue: Computer Communications, Volume 216, 130–139
+  paperurl: https://doi.org/10.1016/j.comcom.2023.12.032
+  summary_en: SW-FSCL combines dual-stream dynamic sampling, key-frame weighting and frame-sequence contrastive learning to reduce neutral and noisy frames in expression recognition.
+  summary_zh: SW-FSCL 结合双流动态采样、关键帧加权和帧序列对比学习，减轻中性帧与噪声帧对表情识别的影响。
+  verification_urls:
+  - https://www.sciencedirect.com/science/article/pii/S0140366423004711
+  - https://api.crossref.org/works/10.1016/j.comcom.2023.12.032
+  - https://scholar.google.com/citations?view_op=view_citation&hl=en&user=6yh67YwAAAAJ&pagesize=100&citation_for_view=6yh67YwAAAAJ:vRqMK49ujn8C
+  codeurl: null
+  code_verification: No official repository verified; omit Code button.
+  scholarurl: https://scholar.google.com/citations?view_op=view_citation&hl=en&user=6yh67YwAAAAJ&pagesize=100&citation_for_view=6yh67YwAAAAJ:vRqMK49ujn8C
+  scholar_verified: true
+  date_precision: day
+- title: Coarse-To-Fine Key Frame Selection for Dynamic Facial Expression Recognition
+  authors:
+  - Shaoqi Yan
+  - Yan Wang
+  - Xinji Mai
+  - Qing Zhao
+  - Boyang Wang
+  - Wei He
+  - Wenqiang Zhang
+  author_position: 3
+  date: '2023-11-04'
+  year: 2023
+  venue_short: INSAI 2023
+  venue: 2023 3rd International Conference on Networking Systems of AI (INSAI), 198–205
+  paperurl: https://doi.org/10.1109/INSAI60116.2023.00043
+  summary_en: C2F-KFS selects expression peaks through coarse spatial and fine temporal feature extraction to improve dynamic facial expression recognition.
+  summary_zh: C2F-KFS 通过粗粒度空间特征与细粒度时间特征提取筛选表情峰值帧，改进动态表情识别。
+  verification_urls:
+  - https://api.crossref.org/works/10.1109/INSAI60116.2023.00043
+  - https://ieeexplore.ieee.org/document/10992640/
+  - https://scholar.google.com/citations?view_op=view_citation&hl=en&user=6yh67YwAAAAJ&pagesize=100&citation_for_view=6yh67YwAAAAJ:yMeIxYmEMEAC
+  verification_notes: Complete author order, conference, date and pages verified in IEEE-deposited Crossref metadata. Summary follows the abstract excerpt in the author Google Scholar citation detail; IEEE landing body was not available to the web parser.
+  codeurl: null
+  code_verification: No official repository verified; omit Code button.
+  scholarurl: https://scholar.google.com/citations?view_op=view_citation&hl=en&user=6yh67YwAAAAJ&pagesize=100&citation_for_view=6yh67YwAAAAJ:yMeIxYmEMEAC
+  scholar_verified: true
+  date_precision: day

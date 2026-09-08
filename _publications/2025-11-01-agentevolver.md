@@ -22,6 +22,8 @@ figure_source: https://arxiv.org/html/2511.10395v1
 excerpt: Combines self-questioning, self-navigating, and self-attributing to help agents learn from their own experience.
 redirect_from:
 - /publication/2025-agentevolver.html
+figure_width: 1499
+figure_height: 900
 ---
 
 <p class="i18n-en">Combines self-questioning, self-navigating, and self-attributing to help agents learn from their own experience.</p>
