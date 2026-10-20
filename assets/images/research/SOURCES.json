@@ -270,5 +270,18 @@
     "license": "CC BY 4.0",
     "extraction": "Original PNG from the official arXiv HTML; no image changes.",
     "verified_at": "2026-10-20"
+  },
+  {
+    "id": "qwenpaw-flash-comparison",
+    "file": "qwenpaw-flash-comparison.png",
+    "source_type": "User-provided image",
+    "source_page": "https://huggingface.co/collections/agentscope-ai/qwenpaw-flash",
+    "dimensions": [
+      1984,
+      975
+    ],
+    "sha256": "9a5bcc9fcc66d159dee1a59b5edda5621dcb49de07e4a8c5109ceffffa57c666",
+    "notes": "User-selected performance chart; original bytes preserved, including original legend labels.",
+    "verified_at": "2026-10-20"
   }
 ]

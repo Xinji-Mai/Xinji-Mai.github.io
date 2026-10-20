@@ -1,7 +1,10 @@
-<div class="model-family">
+<article class="model-family">
+  <a class="paper-visual model-visual" href="{{ '/assets/images/research/qwenpaw-flash-comparison.png' | relative_url }}" target="_blank" rel="noopener" aria-label="QwenPaw-Flash comparison — view full image / 查看完整效果图"><img src="{{ '/assets/images/research/qwenpaw-flash-comparison.png' | relative_url }}" alt="Comparison of 2B, 4B, and 9B agent models with Qwen3.5 across document parsing, scheduled automation, memory management, and information search" width="1984" height="975" loading="lazy" decoding="async"><span class="zoom-hint" aria-hidden="true">↗</span></a>
+  <div class="paper-copy model-copy">
   <div class="model-family-heading"><h3>QwenPaw-Flash</h3><span class="model-license">Apache 2.0</span></div>
-  <p class="model-intro"><span class="i18n-en">Agent models for tool use, command execution, memory, and multi-step planning. Five model sizes, with original weights and Q8_0 / Q4_K_M quantizations.</span><span class="i18n-zh">面向工具调用、命令执行、记忆管理与多步规划的智能体模型。提供五种模型尺寸，以及原始权重和 Q8_0 / Q4_K_M 量化版本。</span></p>
+  <p class="model-intro"><span class="i18n-en">Tool use, command execution, memory, and multi-step planning. Original weights and Q8_0 / Q4_K_M quantizations in five sizes.</span><span class="i18n-zh">面向工具调用、命令执行、记忆管理与多步规划，提供五种尺寸的原始权重与 Q8_0 / Q4_K_M 量化版本。</span></p>
   <ul class="model-list">{% for model in site.data.open_models %}
-    <li><a class="model-name" href="{{ model.variants.first.url }}">{{ model.name }}</a><div class="model-variants">{% for variant in model.variants %}<a class="resource-link" href="{{ variant.url }}" aria-label="{{ model.name }} {{ variant.label }}">{% if forloop.first %}<span class="i18n-en">Weights</span><span class="i18n-zh">权重</span>{% else %}{{ variant.label }}{% endif %}<span aria-hidden="true">↗</span></a>{% endfor %}</div></li>
+    <li><a class="model-name" href="{{ model.variants.first.url }}" aria-label="{{ model.name }}">{{ model.size }}</a><div class="model-variants">{% for variant in model.variants %}<a class="resource-link" href="{{ variant.url }}" aria-label="{{ model.name }} {{ variant.label }}">{% if forloop.first %}<span class="i18n-en">Weights</span><span class="i18n-zh">权重</span>{% else %}{{ variant.label }}{% endif %}<span aria-hidden="true">↗</span></a>{% endfor %}</div></li>
   {% endfor %}</ul>
-</div>
+  </div>
+</article>
