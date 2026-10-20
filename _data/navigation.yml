@@ -10,6 +10,10 @@ main:
     title_zh: "项目"
     url: /portfolio/
 
+  - title: "Models"
+    title_zh: "模型"
+    url: /#models
+
   - title: "News"
     title_zh: "动态"
     url: /#news

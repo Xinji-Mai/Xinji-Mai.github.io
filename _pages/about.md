@@ -16,12 +16,14 @@ redirect_from:
 <section id="news" class="content-section">
   <div class="section-heading"><h2><span class="i18n-en">News</span><span class="i18n-zh">最新动态</span></h2></div>
   <ul class="news-list">
+    <li><time datetime="2026-10-13">2026.10</time><span><span class="i18n-en">New preprint: <a href="https://arxiv.org/abs/2610.17670"><strong>Cowork-Gym</strong></a>, synthesizing 64.9K interactive work environments for agent post-training. <a href="https://huggingface.co/datasets/agentscope-ai/Cowork-Gym">Dataset ↗</a></span><span class="i18n-zh">发布预印本 <a href="https://arxiv.org/abs/2610.17670"><strong>Cowork-Gym</strong></a>，合成 6.49 万个交互式工作环境用于智能体后训练。<a href="https://huggingface.co/datasets/agentscope-ai/Cowork-Gym">数据集 ↗</a></span></span></li>
+    <li><time>2026.10</time><span><span class="i18n-en">Explore the open <a href="https://huggingface.co/collections/agentscope-ai/qwenpaw-flash"><strong>QwenPaw-Flash</strong></a> model family, now including 27B and 35B-A3B checkpoints.</span><span class="i18n-zh">开源模型系列 <a href="https://huggingface.co/collections/agentscope-ai/qwenpaw-flash"><strong>QwenPaw-Flash</strong></a> 新增 27B 与 35B-A3B 权重。</span></span></li>
     <li><time>2026.07</time><span><span class="i18n-en">Joined <strong>Tongyi Lab, Alibaba Group</strong> as an <strong>Algorithm Engineer</strong>.</span><span class="i18n-zh">加入<strong>阿里巴巴集团通义实验室</strong>，担任<strong>算法工程师</strong>至今。</span></span></li>
     <li><time>2025.12</time><span><span class="i18n-en">Released <a href="https://arxiv.org/abs/2512.01311"><strong>CuES</strong></a>, a curiosity-driven synthesis framework for Agentic RL.</span><span class="i18n-zh">发布 <a href="https://arxiv.org/abs/2512.01311"><strong>CuES</strong></a>，面向智能体强化学习的好奇心驱动数据合成框架。</span></span></li>
-    <li><time>2025.11</time><span><span class="i18n-en">Open-sourced <a href="https://github.com/modelscope/AgentEvolver"><strong>AgentEvolver</strong></a>, an efficient self-evolving agent system.</span><span class="i18n-zh">开源 <a href="https://github.com/modelscope/AgentEvolver"><strong>AgentEvolver</strong></a>，高效的自进化智能体系统。</span></span></li>
-    <li><time>2025.11</time><span><span class="i18n-en"><strong>Hi-EF</strong> accepted to <strong>AAAI 2026</strong>.</span><span class="i18n-zh"><strong>Hi-EF</strong> 被 <strong>AAAI 2026</strong> 接收。</span></span></li>
   </ul>
   <details class="older-news"><summary><span class="i18n-en">Earlier updates</span><span class="i18n-zh">更多动态</span></summary><ul class="news-list">
+    <li><time>2025.11</time><span><span class="i18n-en">Open-sourced <a href="https://github.com/modelscope/AgentEvolver"><strong>AgentEvolver</strong></a>, an efficient self-evolving agent system.</span><span class="i18n-zh">开源 <a href="https://github.com/modelscope/AgentEvolver"><strong>AgentEvolver</strong></a>，高效的自进化智能体系统。</span></span></li>
+    <li><time>2025.11</time><span><span class="i18n-en"><strong>Hi-EF</strong> accepted to <strong>AAAI 2026</strong>.</span><span class="i18n-zh"><strong>Hi-EF</strong> 被 <strong>AAAI 2026</strong> 接收。</span></span></li>
     <li><time>2025.10</time><span><span class="i18n-en">New preprint: <strong>When Small Models Team Up</strong>, on automated intellectual-property audits.</span><span class="i18n-zh">发布预印本 <strong>When Small Models Team Up</strong>，研究知识产权自动审核。</span></span></li>
     <li><time>2025.09</time><span><span class="i18n-en"><strong>Agentic RL Scaling Law</strong> accepted to <strong>NeurIPS 2025</strong>.</span><span class="i18n-zh"><strong>Agentic RL Scaling Law</strong> 被 <strong>NeurIPS 2025</strong> 接收。</span></span></li>
     <li><time>2025</time><span><span class="i18n-en"><strong>OUS</strong> accepted to <strong>AAAI 2025</strong>.</span><span class="i18n-zh"><strong>OUS</strong> 被 <strong>AAAI 2025</strong> 接收。</span></span></li>
@@ -35,6 +37,10 @@ redirect_from:
 <section id="publications" class="content-section">
   <div class="section-heading"><h2><span class="i18n-en">Selected publications</span><span class="i18n-zh">精选论文</span></h2><a class="section-link" href="{{ '/publications/' | relative_url }}"><span class="i18n-en">All publications</span><span class="i18n-zh">全部论文</span> ↗</a></div>
   <div class="paper-list">{% assign selected = site.publications | where: 'selected', true | sort: 'order' %}{% for paper in selected %}{% include research-paper.html paper=paper %}{% endfor %}</div>
+</section>
+<section id="models" class="content-section">
+  <div class="section-heading"><h2><span class="i18n-en">Open-source models</span><span class="i18n-zh">开源模型</span></h2><a class="section-link" href="https://huggingface.co/collections/agentscope-ai/qwenpaw-flash"><span class="i18n-en">Hugging Face collection</span><span class="i18n-zh">模型合集</span> ↗</a></div>
+  {% include research-models.html %}
 </section>
 <section id="projects" class="content-section">
   <div class="section-heading"><h2><span class="i18n-en">Open-source projects</span><span class="i18n-zh">开源项目</span></h2><a class="section-link" href="{{ '/portfolio/' | relative_url }}"><span class="i18n-en">All projects</span><span class="i18n-zh">全部项目</span> ↗</a></div>

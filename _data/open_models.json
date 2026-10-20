@@ -1,0 +1,92 @@
+[
+  {
+    "name": "QwenPaw-Flash-27B",
+    "size": "27B",
+    "variants": [
+      {
+        "label": "Model",
+        "url": "https://huggingface.co/agentscope-ai/QwenPaw-Flash-27B"
+      },
+      {
+        "label": "Q8_0",
+        "url": "https://huggingface.co/agentscope-ai/QwenPaw-Flash-27B-Q8_0"
+      },
+      {
+        "label": "Q4_K_M",
+        "url": "https://huggingface.co/agentscope-ai/QwenPaw-Flash-27B-Q4_K_M"
+      }
+    ]
+  },
+  {
+    "name": "QwenPaw-Flash-35B-A3B",
+    "size": "35B-A3B",
+    "variants": [
+      {
+        "label": "Model",
+        "url": "https://huggingface.co/agentscope-ai/QwenPaw-Flash-35B-A3B"
+      },
+      {
+        "label": "Q8_0",
+        "url": "https://huggingface.co/agentscope-ai/QwenPaw-Flash-35B-A3B-Q8_0"
+      },
+      {
+        "label": "Q4_K_M",
+        "url": "https://huggingface.co/agentscope-ai/QwenPaw-Flash-35B-A3B-Q4_K_M"
+      }
+    ]
+  },
+  {
+    "name": "QwenPaw-Flash-9B",
+    "size": "9B",
+    "variants": [
+      {
+        "label": "Model",
+        "url": "https://huggingface.co/agentscope-ai/QwenPaw-Flash-9B"
+      },
+      {
+        "label": "Q8_0",
+        "url": "https://huggingface.co/agentscope-ai/QwenPaw-Flash-9B-Q8_0"
+      },
+      {
+        "label": "Q4_K_M",
+        "url": "https://huggingface.co/agentscope-ai/QwenPaw-Flash-9B-Q4_K_M"
+      }
+    ]
+  },
+  {
+    "name": "QwenPaw-Flash-4B",
+    "size": "4B",
+    "variants": [
+      {
+        "label": "Model",
+        "url": "https://huggingface.co/agentscope-ai/QwenPaw-Flash-4B"
+      },
+      {
+        "label": "Q8_0",
+        "url": "https://huggingface.co/agentscope-ai/QwenPaw-Flash-4B-Q8_0"
+      },
+      {
+        "label": "Q4_K_M",
+        "url": "https://huggingface.co/agentscope-ai/QwenPaw-Flash-4B-Q4_K_M"
+      }
+    ]
+  },
+  {
+    "name": "QwenPaw-Flash-2B",
+    "size": "2B",
+    "variants": [
+      {
+        "label": "Model",
+        "url": "https://huggingface.co/agentscope-ai/QwenPaw-Flash-2B"
+      },
+      {
+        "label": "Q8_0",
+        "url": "https://huggingface.co/agentscope-ai/QwenPaw-Flash-2B-Q8_0"
+      },
+      {
+        "label": "Q4_K_M",
+        "url": "https://huggingface.co/agentscope-ai/QwenPaw-Flash-2B-Q4_K_M"
+      }
+    ]
+  }
+]
