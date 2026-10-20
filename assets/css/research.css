@@ -177,16 +177,17 @@ html[data-lang=zh] body { line-height: 1.7; }
 .education-item .education-date { font-size: .8125rem; margin-top: 3px; font-variant-numeric: tabular-nums; }
 
 .model-family { padding: 6px 0 12px; }
+.model-copy { container-type: inline-size; }
 .model-family-heading { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
 .model-family-heading h3 { margin: 0; font-size: 1.0625rem; line-height: 1.45; }
 .model-license { color: var(--muted); font-size: .78rem; border: 1px solid var(--line); border-radius: 4px; padding: 1px 6px; }
 .model-intro { color: var(--muted); margin: 4px 0 6px; font-size: .875rem; line-height: 1.5; }
-.model-list { list-style: none; margin: 0; padding: 0; }
-.model-list li { display: flex; align-items: center; justify-content: space-between; gap: 4px 12px; padding: 4px 0; border-top: 1px solid var(--line); }
+.model-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 18px; list-style: none; margin: 0; padding: 0; }
+.model-list li { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; min-width: 0; gap: 4px 8px; padding: 4px 0; border-top: 1px solid var(--line); }
 .model-name { font-size: .8125rem; font-weight: 600; overflow-wrap: anywhere; }
-.model-variants { display: flex; flex-wrap: wrap; gap: 4px; flex-shrink: 0; }
+.model-variants { display: flex; flex-wrap: wrap; gap: 4px; flex-shrink: 1; }
 .model-variants .resource-link { min-height: 24px; padding: 1px 6px; font-size: .75rem; }
-@media (max-width: 700px) { .model-list li { flex-wrap: wrap; } .model-variants { flex-shrink: 1; } }
+@container (max-width: 540px) { .model-list { grid-template-columns: 1fr; } }
 
 @media (max-width: 1360px) {
   .site-footer { margin-left: 28px; margin-right: 28px; }
