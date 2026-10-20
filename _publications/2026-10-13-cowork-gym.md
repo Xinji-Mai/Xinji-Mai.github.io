@@ -9,6 +9,8 @@ venue_short: Preprint
 year: '2026'
 layout: publication
 authors: Anni Zou, Cheng Chen, Jiaji Deng, Weikang Zhou, Xinji Mai, Yue Wu, et al.
+equal_contributors: ["Anni Zou", "Cheng Chen", "Jiaji Deng", "Weikang Zhou", "Xinji Mai", "Yue Wu"]
+equal_contribution_source: https://arxiv.org/html/2610.17670v1
 citation: 'Anni Zou, Cheng Chen, Jiaji Deng, Weikang Zhou, Xinji Mai, Yue Wu, Jianing Lin, Lipeng Xie, Lixiong Qin, Qingyue Zhao, Que Shen, Shuchang Tao, Xuchen Pan, Yaliang Li, Yunpeng Zhai, Yushuo Chen, Zhihai Wang, Zhuo Zhang, Zhaoyang Liu, Bolin Ding, Jingren Zhou. "Cowork-Gym: Synthesizing Interactive Work Environments at Scale." arXiv:2610.17670 (2026).'
 summary_en: Synthesizes 64.9K interactive work environments through a build–execute–revise loop and stateful user simulation for agent post-training.
 summary_zh: 通过构建、执行与修订闭环及有状态用户模拟，合成 6.49 万个交互式工作环境，用于智能体后训练。

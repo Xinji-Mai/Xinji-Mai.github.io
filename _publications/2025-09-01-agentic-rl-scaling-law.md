@@ -9,6 +9,8 @@ paperurl: https://arxiv.org/abs/2505.07773
 citation: 'Xinji Mai, Haotian Xu, Xing W, Weinong Wang, Yingying Zhang, Wenqiang Zhang. "Agentic RL Scaling Law: Spontaneous Code Execution for Mathematical Problem Solving." NeurIPS 2025. arXiv:2505.07773.'
 layout: publication
 authors: Xinji Mai, Haotian Xu, Xing W, Weinong Wang, Yingying Zhang, Wenqiang Zhang
+equal_contributors: ["Xinji Mai", "Haotian Xu"]
+equal_contribution_source: https://proceedings.neurips.cc/paper_files/paper/2025/file/0adea62f2f98c5035aded00d4b2064e6-Paper-Conference.pdf
 summary_en: Studies how reinforcement learning teaches models to use code for mathematical reasoning, and how this ability scales.
 summary_zh: 研究强化学习如何让模型自主调用代码进行数学推理，以及这种能力的规模化规律。
 order: 3

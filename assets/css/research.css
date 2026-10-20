@@ -97,6 +97,7 @@ html[data-lang=zh] body { line-height: 1.7; }
 .paper-list { border-top: 1px solid var(--line); }
 .section-heading + .paper-list { border-top: 0; }
 .paper-row, .model-family { display: grid; grid-template-columns: 260px minmax(0, 1fr); gap: 20px; padding: 14px 0; border-bottom: 1px solid var(--line); align-items: start; }
+.paper-authors .author-equal { font-size: .75em; line-height: 0; vertical-align: super; }
 .paper-copy { min-width: 0; overflow-wrap: anywhere; }
 .paper-row:first-child { padding-top: 6px; }
 .page-heading + .paper-list .paper-row:first-child, .bibliography-links + .paper-list .paper-row:first-child { padding-top: 14px; }

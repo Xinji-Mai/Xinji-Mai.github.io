@@ -1,0 +1,8 @@
+{%- assign author_paper = include.paper -%}
+{%- assign author_names = author_paper.authors | split: ', ' -%}
+{%- for author_name in author_names -%}
+  {%- assign author_name = author_name | strip -%}
+  {%- if author_name == 'Xinji Mai' -%}<strong>{{ author_name | escape }}</strong>{%- else -%}{{ author_name | escape }}{%- endif -%}
+  {%- if author_paper.equal_contributors contains author_name -%}<sup class="author-equal" aria-label="Equal contribution / 共同一作">*</sup>{%- endif -%}
+  {%- unless forloop.last -%}, {% endunless -%}
+{%- endfor -%}

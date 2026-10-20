@@ -9,6 +9,8 @@ paperurl: https://arxiv.org/abs/2511.10395
 citation: 'Yunpeng Zhai, Shuchang Tao, Cheng Chen, Anni Zou, Ziqian Chen, Qingxu Fu, Xinji Mai, et al. "AgentEvolver: Towards Efficient Self-Evolving Agent System." arXiv:2511.10395 (2025).'
 layout: publication
 authors: Yunpeng Zhai, Shuchang Tao, Cheng Chen, Anni Zou, Ziqian Chen, Qingxu Fu, Xinji Mai, et al
+equal_contributors: ["Yunpeng Zhai", "Shuchang Tao", "Cheng Chen", "Anni Zou", "Ziqian Chen", "Qingxu Fu", "Xinji Mai"]
+equal_contribution_source: https://arxiv.org/html/2511.10395
 summary_en: Combines self-questioning, self-navigating, and self-attributing to help agents learn from their own experience.
 summary_zh: 结合自主提问、自主探索与自主归因，让智能体从自身经验中持续学习。
 order: 2
