@@ -26,7 +26,7 @@ class Page(HTMLParser):
         for name in ['href','src']:
             if a.get(name): self.links.append(a[name])
 
-for route in ['', 'publications', 'portfolio', 'cv', 'game']:
+for route in ['', 'publications', 'portfolio', 'models', 'cv', 'game']:
     path=root/route/'index.html'
     assert path.exists(), f'Missing route: /{route}'
     html=path.read_text(); page=Page(); page.feed(html)

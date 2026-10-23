@@ -17,8 +17,8 @@ redirect_from:
   <div class="section-heading"><h2><span class="i18n-en">News</span><span class="i18n-zh">最新动态</span></h2></div>
   <ul class="news-list">
     <li><time datetime="2026-10-13">2026.10</time><span><span class="i18n-en">New preprint: <a href="https://arxiv.org/abs/2610.17670"><strong>Cowork-Gym</strong></a>, synthesizing 64.9K interactive work environments for agent post-training. <a href="https://huggingface.co/datasets/agentscope-ai/Cowork-Gym">Dataset ↗</a></span><span class="i18n-zh">发布预印本 <a href="https://arxiv.org/abs/2610.17670"><strong>Cowork-Gym</strong></a>，合成 6.49 万个交互式工作环境用于智能体后训练。<a href="https://huggingface.co/datasets/agentscope-ai/Cowork-Gym">数据集 ↗</a></span></span></li>
-    <li><time>2026.10</time><span><span class="i18n-en">Explore the open <a href="https://huggingface.co/collections/agentscope-ai/qwenpaw-flash"><strong>QwenPaw-Flash</strong></a> model family, now including 27B and 35B-A3B checkpoints.</span><span class="i18n-zh">开源模型系列 <a href="https://huggingface.co/collections/agentscope-ai/qwenpaw-flash"><strong>QwenPaw-Flash</strong></a> 新增 27B 与 35B-A3B 权重。</span></span></li>
     <li><time>2026.07</time><span><span class="i18n-en">Joined <strong>Tongyi Lab, Alibaba Group</strong> as an <strong>Algorithm Engineer</strong>.</span><span class="i18n-zh">加入<strong>阿里巴巴集团通义实验室</strong>，担任<strong>算法工程师</strong>至今。</span></span></li>
+    <li><time datetime="2025-12">2025.12</time><span><span class="i18n-en">Open-sourced the <a href="https://huggingface.co/collections/agentscope-ai/qwenpaw-flash"><strong>QwenPaw-Flash</strong></a> model family.</span><span class="i18n-zh">开源模型系列 <a href="https://huggingface.co/collections/agentscope-ai/qwenpaw-flash"><strong>QwenPaw-Flash</strong></a>。</span></span></li>
     <li><time>2025.12</time><span><span class="i18n-en">Released <a href="https://arxiv.org/abs/2512.01311"><strong>CuES</strong></a>, a curiosity-driven synthesis framework for Agentic RL.</span><span class="i18n-zh">发布 <a href="https://arxiv.org/abs/2512.01311"><strong>CuES</strong></a>，面向智能体强化学习的好奇心驱动数据合成框架。</span></span></li>
   </ul>
   <details class="older-news"><summary><span class="i18n-en">Earlier updates</span><span class="i18n-zh">更多动态</span></summary><ul class="news-list">
@@ -26,10 +26,10 @@ redirect_from:
     <li><time>2025.11</time><span><span class="i18n-en"><strong>Hi-EF</strong> accepted to <strong>AAAI 2026</strong>.</span><span class="i18n-zh"><strong>Hi-EF</strong> 被 <strong>AAAI 2026</strong> 接收。</span></span></li>
     <li><time>2025.10</time><span><span class="i18n-en">New preprint: <strong>When Small Models Team Up</strong>, on automated intellectual-property audits.</span><span class="i18n-zh">发布预印本 <strong>When Small Models Team Up</strong>，研究知识产权自动审核。</span></span></li>
     <li><time>2025.09</time><span><span class="i18n-en"><strong>Agentic RL Scaling Law</strong> accepted to <strong>NeurIPS 2025</strong>.</span><span class="i18n-zh"><strong>Agentic RL Scaling Law</strong> 被 <strong>NeurIPS 2025</strong> 接收。</span></span></li>
-    <li><time>2025</time><span><span class="i18n-en"><strong>OUS</strong> accepted to <strong>AAAI 2025</strong>.</span><span class="i18n-zh"><strong>OUS</strong> 被 <strong>AAAI 2025</strong> 接收。</span></span></li>
-    <li><time>2024</time><span><span class="i18n-en"><strong>All Rivers Run into the Sea</strong> accepted to <strong>ACM MM 2024</strong>.</span><span class="i18n-zh"><strong>All Rivers Run into the Sea</strong> 被 <strong>ACM MM 2024</strong> 接收。</span></span></li>
-    <li><time>2024.07</time><span><span class="i18n-en">Contributed multimodal-model training to Fudan's humanoid robot <strong>Guanghua-1</strong>, unveiled at WAIC 2024.</span><span class="i18n-zh">参与复旦大学人形机器人<strong>光华一号</strong>的多模态大模型训练，项目在 WAIC 2024 亮相。</span></span></li>
+    <li><time datetime="2025-04">2025.04</time><span><span class="i18n-en"><strong>OUS</strong> accepted to <strong>AAAI 2025</strong>.</span><span class="i18n-zh"><strong>OUS</strong> 被 <strong>AAAI 2025</strong> 接收。</span></span></li>
+    <li><time datetime="2024-07-04">2024.07</time><span><span class="i18n-en">Contributed multimodal-model training to Fudan's humanoid robot <a href="https://news.fudan.edu.cn/2024/0704/c4a141600/page.htm"><strong>Guanghua-1</strong></a>, unveiled at WAIC 2024.</span><span class="i18n-zh">参与复旦大学人形机器人<a href="https://news.fudan.edu.cn/2024/0704/c4a141600/page.htm"><strong>光华一号</strong></a>的多模态大模型训练，项目在 WAIC 2024 亮相。</span></span></li>
     <li><time>2024.07</time><span><span class="i18n-en">Released <a href="https://github.com/pariskang/CMLM-ZhongJing"><strong>CMLM-ZhongJing</strong></a>, an open-source language model for Traditional Chinese Medicine.</span><span class="i18n-zh">发布开源中医大语言模型<a href="https://github.com/pariskang/CMLM-ZhongJing"><strong>仲景 CMLM-ZhongJing</strong></a>。</span></span></li>
+    <li><time datetime="2024-06">2024.06</time><span><span class="i18n-en"><strong>All Rivers Run into the Sea</strong> accepted to <strong>ACM MM 2024</strong>.</span><span class="i18n-zh"><strong>All Rivers Run into the Sea</strong> 被 <strong>ACM MM 2024</strong> 接收。</span></span></li>
     <li><time>2023.09</time><span><span class="i18n-en">Started my master’s studies in Computer Technology at <strong>Fudan University</strong>.</span><span class="i18n-zh">进入<strong>复旦大学</strong>攻读计算机技术硕士学位。</span></span></li>
     <li><time>2019.09</time><span><span class="i18n-en">Started my undergraduate studies in Microelectronics Science and Engineering at <strong>Sun Yat-sen University</strong>.</span><span class="i18n-zh">进入<strong>中山大学</strong>微电子科学与工程专业学习。</span></span></li>
   </ul></details>
@@ -39,7 +39,7 @@ redirect_from:
   <div class="paper-list">{% assign selected = site.publications | where: 'selected', true | sort: 'order' %}{% for paper in selected %}{% include research-paper.html paper=paper %}{% endfor %}</div>
 </section>
 <section id="models" class="content-section">
-  <div class="section-heading"><h2><span class="i18n-en">Open-source models</span><span class="i18n-zh">开源模型</span></h2></div>
+  <div class="section-heading"><h2><span class="i18n-en">Open-source models</span><span class="i18n-zh">开源模型</span></h2><a class="section-link" href="{{ '/models/' | relative_url }}"><span class="i18n-en">All models</span><span class="i18n-zh">全部模型</span> ↗</a></div>
   {% include research-models.html %}
 </section>
 <section id="projects" class="content-section">

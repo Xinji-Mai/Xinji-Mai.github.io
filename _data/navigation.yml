@@ -12,7 +12,7 @@ main:
 
   - title: "Models"
     title_zh: "模型"
-    url: /#models
+    url: /models/
 
   - title: "News"
     title_zh: "动态"

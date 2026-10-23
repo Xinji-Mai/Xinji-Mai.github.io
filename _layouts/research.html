@@ -27,7 +27,7 @@
       <a href="{{ '/' | relative_url }}" {% if page.url == '/' %}aria-current="page"{% endif %}><span class="i18n-en">About</span><span class="i18n-zh">关于</span></a>
       <a href="{{ '/publications/' | relative_url }}" {% if page.url == '/publications/' %}aria-current="page"{% endif %}><span class="i18n-en">Publications</span><span class="i18n-zh">论文</span></a>
       <a href="{{ '/portfolio/' | relative_url }}" {% if page.url == '/portfolio/' %}aria-current="page"{% endif %}><span class="i18n-en">Projects</span><span class="i18n-zh">项目</span></a>
-      <a href="{{ '/#models' | relative_url }}"><span class="i18n-en">Models</span><span class="i18n-zh">模型</span></a>
+      <a href="{{ '/models/' | relative_url }}" {% if page.url == '/models/' %}aria-current="page"{% endif %}><span class="i18n-en">Models</span><span class="i18n-zh">模型</span></a>
       <a href="{{ '/cv/' | relative_url }}" {% if page.url == '/cv/' %}aria-current="page"{% endif %}><span class="i18n-en">CV</span><span class="i18n-zh">简历</span></a>
       <a class="game-nav" href="{{ '/game/' | relative_url }}" {% if page.url == '/game/' %}aria-current="page"{% endif %}><span class="i18n-en">Game</span><span class="i18n-zh">小游戏</span><span aria-hidden="true"> ↗</span></a>
     </nav>
