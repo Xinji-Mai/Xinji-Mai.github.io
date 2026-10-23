@@ -36,5 +36,17 @@
     "verified_at": "2026-09-08",
     "visual_verification": "Viewed original file and confirmed official brand mark is clear, unclipped, and suitable for small square display.",
     "display_note": "Preserve original transparency; use object-fit: contain at 48–56 CSS pixels on a light neutral background."
+  },
+  "avatar-scholar.jpg": {
+    "source_page": "https://scholar.google.com/citations?user=6yh67YwAAAAJ",
+    "asset_url": "https://scholar.googleusercontent.com/citations?view_op=medium_photo&user=6yh67YwAAAAJ&citpid=17",
+    "source_element": "img#gsc_prf_pup-img",
+    "dimensions": [
+      128,
+      128
+    ],
+    "sha256": "52fc3fa1d2a5aa564170c1a88b49feee7f868259799aed144623b38d35016ffa",
+    "verified_at": "2026-10-23",
+    "notes": "Public Google Scholar profile avatar; original JPEG bytes preserved."
   }
 }

@@ -23,7 +23,7 @@ repository               : "Xinji-Mai/Xinji-Mai.github.io"
 #               Additional customization can be done by editing /_includes/author-profile.html
 author:
   # Biographic information
-  avatar           : "https://avatars.githubusercontent.com/u/77739588?v=4"
+  avatar           : "/assets/images/identity/avatar-scholar.jpg"
   name             : "Xinji Mai"
   pronouns         : # example: "she/her"  
   bio              : '<span class="i18n-en">Algorithm Engineer in Agentic Reinforcement Learning.</span><span class="i18n-zh">智能体强化学习方向算法工程师。</span>'

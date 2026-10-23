@@ -283,5 +283,18 @@
     "sha256": "9a5bcc9fcc66d159dee1a59b5edda5621dcb49de07e4a8c5109ceffffa57c666",
     "notes": "User-selected performance chart; original bytes preserved, including original legend labels.",
     "verified_at": "2026-10-20"
+  },
+  {
+    "id": "qwenpaw-console",
+    "file": "qwenpaw-console.png",
+    "source_page": "https://github.com/agentscope-ai/QwenPaw",
+    "image_source_url": "https://img.alicdn.com/imgextra/i2/O1CN01EP1ra01iOAcBvF0TC_!!6000000004402-2-tps-3822-2070.png",
+    "dimensions": [
+      3822,
+      2070
+    ],
+    "sha256": "3a2ac1012abada9e7eb71f20ed45150f300156a66b97b47b530d62c3dc2bf56e",
+    "verified_at": "2026-10-23",
+    "extraction": "Original Console screenshot linked by the official README; unchanged."
   }
 ]

@@ -39,7 +39,7 @@ redirect_from:
   <div class="paper-list">{% assign selected = site.publications | where: 'selected', true | sort: 'order' %}{% for paper in selected %}{% include research-paper.html paper=paper %}{% endfor %}</div>
 </section>
 <section id="models" class="content-section">
-  <div class="section-heading"><h2><span class="i18n-en">Open-source models</span><span class="i18n-zh">开源模型</span></h2><a class="section-link" href="https://huggingface.co/collections/agentscope-ai/qwenpaw-flash"><span class="i18n-en">Hugging Face collection</span><span class="i18n-zh">模型合集</span> ↗</a></div>
+  <div class="section-heading"><h2><span class="i18n-en">Open-source models</span><span class="i18n-zh">开源模型</span></h2></div>
   {% include research-models.html %}
 </section>
 <section id="projects" class="content-section">
