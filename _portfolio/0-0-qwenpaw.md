@@ -7,10 +7,10 @@ topic_zh: Agentic Harness
 summary_en: Building custom Agentic RL datasets and a QwenPaw Flash training and evaluation loop.
 summary_zh: 构建 Agentic RL 定制数据集与 QwenPaw Flash 训练、评测闭环。
 excerpt: Agentic Harness — custom Agentic RL datasets and a QwenPaw Flash training and evaluation loop.
-figure: /assets/images/research/qwenpaw-hero.png
+figure: /assets/images/research/qwenpaw-hero-clean.png
 figure_alt: QwenPaw homepage banner with its snow leopard mascot and Get your paws up now slogan
-figure_width: 1590
-figure_height: 944
+figure_width: 1983
+figure_height: 793
 link: https://github.com/agentscope-ai/QwenPaw
 paperurl: https://arxiv.org/abs/2610.17670
 ---

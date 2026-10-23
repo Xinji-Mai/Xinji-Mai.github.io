@@ -310,5 +310,19 @@
     "verified_at": "2026-10-23",
     "extraction": "Original user screenshot preserved byte for byte. Official page final CTA consists of HTML text and an animated snow leopard video, rather than one downloadable image.",
     "video_source_url": "https://cloud.video.taobao.com/vod/xr9IOUDj4cHliHlhQ0bcd6jfG8_fY7ohNL85pSx-yEs.mp4"
+  },
+  {
+    "id": "qwenpaw-hero-clean",
+    "file": "qwenpaw-hero-clean.png",
+    "source_type": "AI-edited derivative of user-provided official homepage screenshot",
+    "source_page": "https://qwenpaw.agentscope.io/",
+    "source_file": "qwenpaw-hero.png",
+    "dimensions": [
+      1983,
+      793
+    ],
+    "sha256": "3710dc8884cc972fed82b77696629100b23f16e5dcc4c122212671177117aa22",
+    "verified_at": "2026-10-23",
+    "extraction": "Edited with imagegen at user request: removed gold outer frame and download button; wider composition with original slogan and snow leopard identity preserved. Original screenshot retained."
   }
 ]
