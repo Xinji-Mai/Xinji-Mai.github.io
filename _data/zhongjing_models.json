@@ -3,12 +3,16 @@
     "name": "ZhongjingGPT1_13B",
     "id": "CMLM/ZhongjingGPT1_13B",
     "url": "https://huggingface.co/CMLM/ZhongjingGPT1_13B",
-    "size": "13B"
+    "size": "13B",
+    "license": "tcm-license",
+    "license_source": "https://huggingface.co/CMLM/ZhongjingGPT1_13B"
   },
   {
     "name": "ZhongJing-2-1_8b",
     "id": "CMLM/ZhongJing-2-1_8b",
     "url": "https://huggingface.co/CMLM/ZhongJing-2-1_8b",
-    "size": "1.8B"
+    "size": "1.8B",
+    "license": "ZhongJingGPT License 2.0",
+    "license_source": "https://huggingface.co/CMLM/ZhongJing-2-1_8b/blob/main/LICENSE"
   }
 ]

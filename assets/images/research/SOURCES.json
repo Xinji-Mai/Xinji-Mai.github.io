@@ -296,5 +296,19 @@
     "sha256": "3a2ac1012abada9e7eb71f20ed45150f300156a66b97b47b530d62c3dc2bf56e",
     "verified_at": "2026-10-23",
     "extraction": "Original Console screenshot linked by the official README; unchanged."
+  },
+  {
+    "id": "qwenpaw-hero",
+    "file": "qwenpaw-hero.png",
+    "source_type": "User-provided screenshot of the official homepage",
+    "source_page": "https://qwenpaw.agentscope.io/",
+    "dimensions": [
+      1590,
+      944
+    ],
+    "sha256": "46e2fcd4e14d09ac2b08571de6ad3a9d84e23b0b9eefd920b4474f9dcead95e5",
+    "verified_at": "2026-10-23",
+    "extraction": "Original user screenshot preserved byte for byte. Official page final CTA consists of HTML text and an animated snow leopard video, rather than one downloadable image.",
+    "video_source_url": "https://cloud.video.taobao.com/vod/xr9IOUDj4cHliHlhQ0bcd6jfG8_fY7ohNL85pSx-yEs.mp4"
   }
 ]
