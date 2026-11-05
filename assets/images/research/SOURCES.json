@@ -324,31 +324,5 @@
     "sha256": "3710dc8884cc972fed82b77696629100b23f16e5dcc4c122212671177117aa22",
     "verified_at": "2026-10-23",
     "extraction": "Edited with imagegen at user request: removed gold outer frame and download button; wider composition with original slogan and snow leopard identity preserved. Original screenshot retained."
-  },
-  {
-    "id": "piccolo-harness-radar",
-    "file": "piccolo-harness-radar.png",
-    "source_page": "https://github.com/agentscope-ai/Piccolo",
-    "image_source_url": "https://raw.githubusercontent.com/agentscope-ai/Piccolo/main/arena/web/blog/assets/harness-radar.png",
-    "dimensions": [
-      2400,
-      2140
-    ],
-    "sha256": "d80deb693041524f5986b878d0ea424279d9f053abef688baf052eafc9cfdd81",
-    "verified_at": "2026-11-05",
-    "extraction": "Original figure from the official Piccolo repository; bytes unchanged."
-  },
-  {
-    "id": "piccolo-data-engineering",
-    "file": "piccolo-data-engineering.png",
-    "source_page": "https://github.com/agentscope-ai/Piccolo",
-    "image_source_url": "https://raw.githubusercontent.com/agentscope-ai/Piccolo/main/arena/web/blog/assets/method-agentic-data-engineering.png",
-    "dimensions": [
-      1774,
-      887
-    ],
-    "sha256": "1d6c1dba56d3198d5adb2cc4d1be275cab752d249ddb5e17568abdbf7bf0fa78",
-    "verified_at": "2026-11-05",
-    "extraction": "Original figure from the official Piccolo repository; bytes unchanged."
   }
 ]
