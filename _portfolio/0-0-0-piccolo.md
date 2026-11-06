@@ -2,10 +2,10 @@
 title: Piccolo
 collection: portfolio
 layout: project
-topic: Decision Models & Agentic Data
-topic_zh: 决策模型与智能体数据工程
-summary_en: Open decision models for tool review, context retention, and data workflows, featuring recursive self-improvement (RSI), Auto-Research, and an interactive Arena.
-summary_zh: 面向工具审核、上下文保留与数据工作流的开源决策模型，融合自进化 RSI 与 Auto-Research，并提供交互式 Arena。
+topic: Decision Models & Auto-Research
+topic_zh: 决策模型与Auto-Research
+summary_en: Self-iterating open decision models for tool review, context retention, and data workflows.
+summary_zh: 面向工具审核、上下文保留与数据工作流的自我迭代的开源决策模型。
 excerpt: Open decision models, recursive self-improvement (RSI), Auto-Research, agentic data engineering, and an interactive decision Arena.
 figure: /assets/images/research/piccolo-research-loop.svg
 figure_alt: Piccolo research loop for diagnosing gaps, specifying experiments, training and evaluating models, and carrying forward useful results
