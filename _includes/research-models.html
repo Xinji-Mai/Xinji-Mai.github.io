@@ -1,3 +1,13 @@
+<article class="model-family" id="piccolo-models">
+  <a class="paper-visual model-visual" href="{{ '/assets/images/research/piccolo-model-evolution.png' | relative_url }}" target="_blank" rel="noopener" aria-label="Piccolo model evolution — view full image / 查看完整效果图"><img src="{{ '/assets/images/research/piccolo-model-evolution.png' | relative_url }}" alt="Piccolo 4B, 9B, and 27B evolution through data curation, training methods, query understanding, and model scaling" width="1933" height="813" loading="lazy" decoding="async"><span class="zoom-hint" aria-hidden="true">↗</span></a>
+  <div class="paper-copy model-copy">
+    <div class="model-family-heading"><h3><a href="https://huggingface.co/collections/agentscope-ai/piccolo-6ae0a768d84ffbb70e09caa8">Piccolo</a></h3><span class="model-license">Apache 2.0</span></div>
+    <p class="model-intro"><span class="i18n-en">Focused decisions for tool review, context retention, and data workflows. Three sizes with Safetensors weights and BF16 / Q8_0 / Q4_K_M GGUF versions.</span><span class="i18n-zh">面向工具审核、上下文保留与数据工作流的决策模型。提供三种尺寸的 Safetensors 权重及 BF16 / Q8_0 / Q4_K_M GGUF 版本。</span></p>
+    <ul class="model-list">{% for model in site.data.piccolo_models %}
+      <li><a class="model-name" href="{{ model.variants.first.url }}" aria-label="{{ model.name }}">{{ model.size }}</a><div class="model-variants">{% for variant in model.variants %}<a class="resource-link" href="{{ variant.url }}" aria-label="{{ model.name }} {{ variant.label }}">{{ variant.label }}<span aria-hidden="true">↗</span></a>{% endfor %}</div></li>
+    {% endfor %}</ul>
+  </div>
+</article>
 <article class="model-family">
   <a class="paper-visual model-visual" href="{{ '/assets/images/research/qwenpaw-flash-comparison.png' | relative_url }}" target="_blank" rel="noopener" aria-label="QwenPaw-Flash comparison — view full image / 查看完整效果图"><img src="{{ '/assets/images/research/qwenpaw-flash-comparison.png' | relative_url }}" alt="Comparison of 2B, 4B, and 9B agent models with Qwen3.5 across document parsing, scheduled automation, memory management, and information search" width="1984" height="975" loading="lazy" decoding="async"><span class="zoom-hint" aria-hidden="true">↗</span></a>
   <div class="paper-copy model-copy">

@@ -324,5 +324,31 @@
     "sha256": "3710dc8884cc972fed82b77696629100b23f16e5dcc4c122212671177117aa22",
     "verified_at": "2026-10-23",
     "extraction": "Edited with imagegen at user request: removed gold outer frame and download button; wider composition with original slogan and snow leopard identity preserved. Original screenshot retained."
+  },
+  {
+    "id": "piccolo-model-evolution",
+    "file": "piccolo-model-evolution.png",
+    "source_page": "https://github.com/agentscope-ai/Piccolo",
+    "image_source_url": "https://raw.githubusercontent.com/agentscope-ai/Piccolo/main/arena/web/blog/assets/method-model-evolution.png",
+    "dimensions": [
+      1933,
+      813
+    ],
+    "sha256": "09e3b829a0328c2bd943a8c6552c811316b3e0d5a62a290321868e97df7e5f8b",
+    "verified_at": "2026-11-06",
+    "extraction": "Original English figure from the official Piccolo repository; bytes unchanged."
+  },
+  {
+    "id": "piccolo-research-loop",
+    "file": "piccolo-research-loop.svg",
+    "source_page": "https://github.com/agentscope-ai/Piccolo",
+    "image_source_url": "https://raw.githubusercontent.com/agentscope-ai/Piccolo/main/arena/web/blog/assets/research-loop.svg",
+    "dimensions": [
+      1040,
+      526
+    ],
+    "sha256": "9db42a62bf98093217b77308d7b740464994ba68778594452b97d1229b74116d",
+    "verified_at": "2026-11-06",
+    "extraction": "Original vector figure from the official Piccolo repository; content unchanged."
   }
 ]
