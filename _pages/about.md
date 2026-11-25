@@ -1,17 +1,20 @@
 ---
 layout: research
 permalink: /
-title: "Xinji Mai (Shinji Mai)"
-excerpt: "Xinji Mai (Shinji Mai), Algorithm Engineer at Tongyi Lab, Alibaba Group. Agentic reinforcement learning, self-evolving agents, and reasoning."
+title: "Xinji Mai (Shinji Mai · 麦新纪)"
+seo_title: "Xinji Mai | Agentic RL, RSI, LLM Post-training & Environment Scaling"
+excerpt: "Xinji Mai (Shinji Mai · 麦新纪), Algorithm Engineer at Tongyi Lab. Research: Agentic Reinforcement Learning, Recursive Self-Improvement, Self-Evolving Agents, LLM Post-training, and Environment Scaling."
 redirect_from:
   - /about/
   - /about.html
 ---
 <section class="about-section" aria-labelledby="intro-title">
   <h1 id="intro-title"><span class="i18n-en">About me</span><span class="i18n-zh">关于我</span></h1>
-  <p><span class="i18n-en">I am <strong>Xinji Mai (Shinji Mai)</strong>, an <strong>Algorithm Engineer</strong> at <a href="https://tongyi.aliyun.com/"><strong>Tongyi Lab, Alibaba Group</strong></a>, working on <strong>agentic reinforcement learning</strong>. My research focuses on self-evolving agents, reasoning, and scaling laws for agentic RL.</span><span class="i18n-zh">我是<strong>麦新纪（Shinji Mai）</strong>，目前担任<a href="https://tongyi.aliyun.com/"><strong>阿里巴巴集团通义实验室</strong></a><strong>算法工程师</strong>，从事<strong>智能体强化学习（Agentic RL）</strong>研究，关注自进化智能体、推理能力，以及智能体强化学习的规模化规律。</span></p>
-  <p><span class="i18n-en">I received my master’s degree in Computer Technology from <a href="https://www.fudan.edu.cn/">Fudan University</a> and my bachelor’s degree in Microelectronics Science and Engineering from <a href="https://www.sysu.edu.cn/">Sun Yat-sen University</a>.</span><span class="i18n-zh">我硕士毕业于<a href="https://www.fudan.edu.cn/">复旦大学</a>计算机技术专业，本科毕业于<a href="https://www.sysu.edu.cn/">中山大学</a>微电子科学与工程专业。</span></p>
-  <div class="research-interests"><strong><span class="i18n-en">Research interests</span><span class="i18n-zh">研究方向</span></strong><span>Agentic RL</span><span><span class="i18n-en">Self-evolving Agents</span><span class="i18n-zh">自进化智能体</span></span><span><span class="i18n-en">Reasoning & Scaling</span><span class="i18n-zh">推理与规模化</span></span></div>
+  <p><span class="i18n-en">I am an Algorithm Engineer at <a href="https://tongyi.aliyun.com/">Tongyi Lab, Alibaba Group</a>. My research focuses on <strong>Agentic Reinforcement Learning, Recursive Self-Improvement (RSI), Self-Evolving Agents, and LLM Post-training</strong>.</span><span class="i18n-zh">我在<a href="https://tongyi.aliyun.com/">阿里巴巴集团通义实验室</a>担任算法工程师，主要研究<strong>智能体强化学习、递归自我改进（RSI）、自进化智能体和大模型后训练</strong>。</span></p>
+  <p><span class="i18n-en">I lead the development of the <strong>CuES Series (CuES, CuES-plus, and CuES-Next)</strong>, a family of scalable, environment-grounded data synthesis pipelines supporting the post-training of <strong>Qwen3.7, Qwen3.8, and Qwen4</strong> across Cowork, productivity, and other professional environments, as well as specialized model families such as <strong>QwenPaw-Flash and Piccolo</strong>.</span><span class="i18n-zh">我主导开发<strong>CuES 系列（CuES、CuES-plus 和 CuES-Next）</strong>，这是一系列以可执行环境为基础、可规模化的数据合成流程，支持 <strong>Qwen3.7、Qwen3.8 和 Qwen4</strong> 在 Cowork、生产力及其他专业场景中的后训练，以及 <strong>QwenPaw-Flash 和 Piccolo</strong> 等专用模型系列的后训练。</span></p>
+  <p><span class="i18n-en">My research interests include professional environment scaling, agentic RL, RSI and Post-training.</span><span class="i18n-zh">我的研究兴趣包括专业环境规模化、智能体强化学习、递归自我改进和后训练。</span></p>
+  <p><span class="i18n-en">Previously, I received my M.S. in Computer Science from <a href="https://www.fudan.edu.cn/">Fudan University</a> and B.S. in Microelectronics from <a href="https://www.sysu.edu.cn/">Sun Yat-sen University</a>.</span><span class="i18n-zh">我在<a href="https://www.fudan.edu.cn/">复旦大学</a>获得计算机方向硕士学位，在<a href="https://www.sysu.edu.cn/">中山大学</a>获得微电子方向学士学位。</span></p>
+  <div class="research-interests"><strong><span class="i18n-en">Research interests</span><span class="i18n-zh">研究方向</span></strong><span><span class="i18n-en">Agentic Reinforcement Learning</span><span class="i18n-zh">智能体强化学习</span></span><span><span class="i18n-en">Recursive Self-Improvement</span><span class="i18n-zh">递归自我改进</span></span><span><span class="i18n-en">LLM Post-training</span><span class="i18n-zh">大模型后训练</span></span><span><span class="i18n-en">Environment Scaling</span><span class="i18n-zh">环境规模化</span></span></div>
 </section>
 <section id="news" class="content-section">
   <div class="section-heading"><h2><span class="i18n-en">News</span><span class="i18n-zh">最新动态</span></h2></div>

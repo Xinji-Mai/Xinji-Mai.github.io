@@ -12,7 +12,7 @@ site_theme               : "default" # The available themes options are "default
 title                    : "Xinji Mai"
 title_separator          : "-"
 name                     : &name "Xinji Mai"
-description              : &description "Xinji Mai (Shinji Mai) — Algorithm Engineer at Tongyi Lab."
+description              : &description "Xinji Mai (Shinji Mai · 麦新纪), Algorithm Engineer at Tongyi Lab. Research: Agentic Reinforcement Learning, Recursive Self-Improvement, Self-Evolving Agents, LLM Post-training, and Environment Scaling."
 url                      : https://xinji-mai.github.io # The base hostname & protocol for your site e.g. "https://[your GitHub username].github.io",
                                                            # or if you already have some other page hosted on Github then use "https://[your GitHub username].github.io/[Your Repo Name]"
 baseurl                  : "" # the subpath of your site, e.g. "/blog"
@@ -151,9 +151,21 @@ og_description           :  # Social media default site image description
 # For specifying social profiles
 # - https://developers.google.com/structured-data/customize/social-profiles
 social:
-  type                   : # Person or Organization (defaults to Person)
-  name                   : # If the user or organization name differs from the site's name
-  links: # An array of links to social media profiles
+  type                   : Person
+  name                   : "Xinji Mai"
+  alternate_names        : ["Shinji Mai", "麦新纪"]
+  research_topics:
+    - Agentic Reinforcement Learning
+    - Recursive Self-Improvement (RSI)
+    - Self-Evolving Agents
+    - LLM Post-training
+    - Environment Scaling
+  links:
+    - https://github.com/Xinji-Mai
+    - https://scholar.google.com/citations?user=6yh67YwAAAAJ
+    - https://orcid.org/0009-0003-4596-5391
+    - https://dblp.org/pid/371/9725
+    - https://openreview.net/profile?id=~Xinji_Mai1
 
 
 # Analytics

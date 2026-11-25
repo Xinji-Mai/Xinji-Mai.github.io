@@ -10,7 +10,7 @@
   {% assign seo_title = page.title | append: " " | append: site.title_separator | append: " " | append: site.title %}
 {% endif %}
 
-{% if page.url == '/' %}{% assign seo_title = site.title | append: ' · Agentic Reinforcement Learning' %}{% endif %}
+{% if page.seo_title %}{% assign seo_title = page.seo_title %}{% endif %}
 
 {% if seo_title %}
   {% assign seo_title = seo_title | markdownify | strip_html | strip_newlines | escape_once %}
@@ -91,9 +91,11 @@
 {% if site.social %}
   <script type="application/ld+json">
     {
-      "@context" : "http://schema.org",
+      "@context" : "https://schema.org",
       "@type" : "{% if site.social.type %}{{ site.social.type }}{% else %}Person{% endif %}",
-      "name" : "{{ site.social.name | default: site.name }}",
+      "name" : {{ site.social.name | default: site.name | jsonify }},
+      {% if site.social.alternate_names %}"alternateName" : {{ site.social.alternate_names | jsonify }},{% endif %}
+      {% if site.social.research_topics %}"knowsAbout" : {{ site.social.research_topics | jsonify }},{% endif %}
       "url" : {{ seo_url | jsonify }},
       "sameAs" : {{ site.social.links | jsonify }}
     }
@@ -133,7 +135,7 @@
 {% if site.og_image %}
   <script type="application/ld+json">
     {
-      "@context": "http://schema.org",
+      "@context": "https://schema.org",
       "@type": "Organization",
       "url": {{ seo_url | jsonify }},
       "logo": {{ site.og_image | prepend: "/images/" | prepend: base_path | jsonify }}
