@@ -2,7 +2,7 @@
 layout: research
 permalink: /
 title: "Xinji Mai (Shinji Mai · 麦新纪)"
-seo_title: "Xinji Mai | Agentic RL, RSI, LLM Post-training & Environment Scaling"
+seo_title: "Xinji Mai · Agentic RL, RSI, LLM Post-training & Environment Scaling"
 excerpt: "Xinji Mai (Shinji Mai · 麦新纪), Algorithm Engineer at Tongyi Lab. Research: Agentic Reinforcement Learning, Recursive Self-Improvement, Self-Evolving Agents, LLM Post-training, and Environment Scaling."
 redirect_from:
   - /about/
