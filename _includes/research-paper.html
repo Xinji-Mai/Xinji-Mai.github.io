@@ -1,6 +1,6 @@
 {% assign p = include.paper %}
 <article class="paper-row{% unless p.figure %} paper-row-text{% endunless %}">
-  {% if p.figure %}<a class="paper-visual" href="{{ p.figure | relative_url }}" target="_blank" rel="noopener" aria-label="{{ p.short_title | default: p.title | escape }} — view method figure / 查看方法图"><img class="paper-figure" src="{{ p.figure | relative_url }}" alt="{{ p.figure_alt | escape }}" width="{{ p.figure_width | default: 600 }}" height="{{ p.figure_height | default: 360 }}" loading="lazy" decoding="async"><span class="zoom-hint" aria-hidden="true">↗</span></a>{% endif %}
+  {% if p.figure %}{% assign paper_figure_url = p.figure %}{% unless paper_figure_url contains '://' %}{% assign paper_figure_url = paper_figure_url | relative_url %}{% endunless %}<a class="paper-visual" href="{{ paper_figure_url | escape }}" target="_blank" rel="noopener" aria-label="{{ p.short_title | default: p.title | escape }} — view method figure / 查看方法图"><img class="paper-figure" src="{{ paper_figure_url | escape }}" alt="{{ p.figure_alt | escape }}" width="{{ p.figure_width | default: 600 }}" height="{{ p.figure_height | default: 360 }}" loading="lazy" decoding="async"><span class="zoom-hint" aria-hidden="true">↗</span></a>{% endif %}
   <div class="paper-copy">
     <h3><a href="{{ p.paperurl | default: p.url }}">{{ p.title }}</a></h3>
     <p class="paper-authors">{% include research-authors.html paper=p %}</p>

@@ -12,7 +12,7 @@ site_theme               : "default" # The available themes options are "default
 title                    : "Xinji Mai"
 title_separator          : "-"
 name                     : &name "Xinji Mai"
-description              : &description "Xinji Mai (Shinji Mai · 麦新纪), Algorithm Engineer at Tongyi Lab. Research: Agentic Reinforcement Learning, Recursive Self-Improvement, Self-Evolving Agents, LLM Post-training, and Environment Scaling."
+description              : &description "Xinji Mai (麦新纪), Algorithm Engineer at Tongyi Lab. Research: Agentic Reinforcement Learning, Recursive Self-Improvement, Self-Evolving Agents, LLM Post-training, and Environment Scaling."
 url                      : https://xinji-mai.github.io # The base hostname & protocol for your site e.g. "https://[your GitHub username].github.io",
                                                            # or if you already have some other page hosted on Github then use "https://[your GitHub username].github.io/[Your Repo Name]"
 baseurl                  : "" # the subpath of your site, e.g. "/blog"
