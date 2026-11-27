@@ -5,8 +5,6 @@
   if (!nav) return;
 
   var reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
-  var current = nav.querySelector('[aria-current]');
-  var indicator = nav.querySelector('.nav-indicator');
   var lens = nav.querySelector('.nav-lens');
   var hover = null;
   var pointer = null;
@@ -81,7 +79,6 @@
   function clearHover() {
     if (hover) hover.removeAttribute('data-lens-target');
     hover = pointer = null;
-    place(true);
     queue();
   }
 
@@ -138,24 +135,6 @@
   window.addEventListener('touchend', function () { swipe = null; }, { passive: true });
   window.addEventListener('touchcancel', function () { swipe = null; }, { passive: true });
 
-  function place(animate) {
-    var focus = document.activeElement;
-    var link = hover || (nav.contains(focus) && focus.matches('a:focus-visible') ? focus : current);
-    if (!link || !indicator) {
-      nav.removeAttribute('data-indicator');
-      return;
-    }
-    var base = nav.getBoundingClientRect();
-    var rect = link.getBoundingClientRect();
-    var label = link.querySelector(document.documentElement.dataset.lang === 'zh' ? '.i18n-zh' : '.i18n-en');
-    var width = label ? Math.max(15, label.getBoundingClientRect().width * .72) : 24;
-    nav.toggleAttribute('data-indicator-motion', !!animate);
-    indicator.style.setProperty('--indicator-x', (rect.left - base.left + (rect.width - 24) / 2) + 'px');
-    indicator.style.setProperty('--indicator-y', (rect.bottom - base.top - 5) + 'px');
-    indicator.style.setProperty('--indicator-width', String(width / 24));
-    nav.setAttribute('data-indicator', '');
-  }
-
   header.querySelectorAll('.main-nav a, .wordmark').forEach(function (link) {
     link.addEventListener('click', saveGlassForDestination);
   });
@@ -163,19 +142,16 @@
     if (event.pointerType !== 'mouse') return;
     var link = event.target.closest('a') || hover;
     if (!link || !nav.contains(link)) return;
-    pointer = { x: event.clientX, y: event.clientY };
+    pointer = { x: event.clientX };
     if (hover !== link) {
       if (hover) hover.removeAttribute('data-lens-target');
       hover = link;
       hover.setAttribute('data-lens-target', '');
-      place(true);
     }
     queue();
   }, { passive: true });
   nav.addEventListener('pointerleave', clearHover);
   window.addEventListener('blur', clearHover);
-  nav.addEventListener('focusin', function () { place(true); });
-  nav.addEventListener('focusout', function () { window.requestAnimationFrame(function () { place(true); }); });
   window.addEventListener('scroll', function () {
     if (Math.abs(window.scrollX - previousX) >= 2) revealOnSidewaysMotion();
     previousX = window.scrollX;
@@ -183,12 +159,11 @@
   }, { passive: true });
   window.addEventListener('pageshow', queue);
   if (reduced.addEventListener) reduced.addEventListener('change', queue);
-  window.addEventListener('resize', function () { place(false); }, { passive: true });
+  window.addEventListener('resize', queue, { passive: true });
   header.querySelectorAll('[data-language]').forEach(function (button) {
-    button.addEventListener('click', function () { window.requestAnimationFrame(function () { place(false); }); });
+    button.addEventListener('click', queue);
   });
-  if (document.fonts) document.fonts.ready.then(function () { place(false); });
-  place(false);
+  if (document.fonts) document.fonts.ready.then(queue);
   if (carried) {
     // Keep the carried surface through the destination's first painted frame.
     header.style.setProperty('--glass-presence', String(carried));
