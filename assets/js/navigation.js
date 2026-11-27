@@ -7,7 +7,11 @@
   var reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
   var current = nav.querySelector('[aria-current]');
   var indicator = nav.querySelector('.nav-indicator');
+  var lens = nav.querySelector('.nav-lens');
   var hover = null;
+  var pointer = null;
+  var lensLevel = 0;
+  var lensState = null;
   var root = document.documentElement;
   var carried = Number(root.dataset.navArrival) || 0;
   var progress = carried;
@@ -23,21 +27,62 @@
     // Ease the glass in over the first part of the scroll, not just at a breakpoint.
     var t = Math.max(0, Math.min(1, (window.scrollY - 8) / 84));
     var horizontal = time < horizontalUntil;
-    var target = horizontal ? 1 : Math.max(carried, t * t * (3 - 2 * t));
+    var target = horizontal ? 1 : Math.max(hover ? .86 : 0, carried, t * t * (3 - 2 * t));
     var dt = last ? Math.min(time - last, 40) : 16;
     last = time;
-    if (reduced.matches) progress = horizontal || t > .25 ? 1 : carried;
+    if (reduced.matches) progress = horizontal || hover || t > .25 ? 1 : carried;
     else {
       progress += (target - progress) * (1 - Math.exp(-dt / 54));
       if (Math.abs(progress - target) < .0025) progress = target;
     }
     header.style.setProperty('--glass-presence', progress.toFixed(4));
-    if (!reduced.matches && progress !== target) queue();
+    var lensMoving = drawLens(dt);
+    if (lensMoving || (!reduced.matches && progress !== target)) queue();
     else last = 0;
   }
 
   function queue() {
     if (!frame) frame = window.requestAnimationFrame(render);
+  }
+
+  function drawLens(dt) {
+    if (!lens) return false;
+    var visible = hover && pointer ? 1 : 0;
+    var eased = reduced.matches ? 1 : 1 - Math.exp(-dt / 38);
+    function approach(value, goal, tolerance) {
+      return Math.abs(value - goal) < tolerance ? goal : value + (goal - value) * eased;
+    }
+    var moving = false;
+    if (visible) {
+      var base = nav.getBoundingClientRect();
+      var rect = hover.getBoundingClientRect();
+      var localX = pointer.x - base.left;
+      var width = Math.min(base.width, Math.max(35, rect.width - 2));
+      var center = reduced.matches ? rect.left + rect.width / 2 - base.left : localX;
+      var next = { x: Math.max(0, Math.min(base.width - width, center - width / 2)), y: rect.top - base.top + (rect.height - 34) / 2, w: width };
+      if (!lensState || !lensLevel) lensState = next;
+      else {
+        lensState.x = approach(lensState.x, next.x, .15);
+        lensState.y = approach(lensState.y, next.y, .15);
+        lensState.w = approach(lensState.w, next.w, .15);
+      }
+      moving = lensState.x !== next.x || lensState.y !== next.y || lensState.w !== next.w;
+      lens.style.setProperty('--lens-x', lensState.x.toFixed(2) + 'px');
+      lens.style.setProperty('--lens-y', lensState.y.toFixed(2) + 'px');
+      lens.style.setProperty('--lens-width', lensState.w.toFixed(2) + 'px');
+      var light = Math.max(14, Math.min(86, (localX - lensState.x) / lensState.w * 100));
+      lens.style.setProperty('--lens-light', light.toFixed(1) + '%');
+    }
+    lensLevel = approach(lensLevel, visible, .007);
+    lens.style.setProperty('--lens-opacity', lensLevel.toFixed(3));
+    return moving || lensLevel !== visible;
+  }
+
+  function clearHover() {
+    if (hover) hover.removeAttribute('data-lens-target');
+    hover = pointer = null;
+    place(true);
+    queue();
   }
 
   function saveGlassForDestination(event) {
@@ -114,12 +159,21 @@
   header.querySelectorAll('.main-nav a, .wordmark').forEach(function (link) {
     link.addEventListener('click', saveGlassForDestination);
   });
-  nav.querySelectorAll('a').forEach(function (link) {
-    link.addEventListener('pointerenter', function (event) {
-      if (event.pointerType === 'mouse') { hover = link; place(true); }
-    });
-  });
-  nav.addEventListener('pointerleave', function () { hover = null; place(true); });
+  nav.addEventListener('pointermove', function (event) {
+    if (event.pointerType !== 'mouse') return;
+    var link = event.target.closest('a') || hover;
+    if (!link || !nav.contains(link)) return;
+    pointer = { x: event.clientX, y: event.clientY };
+    if (hover !== link) {
+      if (hover) hover.removeAttribute('data-lens-target');
+      hover = link;
+      hover.setAttribute('data-lens-target', '');
+      place(true);
+    }
+    queue();
+  }, { passive: true });
+  nav.addEventListener('pointerleave', clearHover);
+  window.addEventListener('blur', clearHover);
   nav.addEventListener('focusin', function () { place(true); });
   nav.addEventListener('focusout', function () { window.requestAnimationFrame(function () { place(true); }); });
   window.addEventListener('scroll', function () {
