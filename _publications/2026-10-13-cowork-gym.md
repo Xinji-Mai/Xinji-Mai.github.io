@@ -8,7 +8,8 @@ venue: arXiv preprint arXiv:2610.17670
 venue_short: Preprint
 year: '2026'
 layout: publication
-authors: Anni Zou, Cheng Chen, Jiaji Deng, Weikang Zhou, Xinji Mai, Yue Wu, et al.
+authors: Anni Zou, Cheng Chen, Jiaji Deng, Weikang Zhou, Xinji Mai, Yue Wu, Jianing Lin, Lipeng Xie, Lixiong Qin, Qingyue Zhao, Que Shen, Shuchang Tao, Xuchen Pan, Yaliang Li, Yunpeng Zhai, Yushuo Chen, Zhihai Wang, Zhuo Zhang, Zhaoyang Liu, Bolin Ding, Jingren Zhou
+author_display_limit: 6
 equal_contributors: ["Anni Zou", "Cheng Chen", "Jiaji Deng", "Weikang Zhou", "Xinji Mai", "Yue Wu"]
 equal_contribution_source: https://arxiv.org/html/2610.17670v1
 citation: 'Anni Zou, Cheng Chen, Jiaji Deng, Weikang Zhou, Xinji Mai, Yue Wu, Jianing Lin, Lipeng Xie, Lixiong Qin, Qingyue Zhao, Que Shen, Shuchang Tao, Xuchen Pan, Yaliang Li, Yunpeng Zhai, Yushuo Chen, Zhihai Wang, Zhuo Zhang, Zhaoyang Liu, Bolin Ding, Jingren Zhou. "Cowork-Gym: Synthesizing Interactive Work Environments at Scale." arXiv:2610.17670 (2026).'
