@@ -12,13 +12,14 @@ function boot(saved, browserLanguage, blocked = false) {
   vm.runInNewContext(bootstrap,context); vm.runInNewContext(script,context);
   return {root,buttons,theme,store};
 }
-const zh=boot({},'zh-CN'); assert.equal(zh.root.lang,'zh-CN'); assert.equal(zh.buttons[1].attributes['aria-pressed'],'true');
-zh.buttons[0].listeners.click(); assert.equal(zh.root.lang,'en'); assert.equal(zh.store['site-language'],'en'); assert.equal(zh.buttons[1].attributes['aria-pressed'],'false');
+const zh=boot({'site-language':'zh'},'zh-CN'); assert.equal(zh.root.lang,'en'); assert.equal(zh.buttons[0].attributes['aria-pressed'],'true'); assert.equal(zh.store['site-language-choice'],undefined);
+zh.buttons[1].listeners.click(); assert.equal(zh.root.lang,'zh-CN'); assert.equal(boot(zh.store,'en-US').root.lang,'zh-CN');
+zh.buttons[0].listeners.click(); assert.equal(zh.root.lang,'en'); assert.equal(zh.store['site-language-choice'],'en'); assert.equal(zh.buttons[1].attributes['aria-pressed'],'false');
 assert.equal(boot(zh.store,'zh-CN').root.lang,'en');
-const en=boot({'site-language':'invalid'},'en-US');assert.equal(en.root.lang,'en');
+const en=boot({'site-language-choice':'invalid'},'en-US');assert.equal(en.root.lang,'en');
 en.theme.listeners.click();assert.equal(en.store['site-theme'],'dark');assert.equal(en.theme.attributes['aria-pressed'],'true');
 assert.equal(boot(en.store,'en').root.dataset.theme,'dark');
 en.theme.listeners.click();assert.equal(en.root.dataset.theme,'light');
 const privateWindow=boot({},'en',true);privateWindow.buttons[1].listeners.click();privateWindow.theme.listeners.click();assert.equal(privateWindow.root.lang,'zh-CN');
-assert.equal(boot({},'zh-CN',true).root.lang,'zh-CN');
-console.log('PASS: language detection, switching, persistence, aria states, theme switching, and blocked storage');
+assert.equal(boot({},'zh-CN',true).root.lang,'en');
+console.log('PASS: English default, switching, persistence, aria states, theme switching, and blocked storage');

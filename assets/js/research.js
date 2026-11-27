@@ -2,14 +2,14 @@
   'use strict';
   var root = document.documentElement;
   var buttons = document.querySelectorAll('[data-language]');
-  function setLanguage(lang) {
+  function setLanguage(lang, persist) {
     if (lang !== 'zh' && lang !== 'en') return;
     root.dataset.lang = lang;
     root.lang = lang === 'zh' ? 'zh-CN' : 'en';
     buttons.forEach(function (button) { button.setAttribute('aria-pressed', String(button.dataset.language === lang)); });
-    try { localStorage.setItem('site-language', lang); } catch (e) {}
+    if (persist) { try { localStorage.setItem('site-language-choice', lang); } catch (e) {} }
   }
-  buttons.forEach(function (button) { button.addEventListener('click', function () { setLanguage(button.dataset.language); }); });
+  buttons.forEach(function (button) { button.addEventListener('click', function () { setLanguage(button.dataset.language, true); }); });
   setLanguage(root.dataset.lang || 'en');
   var themeButton = document.querySelector('.theme-switch');
   if (themeButton) {

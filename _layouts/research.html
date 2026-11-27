@@ -10,18 +10,20 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;650;700&family=Newsreader:opsz,wght@6..72,500;6..72,600&display=swap" rel="stylesheet">
   <script>
-    var lang = /^zh/i.test(navigator.language) ? 'zh' : 'en';
-    try { var savedLanguage = localStorage.getItem('site-language'); if (savedLanguage === 'en' || savedLanguage === 'zh') lang = savedLanguage; if (localStorage.getItem('site-theme') === 'dark') document.documentElement.dataset.theme = 'dark'; } catch (e) {}
+    var lang = 'en';
+    try { var savedLanguage = localStorage.getItem('site-language-choice'); if (savedLanguage === 'en' || savedLanguage === 'zh') lang = savedLanguage; if (localStorage.getItem('site-theme') === 'dark') document.documentElement.dataset.theme = 'dark'; } catch (e) {}
     document.documentElement.dataset.lang = lang;
     document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
   </script>
-  <link rel="stylesheet" href="{{ '/assets/css/research.css' | relative_url }}?v=20261127-glass-nav">
-  <script defer src="{{ '/assets/js/research.js' | relative_url }}"></script>
+  <link rel="stylesheet" href="{{ '/assets/css/research.css' | relative_url }}?v=20261127-scroll-glass">
+  <script defer src="{{ '/assets/js/research.js' | relative_url }}?v=20261127-en"></script>
+  <script defer src="{{ '/assets/js/navigation.js' | relative_url }}"></script>
 </head>
 <body>
 <a class="skip-link" href="#main-content"><span class="i18n-en">Skip to content</span><span class="i18n-zh">跳转到正文</span></a>
 <header class="site-header">
   <div class="header-inner">
+    <div class="nav-glass" aria-hidden="true"></div>
     <a class="wordmark" href="{{ '/' | relative_url }}"><span class="i18n-en">Xinji Mai</span><span class="i18n-zh">麦新纪</span><span class="wordmark-dot">.</span></a>
     <nav class="main-nav" aria-label="Main navigation / 主导航">
       {%- assign publication_prefix = page.url | slice: 0, 13 -%}
@@ -32,6 +34,7 @@
       <a href="{{ '/models/' | relative_url }}" {% if page.url == '/models/' %}aria-current="page"{% endif %}><span class="i18n-en">Models</span><span class="i18n-zh">模型</span></a>
       <a href="{{ '/cv/' | relative_url }}" {% if page.url == '/cv/' %}aria-current="page"{% endif %}><span class="i18n-en">CV</span><span class="i18n-zh">简历</span></a>
       <a class="game-nav" href="{{ '/game/' | relative_url }}" {% if page.url == '/game/' %}aria-current="page"{% endif %}><span class="i18n-en">Game</span><span class="i18n-zh">小游戏</span></a>
+      <span class="nav-indicator" aria-hidden="true"></span>
     </nav>
     <div class="preferences">
       <div class="language-switch" role="group" aria-label="Language / 语言">
