@@ -8,7 +8,9 @@
   var current = nav.querySelector('[aria-current]');
   var indicator = nav.querySelector('.nav-indicator');
   var hover = null;
-  var progress = 0;
+  var root = document.documentElement;
+  var carried = Number(root.dataset.navArrival) || 0;
+  var progress = carried;
   var last = 0;
   var frame = 0;
   var horizontalUntil = 0;
@@ -21,10 +23,10 @@
     // Ease the glass in over the first part of the scroll, not just at a breakpoint.
     var t = Math.max(0, Math.min(1, (window.scrollY - 8) / 84));
     var horizontal = time < horizontalUntil;
-    var target = horizontal ? 1 : t * t * (3 - 2 * t);
+    var target = horizontal ? 1 : Math.max(carried, t * t * (3 - 2 * t));
     var dt = last ? Math.min(time - last, 40) : 16;
     last = time;
-    if (reduced.matches) progress = horizontal || t > .25 ? 1 : 0;
+    if (reduced.matches) progress = horizontal || t > .25 ? 1 : carried;
     else {
       progress += (target - progress) * (1 - Math.exp(-dt / 54));
       if (Math.abs(progress - target) < .0025) progress = target;
@@ -36,6 +38,17 @@
 
   function queue() {
     if (!frame) frame = window.requestAnimationFrame(render);
+  }
+
+  function saveGlassForDestination(event) {
+    if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    var link = event.currentTarget;
+    if (link.target && link.target !== '_self' || link.hasAttribute('download')) return;
+    var next = new URL(link.href, window.location.href);
+    if (next.origin !== window.location.origin || next.pathname === window.location.pathname || progress < .015) return;
+    try {
+      sessionStorage.setItem('site-nav-arrival', JSON.stringify({ path: next.pathname, level: progress, at: Date.now() }));
+    } catch (e) {}
   }
 
   function revealOnSidewaysMotion() {
@@ -98,6 +111,9 @@
     nav.setAttribute('data-indicator', '');
   }
 
+  header.querySelectorAll('.main-nav a, .wordmark').forEach(function (link) {
+    link.addEventListener('click', saveGlassForDestination);
+  });
   nav.querySelectorAll('a').forEach(function (link) {
     link.addEventListener('pointerenter', function (event) {
       if (event.pointerType === 'mouse') { hover = link; place(true); }
@@ -119,5 +135,17 @@
   });
   if (document.fonts) document.fonts.ready.then(function () { place(false); });
   place(false);
+  if (carried) {
+    // Keep the carried surface through the destination's first painted frame.
+    header.style.setProperty('--glass-presence', String(carried));
+    delete root.dataset.navArrival;
+    root.style.removeProperty('--nav-arrival-presence');
+    window.requestAnimationFrame(function () {
+      window.setTimeout(function () {
+        carried = 0;
+        queue();
+      }, 130);
+    });
+  }
   queue();
 }());
